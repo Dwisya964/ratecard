@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Admin Panel — Sarah Amanda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   CSS RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:        #FFFFFF;
+  --bg2:       #F8F9FB;
+  --fg:        #111827;
+  --muted:     #6B7280;
+  --border:    #E5E7EB;
+  --primary:   #059669;
+  --primary-h: #047857;
+  --danger:    #DC2626;
+  --warn:      #D97706;
+  --success:   #059669;
+  --radius:    6px;
+  --sidebar-w: 220px;
+  --header-h:  56px;
+  --font:      'Montserrat', sans-serif;
+  --shadow:    0 1px 3px rgba(0,0,0,.08);
+}
+html, body { height: 100%; font-family: var(--font); font-size: 14px; color: var(--fg); background: var(--bg2); }
+a { color: inherit; text-decoration: none; }
+button { font-family: var(--font); cursor: pointer; }
+input, textarea, select { font-family: var(--font); font-size: 14px; }
+label { display: block; font-weight: 500; margin-bottom: 4px; font-size: 13px; color: var(--muted); }
+input[type=text], input[type=email], input[type=url], input[type=password],
+input[type=number], textarea, select {
+  width: 100%; padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--bg); color: var(--fg); outline: none; transition: border .15s;
+}
+input:focus, textarea:focus, select:focus { border-color: var(--primary); }
+textarea { resize: vertical; min-height: 80px; }
+h1,h2,h3,h4 { font-weight: 600; line-height: 1.3; }
+
+/* ============================================================
+   LOGIN
+   ============================================================ */
+#login-screen {
+  display: flex; align-items: center; justify-content: center;
+  min-height: 100vh; background: var(--bg2);
+}
+.login-box {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+  padding: 40px 36px; width: 100%; max-width: 360px; box-shadow: var(--shadow);
+}
+.login-logo { font-size: 20px; font-weight: 700; color: var(--primary); margin-bottom: 6px; }
+.login-sub  { font-size: 12px; color: var(--muted); margin-bottom: 28px; }
+.login-box label { font-size: 13px; margin-bottom: 4px; }
+.login-box input { margin-bottom: 16px; }
+.btn-login {
+  width: 100%; padding: 10px; background: var(--primary); color: #fff;
+  border: none; border-radius: var(--radius); font-size: 14px; font-weight: 600;
+  transition: background .15s;
+}
+.btn-login:hover { background: var(--primary-h); }
+.login-err { color: var(--danger); font-size: 12px; margin-top: 8px; display: none; }
+
+/* ============================================================
+   MAIN LAYOUT
+   ============================================================ */
+#app { display: none; height: 100vh; overflow: hidden; }
+
+/* HEADER */
+.header {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--header-h);
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 20px; z-index: 100;
+  gap: 12px;
+}
+.header-logo { font-size: 15px; font-weight: 700; color: var(--primary); flex: 1; }
+.header-site { font-size: 12px; color: var(--muted); }
+.btn-preview {
+  padding: 6px 14px; background: var(--bg2); border: 1px solid var(--border);
+  border-radius: var(--radius); font-size: 13px; font-weight: 500; color: var(--fg);
+  transition: border-color .15s;
+}
+.btn-preview:hover { border-color: var(--primary); color: var(--primary); }
+.btn-logout {
+  padding: 6px 14px; background: transparent; border: 1px solid var(--border);
+  border-radius: var(--radius); font-size: 13px; color: var(--muted);
+  transition: color .15s, border-color .15s;
+}
+.btn-logout:hover { color: var(--danger); border-color: var(--danger); }
+
+/* SIDEBAR */
+.sidebar {
+  position: fixed; top: var(--header-h); left: 0; bottom: 0;
+  width: var(--sidebar-w); background: var(--bg); border-right: 1px solid var(--border);
+  overflow-y: auto; padding: 12px 0; z-index: 90;
+}
+.sidebar-group { padding: 8px 16px 4px; font-size: 10px; font-weight: 600;
+  color: var(--muted); text-transform: uppercase; letter-spacing: .08em; }
+.nav-item {
+  display: flex; align-items: center; gap: 10px; padding: 9px 16px;
+  cursor: pointer; font-size: 13px; color: var(--fg); transition: background .12s;
+  border-left: 3px solid transparent;
+}
+.nav-item:hover { background: var(--bg2); }
+.nav-item.active { border-left-color: var(--primary); color: var(--primary); background: #f0fdf4; font-weight: 600; }
+.nav-icon { font-size: 15px; width: 18px; text-align: center; }
+
+/* MAIN CONTENT */
+.main {
+  margin-top: var(--header-h); margin-left: var(--sidebar-w);
+  padding: 28px 32px; min-height: calc(100vh - var(--header-h));
+  overflow-y: auto;
+}
+
+/* ============================================================
+   PANELS
+   ============================================================ */
+.panel { display: none; }
+.panel.active { display: block; }
+
+.panel-header { margin-bottom: 24px; }
+.panel-title  { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.panel-sub    { font-size: 13px; color: var(--muted); }
+
+/* CARD */
+.card {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: 24px; margin-bottom: 20px;
+}
+.card-title { font-size: 14px; font-weight: 600; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+
+/* FORM GRID */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-grid .full { grid-column: 1 / -1; }
+.form-group { margin-bottom: 14px; }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 8px 16px; border-radius: var(--radius); font-size: 13px; font-weight: 600;
+  border: 1px solid transparent; transition: all .15s; cursor: pointer;
+}
+.btn-primary   { background: var(--primary); color: #fff; border-color: var(--primary); }
+.btn-primary:hover { background: var(--primary-h); border-color: var(--primary-h); }
+.btn-secondary { background: var(--bg2); color: var(--fg); border-color: var(--border); }
+.btn-secondary:hover { border-color: var(--primary); color: var(--primary); }
+.btn-danger    { background: #FEF2F2; color: var(--danger); border-color: #FECACA; }
+.btn-danger:hover { background: #FEE2E2; }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+
+.form-actions { display: flex; gap: 10px; align-items: center; padding-top: 8px; }
+
+/* TABLE */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid var(--border); }
+th { font-weight: 600; background: var(--bg2); color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+tr:hover td { background: var(--bg2); }
+td .action-btns { display: flex; gap: 6px; }
+
+/* MODAL */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; background: rgba(0,0,0,.4);
+  z-index: 200; align-items: center; justify-content: center; padding: 16px;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg); border-radius: 10px; padding: 28px;
+  width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto;
+  position: relative; box-shadow: 0 8px 32px rgba(0,0,0,.12);
+}
+.modal-title { font-size: 16px; font-weight: 700; margin-bottom: 20px; }
+.modal-close {
+  position: absolute; top: 16px; right: 16px; background: none;
+  border: none; font-size: 18px; color: var(--muted); cursor: pointer;
+}
+.modal-close:hover { color: var(--fg); }
+
+/* TOAST */
+.toast-wrap { position: fixed; bottom: 24px; right: 24px; z-index: 300; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  padding: 12px 18px; border-radius: var(--radius); font-size: 13px; font-weight: 500;
+  background: var(--fg); color: var(--bg); box-shadow: var(--shadow);
+  animation: slideUp .2s ease; max-width: 320px;
+}
+.toast.success { background: var(--success); }
+.toast.error   { background: var(--danger); }
+@keyframes slideUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+
+/* SPINNER */
+.spinner {
+  display: inline-block; width: 14px; height: 14px;
+  border: 2px solid rgba(255,255,255,.4); border-top-color: #fff;
+  border-radius: 50%; animation: spin .6s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* STATUS BADGE */
+.badge { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 600; }
+.badge-success { background: #D1FAE5; color: #065F46; }
+.badge-warn    { background: #FEF3C7; color: #92400E; }
+
+/* GAS URL NOTICE */
+.gas-notice {
+  background: #FFF7ED; border: 1px solid #FED7AA; border-radius: 8px;
+  padding: 14px 18px; margin-bottom: 20px; font-size: 13px; display: flex;
+  gap: 10px; align-items: flex-start;
+}
+.gas-notice-icon { font-size: 18px; }
+.gas-notice code { background: #FEF3C7; padding: 1px 5px; border-radius: 3px; font-size: 12px; }
+
+/* ANALYTICS PLATFORM GRID */
+.platform-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+@media (max-width: 700px) { .platform-grid { grid-template-columns: 1fr; } .form-grid { grid-template-columns: 1fr; } .sidebar { display: none; } .main { margin-left: 0; } }
+
+/* EMPTY STATE */
+.empty-state { text-align: center; padding: 40px 20px; color: var(--muted); }
+.empty-state .empty-icon { font-size: 32px; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     LOGIN SCREEN
+     ============================================================ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">SA Admin</div>
+    <div class="login-sub">Panel Admin — Sarah Amanda Portfolio</div>
+    <label for="pwd-input">Password</label>
+    <input type="password" id="pwd-input" placeholder="Masukkan password admin" onkeydown="if(event.key==='Enter')doLogin()" />
+    <button class="btn-login" onclick="doLogin()">Masuk</button>
+    <div class="login-err" id="login-err">Password salah. Silakan coba lagi.</div>
+  </div>
+</div>
+
+<!-- ============================================================
+     MAIN APP
+     ============================================================ -->
+<div id="app">
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-logo">SA Admin</div>
+    <span class="header-site" id="header-site-name">Sarah Amanda Portfolio</span>
+    <button class="btn-preview" onclick="window.open('index.html','_blank')">⬡ Preview Website</button>
+    <button class="btn-logout" onclick="doLogout()">Keluar</button>
+  </div>
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar">
+    <div class="sidebar-group">Umum</div>
+    <div class="nav-item active" data-panel="settings"  onclick="showPanel('settings')"> <span class="nav-icon">⚙</span> Settings  </div>
+    <div class="nav-item"        data-panel="home"      onclick="showPanel('home')">     <span class="nav-icon">🏠</span> Home      </div>
+    <div class="nav-item"        data-panel="about"     onclick="showPanel('about')">    <span class="nav-icon">👤</span> About     </div>
+    <div class="sidebar-group">Konten</div>
+    <div class="nav-item"        data-panel="brands"    onclick="showPanel('brands')">   <span class="nav-icon">🏷</span> Brands    </div>
+    <div class="nav-item"        data-panel="analytics" onclick="showPanel('analytics')"><span class="nav-icon">📊</span> Analytics </div>
+    <div class="nav-item"        data-panel="portfolio" onclick="showPanel('portfolio')"><span class="nav-icon">🎬</span> Portfolio </div>
+    <div class="nav-item"        data-panel="ratecard"  onclick="showPanel('ratecard')"> <span class="nav-icon">💰</span> Rate Card </div>
+    <div class="sidebar-group">Lainnya</div>
+    <div class="nav-item"        data-panel="testimonials" onclick="showPanel('testimonials')"><span class="nav-icon">⭐</span> Testimoni</div>
+    <div class="nav-item"        data-panel="faq"       onclick="showPanel('faq')">      <span class="nav-icon">❓</span> FAQ       </div>
+    <div class="nav-item"        data-panel="contact"   onclick="showPanel('contact')">  <span class="nav-icon">📞</span> Contact   </div>
+  </nav>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- GAS URL Notice -->
+    <div class="gas-notice" id="gas-notice" style="display:none">
+      <div class="gas-notice-icon">⚠️</div>
+      <div>
+        <strong>GAS URL belum dikonfigurasi.</strong>
+        Buka file <code>admin.html</code>, cari variabel <code>GAS_URL</code>, dan isi dengan URL deployment Google Apps Script Anda.
+      </div>
+    </div>
+
+    <!-- ======= SETTINGS ======= -->
+    <div class="panel active" id="panel-settings">
+      <div class="panel-header">
+        <div class="panel-title">Settings</div>
+        <div class="panel-sub">Konfigurasi umum website dan identitas brand.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Identitas Website</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Nama Website</label><input type="text" id="s-siteName" /></div>
+          <div class="form-group"><label>Warna Primer (hex)</label><input type="text" id="s-primaryColor" placeholder="#059669" /></div>
+          <div class="form-group full"><label>URL Logo</label><input type="url" id="s-logo" placeholder="https://..." /></div>
+          <div class="form-group full"><label>URL Favicon</label><input type="url" id="s-favicon" placeholder="https://..." /></div>
+          <div class="form-group"><label>Nomor WhatsApp (tanpa +)</label><input type="text" id="s-whatsapp" placeholder="628123456789" /></div>
+          <div class="form-group"><label>URL PDF Rate Card</label><input type="url" id="s-pdfRateCard" /></div>
+          <div class="form-group full"><label>Copyright</label><input type="text" id="s-copyright" /></div>
+          <div class="form-group full"><label>Template Pesan WhatsApp</label><textarea id="s-waTemplate" rows="5"></textarea></div>
+        </div>
+        <div class="card-title" style="margin-top:20px">Sosial Media</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Instagram</label><input type="text" id="s-instagram" placeholder="@username" /></div>
+          <div class="form-group"><label>TikTok</label><input type="text" id="s-tiktok" /></div>
+          <div class="form-group"><label>YouTube</label><input type="url" id="s-youtube" /></div>
+          <div class="form-group"><label>Threads</label><input type="text" id="s-threads" /></div>
+          <div class="form-group"><label>Facebook</label><input type="url" id="s-facebook" /></div>
+          <div class="form-group"><label>LinkedIn</label><input type="url" id="s-linkedin" /></div>
+          <div class="form-group"><label>Website</label><input type="url" id="s-website" /></div>
+          <div class="form-group"><label>Email</label><input type="email" id="s-email" /></div>
+        </div>
+        <div class="form-actions">
+          <button class="btn btn-primary" onclick="saveSettings()">💾 Simpan Settings</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ======= HOME ======= -->
+    <div class="panel" id="panel-home">
+      <div class="panel-header"><div class="panel-title">Home / Hero Section</div><div class="panel-sub">Konten utama halaman pertama website.</div></div>
+      <div class="card">
+        <div class="card-title">Hero Content</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Nama</label><input type="text" id="h-name" /></div>
+          <div class="form-group"><label>Profesi</label><input type="text" id="h-profession" /></div>
+          <div class="form-group full"><label>Tagline</label><input type="text" id="h-tagline" /></div>
+          <div class="form-group full"><label>Deskripsi</label><textarea id="h-description"></textarea></div>
+          <div class="form-group full"><label>URL Foto Hero</label><input type="url" id="h-photo" /></div>
+        </div>
+        <div class="card-title" style="margin-top:16px">Stats Hero</div>
+        <div class="form-grid">
+          <div class="form-group"><label>Total Followers</label><input type="text" id="h-followers" placeholder="150K+" /></div>
+          <div class="form-group"><label>Engagement Rate</label><input type="text" id="h-engagementRate" placeholder="5.8%" /></div>
+          <div class="form-group"><label>Brands Worked</label><input type="text" id="h-brandsWorked" placeholder="120+" /></div>
+          <div class="form-group"><label>Monthly Reach</label><input type="text" id="h-monthlyReach" placeholder="1.2M+" /></div>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" onclick="saveHome()">💾 Simpan Home</button></div>
+      </div>
+    </div>
+
+    <!-- ======= ABOUT ======= -->
+    <div class="panel" id="panel-about">
+      <div class="panel-header"><div class="panel-title">About Section</div><div class="panel-sub">Profil dan statistik tentang Sarah Amanda.</div></div>
+      <div class="card">
+        <div class="form-grid">
+          <div class="form-group full"><label>URL Foto About</label><input type="url" id="a-photo" /></div>
+          <div class="form-group full"><label>Judul Section</label><input type="text" id="a-title" /></div>
+          <div class="form-group full"><label>Deskripsi</label><textarea id="a-description"></textarea></div>
+          <div class="form-group"><label>Pengalaman (e.g. 5+)</label><input type="text" id="a-experience" /></div>
+          <div class="form-group"><label>Campaign Completed</label><input type="text" id="a-campaign" /></div>
+          <div class="form-group"><label>Repeat Client (%)</label><input type="text" id="a-repeatClient" /></div>
+          <div class="form-group"><label>Videos Created</label><input type="text" id="a-videosCreated" /></div>
+          <div class="form-group"><label>Achievement</label><input type="text" id="a-achievement" /></div>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" onclick="saveAbout()">💾 Simpan About</button></div>
+      </div>
+    </div>
+
+    <!-- ======= BRANDS ======= -->
+    <div class="panel" id="panel-brands">
+      <div class="panel-header"><div class="panel-title">Brands</div><div class="panel-sub">Brand yang pernah bekerja sama.</div></div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <span class="card-title" style="margin-bottom:0;border:none;padding:0">Daftar Brand</span>
+          <button class="btn btn-primary btn-sm" onclick="openModal('brand')">+ Tambah Brand</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Nama Brand</th><th>URL Logo</th><th>Website</th><th>Urutan</th><th>Aksi</th></tr></thead>
+            <tbody id="brands-tbody"></tbody>
+          </table>
+        </div>
+        <div class="form-actions" style="margin-top:16px"><button class="btn btn-primary" onclick="saveBrands()">💾 Simpan Semua</button></div>
+      </div>
+    </div>
+
+    <!-- ======= ANALYTICS ======= -->
+    <div class="panel" id="panel-analytics">
+      <div class="panel-header"><div class="panel-title">Analytics</div><div class="panel-sub">Data statistik per platform sosial media.</div></div>
+      <div id="analytics-cards"></div>
+      <div class="form-actions"><button class="btn btn-primary" onclick="saveAnalytics()">💾 Simpan Analytics</button></div>
+    </div>
+
+    <!-- ======= PORTFOLIO ======= -->
+    <div class="panel" id="panel-portfolio">
+      <div class="panel-header"><div class="panel-title">Portfolio</div><div class="panel-sub">Karya dan konten yang pernah dibuat.</div></div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <span class="card-title" style="margin-bottom:0;border:none;padding:0">Daftar Portfolio</span>
+          <button class="btn btn-primary btn-sm" onclick="openModal('portfolio')">+ Tambah</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Judul</th><th>Kategori</th><th>Thumbnail</th><th>Status</th><th>Urutan</th><th>Aksi</th></tr></thead>
+            <tbody id="portfolio-tbody"></tbody>
+          </table>
+        </div>
+        <div class="form-actions" style="margin-top:16px"><button class="btn btn-primary" onclick="savePortfolio()">💾 Simpan Semua</button></div>
+      </div>
+    </div>
+
+    <!-- ======= RATE CARD ======= -->
+    <div class="panel" id="panel-ratecard">
+      <div class="panel-header"><div class="panel-title">Rate Card</div><div class="panel-sub">Paket harga dan layanan tambahan.</div></div>
+      <div class="card">
+        <div class="card-title">Paket Utama (3 Paket)</div>
+        <div id="ratecard-packages"></div>
+        <div class="card-title" style="margin-top:24px">Additional Services</div>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+          <button class="btn btn-secondary btn-sm" onclick="addServiceRow()">+ Tambah Layanan</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Nama Layanan</th><th>Urutan</th><th>Aksi</th></tr></thead>
+            <tbody id="services-tbody"></tbody>
+          </table>
+        </div>
+        <div class="form-actions" style="margin-top:16px"><button class="btn btn-primary" onclick="saveRateCard()">💾 Simpan Rate Card</button></div>
+      </div>
+    </div>
+
+    <!-- ======= TESTIMONIALS ======= -->
+    <div class="panel" id="panel-testimonials">
+      <div class="panel-header"><div class="panel-title">Testimoni</div><div class="panel-sub">Ulasan dari brand dan klien.</div></div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <span class="card-title" style="margin-bottom:0;border:none;padding:0">Daftar Testimoni</span>
+          <button class="btn btn-primary btn-sm" onclick="openModal('testimonial')">+ Tambah</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Nama</th><th>Brand</th><th>Rating</th><th>Teks</th><th>Urutan</th><th>Aksi</th></tr></thead>
+            <tbody id="testimonials-tbody"></tbody>
+          </table>
+        </div>
+        <div class="form-actions" style="margin-top:16px"><button class="btn btn-primary" onclick="saveTestimonials()">💾 Simpan Semua</button></div>
+      </div>
+    </div>
+
+    <!-- ======= FAQ ======= -->
+    <div class="panel" id="panel-faq">
+      <div class="panel-header"><div class="panel-title">FAQ</div><div class="panel-sub">Pertanyaan yang sering ditanyakan.</div></div>
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+          <span class="card-title" style="margin-bottom:0;border:none;padding:0">Daftar FAQ</span>
+          <button class="btn btn-primary btn-sm" onclick="openModal('faq')">+ Tambah</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>#</th><th>Pertanyaan</th><th>Jawaban</th><th>Urutan</th><th>Aksi</th></tr></thead>
+            <tbody id="faq-tbody"></tbody>
+          </table>
+        </div>
+        <div class="form-actions" style="margin-top:16px"><button class="btn btn-primary" onclick="saveFAQ()">💾 Simpan Semua</button></div>
+      </div>
+    </div>
+
+    <!-- ======= CONTACT ======= -->
+    <div class="panel" id="panel-contact">
+      <div class="panel-header"><div class="panel-title">Contact</div><div class="panel-sub">Informasi kontak yang tampil di website.</div></div>
+      <div class="card">
+        <div class="form-grid">
+          <div class="form-group"><label>Telepon / WA</label><input type="text" id="c-phone" /></div>
+          <div class="form-group"><label>Email</label><input type="email" id="c-email" /></div>
+          <div class="form-group full"><label>Alamat</label><input type="text" id="c-address" /></div>
+          <div class="form-group full"><label>Google Maps Embed URL / iframe</label><textarea id="c-googleMaps" rows="3"></textarea></div>
+          <div class="form-group full"><label>URL QR WhatsApp (Google Drive / URL langsung)</label><input type="url" id="c-qrWhatsapp" /></div>
+          <div class="form-group"><label>Jam Kerja Sen–Jum</label><input type="text" id="c-hoursMonFri" placeholder="09:00 - 18:00" /></div>
+          <div class="form-group"><label>Jam Kerja Sabtu</label><input type="text" id="c-hoursSaturday" placeholder="10:00 - 15:00" /></div>
+          <div class="form-group"><label>Jam Kerja Minggu</label><input type="text" id="c-hoursSunday" placeholder="Closed" /></div>
+        </div>
+        <div class="form-actions"><button class="btn btn-primary" onclick="saveContact()">💾 Simpan Contact</button></div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ============================================================
+     MODALS
+     ============================================================ -->
+<!-- Brand Modal -->
+<div class="modal-overlay" id="modal-brand">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('brand')">✕</button>
+    <div class="modal-title" id="modal-brand-title">Tambah Brand</div>
+    <input type="hidden" id="brand-edit-idx" value="-1" />
+    <div class="form-group"><label>Nama Brand</label><input type="text" id="brand-name" /></div>
+    <div class="form-group"><label>URL Logo</label><input type="url" id="brand-logo" /></div>
+    <div class="form-group"><label>Website</label><input type="url" id="brand-website" /></div>
+    <div class="form-group"><label>Urutan</label><input type="number" id="brand-order" value="0" /></div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="saveBrandModal()">Simpan</button>
+      <button class="btn btn-secondary" onclick="closeModal('brand')">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- Portfolio Modal -->
+<div class="modal-overlay" id="modal-portfolio">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('portfolio')">✕</button>
+    <div class="modal-title" id="modal-portfolio-title">Tambah Portfolio</div>
+    <input type="hidden" id="portfolio-edit-idx" value="-1" />
+    <div class="form-group"><label>Judul</label><input type="text" id="portfolio-title" /></div>
+    <div class="form-group"><label>Kategori</label><input type="text" id="portfolio-category" placeholder="Beauty, Lifestyle, Travel, dll" /></div>
+    <div class="form-group"><label>Deskripsi</label><textarea id="portfolio-description"></textarea></div>
+    <div class="form-group"><label>URL Thumbnail</label><input type="url" id="portfolio-thumbnail" /></div>
+    <div class="form-group"><label>URL Konten (video/post)</label><input type="url" id="portfolio-link" /></div>
+    <div class="form-group"><label>Status</label>
+      <select id="portfolio-status"><option value="active">Active</option><option value="inactive">Inactive</option></select>
+    </div>
+    <div class="form-group"><label>Urutan</label><input type="number" id="portfolio-order" value="0" /></div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="savePortfolioModal()">Simpan</button>
+      <button class="btn btn-secondary" onclick="closeModal('portfolio')">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- Testimonial Modal -->
+<div class="modal-overlay" id="modal-testimonial">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('testimonial')">✕</button>
+    <div class="modal-title" id="modal-testimonial-title">Tambah Testimoni</div>
+    <input type="hidden" id="testimonial-edit-idx" value="-1" />
+    <div class="form-group"><label>Nama Klien</label><input type="text" id="testimonial-name" /></div>
+    <div class="form-group"><label>Brand / Perusahaan</label><input type="text" id="testimonial-brand" /></div>
+    <div class="form-group"><label>Rating (1–5)</label><input type="number" id="testimonial-rating" min="1" max="5" value="5" /></div>
+    <div class="form-group"><label>Teks Testimoni</label><textarea id="testimonial-text" rows="4"></textarea></div>
+    <div class="form-group"><label>URL Avatar</label><input type="url" id="testimonial-avatar" /></div>
+    <div class="form-group"><label>Urutan</label><input type="number" id="testimonial-order" value="0" /></div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="saveTestimonialModal()">Simpan</button>
+      <button class="btn btn-secondary" onclick="closeModal('testimonial')">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ Modal -->
+<div class="modal-overlay" id="modal-faq">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('faq')">✕</button>
+    <div class="modal-title" id="modal-faq-title">Tambah FAQ</div>
+    <input type="hidden" id="faq-edit-idx" value="-1" />
+    <div class="form-group"><label>Pertanyaan</label><input type="text" id="faq-question" /></div>
+    <div class="form-group"><label>Jawaban</label><textarea id="faq-answer" rows="5"></textarea></div>
+    <div class="form-group"><label>Urutan</label><input type="number" id="faq-order" value="0" /></div>
+    <div class="form-actions">
+      <button class="btn btn-primary" onclick="saveFAQModal()">Simpan</button>
+      <button class="btn btn-secondary" onclick="closeModal('faq')">Batal</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<!-- ============================================================
+     JAVASCRIPT
+     ============================================================ -->
+<script>
+'use strict';
+// ============================================================
+// KONFIGURASI — GANTI BAGIAN INI
+// ============================================================
+var GAS_URL      = 'YOUR_GOOGLE_APPS_SCRIPT_DEPLOYMENT_URL';
+var ADMIN_PASS   = 'admin123'; // password default, bisa diubah
+
+// ============================================================
+// DATA STORE
+// ============================================================
+var adminData = {
+  settings:     {},
+  home:         {},
+  about:        {},
+  brands:       [],
+  analytics:    [],
+  portfolio:    [],
+  testimonials: [],
+  faq:          [],
+  contact:      {},
+  ratecard:     { packages: [], additionalServices: [] },
+};
+
+// Default analytics platforms
+var DEFAULT_PLATFORMS = ['Instagram', 'TikTok', 'YouTube', 'Threads'];
+
+// ============================================================
+// AUTH
+// ============================================================
+function doLogin() {
+  var pwd = document.getElementById('pwd-input').value;
+  var err = document.getElementById('login-err');
+  if (pwd === ADMIN_PASS || pwd === (adminData.settings.adminPassword || '')) {
+    localStorage.setItem('sa_admin_auth', '1');
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display          = 'flex';
+    initApp();
+  } else {
+    err.style.display = 'block';
+    setTimeout(function() { err.style.display = 'none'; }, 3000);
+  }
+}
+
+function doLogout() {
+  localStorage.removeItem('sa_admin_auth');
+  location.reload();
+}
+
+function checkAuth() {
+  if (localStorage.getItem('sa_admin_auth') === '1') {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display          = 'flex';
+    initApp();
+  }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+function initApp() {
+  if (GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_DEPLOYMENT_URL') {
+    document.getElementById('gas-notice').style.display = 'flex';
+    renderAllPanels();
+    return;
+  }
+  loadAllData();
+}
+
+var _jsonpCounter = 0;
+function fetchGAS(action) {
+  return new Promise(function(resolve) {
+    var cbName = '__adminCb_' + (++_jsonpCounter);
+    var script = document.createElement('script');
+    var timer  = setTimeout(function() {
+      cleanup(); resolve(null);
+    }, 15000);
+    function cleanup() {
+      clearTimeout(timer);
+      delete window[cbName];
+      if (script.parentNode) script.parentNode.removeChild(script);
+    }
+    window[cbName] = function(json) {
+      cleanup();
+      resolve((json && json.data !== undefined) ? json.data : json);
+    };
+    script.onerror = function() { cleanup(); resolve(null); };
+    script.src = GAS_URL + '?action=' + encodeURIComponent(action) + '&callback=' + cbName;
+    document.head.appendChild(script);
+  });
+}
+
+function postGAS(action, data) {
+  return fetch(GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain' },
+    body: JSON.stringify({ action: action, data: data }),
+    mode: 'no-cors'
+  }).then(function() {
+    return { success: true };
+  }).catch(function(e) {
+    return { success: false, error: e.message };
+  });
+}
+
+function loadAllData() {
+  showToast('Memuat data...', 'info');
+  fetchGAS('all').then(function(d) {
+    if (!d) { showToast('Gagal memuat data dari GAS.', 'error'); renderAllPanels(); return; }
+    if (d.settings)          adminData.settings     = d.settings;
+    if (d.home)              adminData.home          = d.home;
+    if (d.about)             adminData.about         = d.about;
+    if (Array.isArray(d.brands))       adminData.brands        = d.brands;
+    if (Array.isArray(d.analytics))    adminData.analytics     = d.analytics;
+    if (Array.isArray(d.portfolio))    adminData.portfolio     = d.portfolio;
+    if (Array.isArray(d.testimonials)) adminData.testimonials  = d.testimonials;
+    if (Array.isArray(d.faq))          adminData.faq           = d.faq;
+    if (d.contact)           adminData.contact       = d.contact;
+    if (d.ratecard)          adminData.ratecard      = d.ratecard;
+    renderAllPanels();
+    showToast('Data berhasil dimuat.', 'success');
+  });
+}
+
+// ============================================================
+// PANEL NAVIGATION
+// ============================================================
+function showPanel(name) {
+  document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  var panel = document.getElementById('panel-' + name);
+  if (panel) panel.classList.add('active');
+  var nav = document.querySelector('[data-panel="' + name + '"]');
+  if (nav) nav.classList.add('active');
+}
+
+// ============================================================
+// RENDER ALL PANELS (populate form fields from adminData)
+// ============================================================
+function renderAllPanels() {
+  renderSettings();
+  renderHome();
+  renderAbout();
+  renderBrandsTable();
+  renderAnalyticsCards();
+  renderPortfolioTable();
+  renderRateCardPanel();
+  renderTestimonialsTable();
+  renderFAQTable();
+  renderContact();
+}
+
+function setVal(id, v) { var el = document.getElementById(id); if (el) el.value = (v || ''); }
+function getVal(id)    { var el = document.getElementById(id); return el ? el.value.trim() : ''; }
+
+function renderSettings() {
+  var s = adminData.settings || {};
+  setVal('s-siteName',      s.siteName      || 'Sarah Amanda');
+  setVal('s-primaryColor',  s.primaryColor  || '#059669');
+  setVal('s-logo',          s.logo          || '');
+  setVal('s-favicon',       s.favicon       || '');
+  setVal('s-whatsapp',      s.whatsapp      || '');
+  setVal('s-pdfRateCard',   s.pdfRateCard   || '');
+  setVal('s-copyright',     s.copyright     || '');
+  setVal('s-waTemplate',    s.waTemplate    || '');
+  setVal('s-instagram',     s.instagram     || '');
+  setVal('s-tiktok',        s.tiktok        || '');
+  setVal('s-youtube',       s.youtube       || '');
+  setVal('s-threads',       s.threads       || '');
+  setVal('s-facebook',      s.facebook      || '');
+  setVal('s-linkedin',      s.linkedin      || '');
+  setVal('s-website',       s.website       || '');
+  setVal('s-email',         s.email         || '');
+  var siteName = s.siteName || 'Sarah Amanda';
+  var el = document.getElementById('header-site-name');
+  if (el) el.textContent = siteName + ' Portfolio';
+}
+
+function renderHome() {
+  var h = adminData.home || {};
+  setVal('h-name',          h.name           || '');
+  setVal('h-profession',    h.profession     || '');
+  setVal('h-tagline',       h.tagline        || '');
+  setVal('h-description',   h.description    || '');
+  setVal('h-photo',         h.photo          || '');
+  setVal('h-followers',     h.followers      || '');
+  setVal('h-engagementRate',h.engagementRate || '');
+  setVal('h-brandsWorked',  h.brandsWorked   || '');
+  setVal('h-monthlyReach',  h.monthlyReach   || '');
+}
+
+function renderAbout() {
+  var a = adminData.about || {};
+  setVal('a-photo',         a.photo          || '');
+  setVal('a-title',         a.title          || '');
+  setVal('a-description',   a.description    || '');
+  setVal('a-experience',    a.experience     || '');
+  setVal('a-campaign',      a.campaign       || '');
+  setVal('a-repeatClient',  a.repeatClient   || '');
+  setVal('a-videosCreated', a.videosCreated  || '');
+  setVal('a-achievement',   a.achievement    || '');
+}
+
+function renderContact() {
+  var c = adminData.contact || {};
+  setVal('c-phone',         c.phone          || '');
+  setVal('c-email',         c.email          || '');
+  setVal('c-address',       c.address        || '');
+  setVal('c-googleMaps',    c.googleMaps     || '');
+  setVal('c-qrWhatsapp',    c.qrWhatsapp     || '');
+  var h = c.hours || {};
+  setVal('c-hoursMonFri',   h['Mon – Fri']   || c.hoursMonFri   || '');
+  setVal('c-hoursSaturday', h['Saturday']    || c.hoursSaturday || '');
+  setVal('c-hoursSunday',   h['Sunday']      || c.hoursSunday   || '');
+}
+
+// BRANDS TABLE
+function renderBrandsTable() {
+  var tbody = document.getElementById('brands-tbody');
+  if (!tbody) return;
+  if (!adminData.brands.length) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state"><div class="empty-icon">🏷</div>Belum ada brand. Klik + Tambah Brand.</div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = adminData.brands.map(function(b, i) {
+    return '<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td>' + esc(b.name || '') + '</td>' +
+      '<td><a href="' + esc(b.logo || '#') + '" target="_blank" style="color:var(--primary);font-size:11px;">' + (b.logo ? 'Lihat' : '—') + '</a></td>' +
+      '<td>' + esc(b.website || '—') + '</td>' +
+      '<td>' + (b.order || 0) + '</td>' +
+      '<td><div class="action-btns">' +
+        '<button class="btn btn-secondary btn-sm" onclick="editBrand(' + i + ')">Edit</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="deleteBrand(' + i + ')">Hapus</button>' +
+      '</div></td>' +
+    '</tr>';
+  }).join('');
+}
+
+function editBrand(i) {
+  var b = adminData.brands[i];
+  document.getElementById('brand-edit-idx').value = i;
+  document.getElementById('modal-brand-title').textContent = 'Edit Brand';
+  setVal('brand-name', b.name); setVal('brand-logo', b.logo);
+  setVal('brand-website', b.website); setVal('brand-order', b.order || 0);
+  openModal('brand');
+}
+function deleteBrand(i) {
+  if (!confirm('Hapus brand ini?')) return;
+  adminData.brands.splice(i, 1);
+  renderBrandsTable();
+}
+function saveBrandModal() {
+  var idx  = parseInt(document.getElementById('brand-edit-idx').value);
+  var item = { name: getVal('brand-name'), logo: getVal('brand-logo'), website: getVal('brand-website'), order: getVal('brand-order') };
+  if (idx >= 0) adminData.brands[idx] = item; else adminData.brands.push(item);
+  closeModal('brand'); renderBrandsTable();
+}
+
+// ANALYTICS CARDS
+function renderAnalyticsCards() {
+  var container = document.getElementById('analytics-cards');
+  if (!container) return;
+  var platforms = DEFAULT_PLATFORMS;
+  var dataMap   = {};
+  adminData.analytics.forEach(function(p) { dataMap[(p.platform || '').toLowerCase()] = p; });
+
+  container.innerHTML = '';
+  var grid = document.createElement('div');
+  grid.className = 'platform-grid';
+
+  platforms.forEach(function(plat) {
+    var key = plat.toLowerCase();
+    var p   = dataMap[key] || {};
+    var card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML =
+      '<div class="card-title">' + plat + '</div>' +
+      '<div class="form-grid">' +
+        '<div class="form-group"><label>Handle</label><input type="text" id="an-' + key + '-handle" value="' + esc(p.handle || '') + '" /></div>' +
+        '<div class="form-group"><label>Followers</label><input type="text" id="an-' + key + '-followers" value="' + esc(p.followers || '') + '" /></div>' +
+        '<div class="form-group"><label>Engagement Rate</label><input type="text" id="an-' + key + '-engagementRate" value="' + esc(p.engagementRate || '') + '" /></div>' +
+        '<div class="form-group"><label>Reach</label><input type="text" id="an-' + key + '-reach" value="' + esc(p.reach || '') + '" /></div>' +
+        '<div class="form-group"><label>Age Range</label><input type="text" id="an-' + key + '-ageRange" value="' + esc(p.ageRange || '18-34') + '" /></div>' +
+        '<div class="form-group"><label>% Wanita</label><input type="number" id="an-' + key + '-femalePercent" value="' + (p.femalePercent || '65') + '" min="0" max="100" /></div>' +
+      '</div>';
+    grid.appendChild(card);
+  });
+  container.appendChild(grid);
+}
+
+// PORTFOLIO TABLE
+function renderPortfolioTable() {
+  var tbody = document.getElementById('portfolio-tbody');
+  if (!tbody) return;
+  if (!adminData.portfolio.length) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">🎬</div>Belum ada portfolio.</div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = adminData.portfolio.map(function(p, i) {
+    var statusBadge = p.status === 'inactive'
+      ? '<span class="badge badge-warn">Inactive</span>'
+      : '<span class="badge badge-success">Active</span>';
+    return '<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td>' + esc(p.title || '') + '</td>' +
+      '<td>' + esc(p.category || '') + '</td>' +
+      '<td>' + (p.thumbnail ? '<a href="' + esc(p.thumbnail) + '" target="_blank" style="color:var(--primary);">Lihat</a>' : '—') + '</td>' +
+      '<td>' + statusBadge + '</td>' +
+      '<td>' + (p.order || 0) + '</td>' +
+      '<td><div class="action-btns">' +
+        '<button class="btn btn-secondary btn-sm" onclick="editPortfolio(' + i + ')">Edit</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="deletePortfolio(' + i + ')">Hapus</button>' +
+      '</div></td>' +
+    '</tr>';
+  }).join('');
+}
+
+function editPortfolio(i) {
+  var p = adminData.portfolio[i];
+  document.getElementById('portfolio-edit-idx').value = i;
+  document.getElementById('modal-portfolio-title').textContent = 'Edit Portfolio';
+  setVal('portfolio-title', p.title); setVal('portfolio-category', p.category);
+  setVal('portfolio-description', p.description); setVal('portfolio-thumbnail', p.thumbnail);
+  setVal('portfolio-link', p.link);
+  document.getElementById('portfolio-status').value = p.status || 'active';
+  setVal('portfolio-order', p.order || 0);
+  openModal('portfolio');
+}
+function deletePortfolio(i) {
+  if (!confirm('Hapus portfolio ini?')) return;
+  adminData.portfolio.splice(i, 1); renderPortfolioTable();
+}
+function savePortfolioModal() {
+  var idx  = parseInt(document.getElementById('portfolio-edit-idx').value);
+  var item = {
+    title: getVal('portfolio-title'), category: getVal('portfolio-category'),
+    description: getVal('portfolio-description'), thumbnail: getVal('portfolio-thumbnail'),
+    link: getVal('portfolio-link'), status: document.getElementById('portfolio-status').value,
+    order: getVal('portfolio-order')
+  };
+  if (idx >= 0) adminData.portfolio[idx] = item; else adminData.portfolio.push(item);
+  closeModal('portfolio'); renderPortfolioTable();
+}
+
+// RATE CARD
+function renderRateCardPanel() {
+  var container = document.getElementById('ratecard-packages');
+  if (!container) return;
+  var tiers = ['STARTER', 'PROFESSIONAL', 'PREMIUM'];
+  var pkgs  = adminData.ratecard.packages || [];
+
+  container.innerHTML = tiers.map(function(tier, i) {
+    var pkg = pkgs[i] || {};
+    return '<div class="card" style="margin-bottom:12px">' +
+      '<div class="card-title">' + tier + '</div>' +
+      '<div class="form-grid">' +
+        '<div class="form-group"><label>Nama Paket</label><input type="text" id="rc-' + i + '-name" value="' + esc(pkg.name || '') + '" /></div>' +
+        '<div class="form-group"><label>Harga</label><input type="text" id="rc-' + i + '-price" value="' + esc(pkg.price || '') + '" /></div>' +
+        '<div class="form-group full"><label>Fitur (satu per baris)</label><textarea id="rc-' + i + '-features" rows="5">' + esc(Array.isArray(pkg.features) ? pkg.features.join('\n') : (pkg.features || '')) + '</textarea></div>' +
+        '<div class="form-group"><label>Tier Label</label><input type="text" id="rc-' + i + '-tier" value="' + esc(pkg.tier || tier) + '" /></div>' +
+        '<div class="form-group"><label>Featured?</label><select id="rc-' + i + '-featured"><option value="false"' + (String(pkg.featured) !== 'true' ? ' selected' : '') + '>Tidak</option><option value="true"' + (String(pkg.featured) === 'true' ? ' selected' : '') + '>Ya (Most Popular)</option></select></div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+
+  renderServicesTable();
+}
+
+function renderServicesTable() {
+  var tbody = document.getElementById('services-tbody');
+  if (!tbody) return;
+  var services = adminData.ratecard.additionalServices || [];
+  if (!services.length) {
+    tbody.innerHTML = '<tr><td colspan="3"><div class="empty-state">Belum ada layanan tambahan.</div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = services.map(function(s, i) {
+    return '<tr>' +
+      '<td><input type="text" value="' + esc(s.name || '') + '" onchange="updateService(' + i + ',this.value)" style="width:100%" /></td>' +
+      '<td><input type="number" value="' + (s.order || i + 1) + '" onchange="updateServiceOrder(' + i + ',this.value)" style="width:80px" /></td>' +
+      '<td><button class="btn btn-danger btn-sm" onclick="deleteService(' + i + ')">Hapus</button></td>' +
+    '</tr>';
+  }).join('');
+}
+function addServiceRow() {
+  adminData.ratecard.additionalServices = adminData.ratecard.additionalServices || [];
+  adminData.ratecard.additionalServices.push({ name: '', order: adminData.ratecard.additionalServices.length + 1 });
+  renderServicesTable();
+}
+function updateService(i, v)      { if (adminData.ratecard.additionalServices[i]) adminData.ratecard.additionalServices[i].name  = v; }
+function updateServiceOrder(i, v) { if (adminData.ratecard.additionalServices[i]) adminData.ratecard.additionalServices[i].order = parseInt(v); }
+function deleteService(i) { adminData.ratecard.additionalServices.splice(i, 1); renderServicesTable(); }
+
+// TESTIMONIALS TABLE
+function renderTestimonialsTable() {
+  var tbody = document.getElementById('testimonials-tbody');
+  if (!tbody) return;
+  if (!adminData.testimonials.length) {
+    tbody.innerHTML = '<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">⭐</div>Belum ada testimoni.</div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = adminData.testimonials.map(function(t, i) {
+    var stars = '';
+    for (var s = 0; s < parseInt(t.rating || 5); s++) stars += '★';
+    return '<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td>' + esc(t.name || '') + '</td>' +
+      '<td>' + esc(t.brand || '') + '</td>' +
+      '<td style="color:#F59E0B">' + stars + '</td>' +
+      '<td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc((t.text || t.testimonial || '').substring(0, 60)) + '…</td>' +
+      '<td>' + (t.order || 0) + '</td>' +
+      '<td><div class="action-btns">' +
+        '<button class="btn btn-secondary btn-sm" onclick="editTestimonial(' + i + ')">Edit</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="deleteTestimonial(' + i + ')">Hapus</button>' +
+      '</div></td>' +
+    '</tr>';
+  }).join('');
+}
+function editTestimonial(i) {
+  var t = adminData.testimonials[i];
+  document.getElementById('testimonial-edit-idx').value = i;
+  document.getElementById('modal-testimonial-title').textContent = 'Edit Testimoni';
+  setVal('testimonial-name', t.name); setVal('testimonial-brand', t.brand);
+  setVal('testimonial-rating', t.rating || 5); setVal('testimonial-text', t.text || t.testimonial);
+  setVal('testimonial-avatar', t.avatar); setVal('testimonial-order', t.order || 0);
+  openModal('testimonial');
+}
+function deleteTestimonial(i) {
+  if (!confirm('Hapus testimoni ini?')) return;
+  adminData.testimonials.splice(i, 1); renderTestimonialsTable();
+}
+function saveTestimonialModal() {
+  var idx  = parseInt(document.getElementById('testimonial-edit-idx').value);
+  var item = {
+    name: getVal('testimonial-name'), brand: getVal('testimonial-brand'),
+    rating: getVal('testimonial-rating'), text: getVal('testimonial-text'),
+    avatar: getVal('testimonial-avatar'), order: getVal('testimonial-order')
+  };
+  if (idx >= 0) adminData.testimonials[idx] = item; else adminData.testimonials.push(item);
+  closeModal('testimonial'); renderTestimonialsTable();
+}
+
+// FAQ TABLE
+function renderFAQTable() {
+  var tbody = document.getElementById('faq-tbody');
+  if (!tbody) return;
+  if (!adminData.faq.length) {
+    tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><div class="empty-icon">❓</div>Belum ada FAQ.</div></td></tr>';
+    return;
+  }
+  tbody.innerHTML = adminData.faq.map(function(f, i) {
+    return '<tr>' +
+      '<td>' + (i + 1) + '</td>' +
+      '<td>' + esc(f.question || '') + '</td>' +
+      '<td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc((f.answer || '').substring(0, 60)) + '…</td>' +
+      '<td>' + (f.order || 0) + '</td>' +
+      '<td><div class="action-btns">' +
+        '<button class="btn btn-secondary btn-sm" onclick="editFAQ(' + i + ')">Edit</button>' +
+        '<button class="btn btn-danger btn-sm" onclick="deleteFAQ(' + i + ')">Hapus</button>' +
+      '</div></td>' +
+    '</tr>';
+  }).join('');
+}
+function editFAQ(i) {
+  var f = adminData.faq[i];
+  document.getElementById('faq-edit-idx').value = i;
+  document.getElementById('modal-faq-title').textContent = 'Edit FAQ';
+  setVal('faq-question', f.question); setVal('faq-answer', f.answer);
+  setVal('faq-order', f.order || 0);
+  openModal('faq');
+}
+function deleteFAQ(i) {
+  if (!confirm('Hapus FAQ ini?')) return;
+  adminData.faq.splice(i, 1); renderFAQTable();
+}
+function saveFAQModal() {
+  var idx  = parseInt(document.getElementById('faq-edit-idx').value);
+  var item = { question: getVal('faq-question'), answer: getVal('faq-answer'), order: getVal('faq-order') };
+  if (idx >= 0) adminData.faq[idx] = item; else adminData.faq.push(item);
+  closeModal('faq'); renderFAQTable();
+}
+
+// ============================================================
+// SAVE FUNCTIONS (POST to GAS)
+// ============================================================
+function withSaving(btnEl, fn) {
+  if (btnEl) { btnEl.disabled = true; btnEl.innerHTML = '<span class="spinner"></span> Menyimpan...'; }
+  fn().then(function() {
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = btnEl._origText || '💾 Simpan'; }
+  });
+}
+
+function doSave(action, data, label) {
+  if (GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_DEPLOYMENT_URL') {
+    showToast('GAS URL belum dikonfigurasi. Data disimpan lokal saja.', 'error'); return Promise.resolve();
+  }
+  return postGAS(action, data).then(function(res) {
+    showToast((res && res.success !== false ? '✓ ' + label + ' berhasil disimpan.' : '✗ Gagal menyimpan. Coba lagi.'),
+              (res && res.success !== false ? 'success' : 'error'));
+    return res;
+  });
+}
+
+function saveSettings() {
+  var data = {
+    siteName: getVal('s-siteName'), primaryColor: getVal('s-primaryColor'),
+    logo: getVal('s-logo'), favicon: getVal('s-favicon'), whatsapp: getVal('s-whatsapp'),
+    pdfRateCard: getVal('s-pdfRateCard'), copyright: getVal('s-copyright'),
+    waTemplate: getVal('s-waTemplate'), instagram: getVal('s-instagram'),
+    tiktok: getVal('s-tiktok'), youtube: getVal('s-youtube'), threads: getVal('s-threads'),
+    facebook: getVal('s-facebook'), linkedin: getVal('s-linkedin'),
+    website: getVal('s-website'), email: getVal('s-email'),
+  };
+  Object.assign(adminData.settings, data);
+  doSave('updateSettings', data, 'Settings');
+}
+
+function saveHome() {
+  var data = {
+    name: getVal('h-name'), profession: getVal('h-profession'), tagline: getVal('h-tagline'),
+    description: getVal('h-description'), photo: getVal('h-photo'),
+    followers: getVal('h-followers'), engagementRate: getVal('h-engagementRate'),
+    brandsWorked: getVal('h-brandsWorked'), monthlyReach: getVal('h-monthlyReach'),
+  };
+  Object.assign(adminData.home, data);
+  doSave('updateHome', data, 'Home');
+}
+
+function saveAbout() {
+  var data = {
+    photo: getVal('a-photo'), title: getVal('a-title'), description: getVal('a-description'),
+    experience: getVal('a-experience'), campaign: getVal('a-campaign'),
+    repeatClient: getVal('a-repeatClient'), videosCreated: getVal('a-videosCreated'),
+    achievement: getVal('a-achievement'),
+  };
+  Object.assign(adminData.about, data);
+  doSave('updateAbout', data, 'About');
+}
+
+function saveBrands() {
+  doSave('updateBrands', adminData.brands, 'Brands');
+}
+
+function saveAnalytics() {
+  var arr = DEFAULT_PLATFORMS.map(function(plat) {
+    var key = plat.toLowerCase();
+    return {
+      platform:       plat,
+      handle:         getVal('an-' + key + '-handle'),
+      followers:      getVal('an-' + key + '-followers'),
+      engagementRate: getVal('an-' + key + '-engagementRate'),
+      reach:          getVal('an-' + key + '-reach'),
+      ageRange:       getVal('an-' + key + '-ageRange'),
+      femalePercent:  getVal('an-' + key + '-femalePercent'),
+    };
+  });
+  adminData.analytics = arr;
+  doSave('updateAnalytics', arr, 'Analytics');
+}
+
+function savePortfolio() {
+  doSave('updatePortfolio', adminData.portfolio, 'Portfolio');
+}
+
+function saveRateCard() {
+  var pkgs = [0, 1, 2].map(function(i) {
+    var features = getVal('rc-' + i + '-features').split('\n').map(function(f) { return f.trim(); }).filter(Boolean);
+    return {
+      tier:     getVal('rc-' + i + '-tier'),
+      name:     getVal('rc-' + i + '-name'),
+      price:    getVal('rc-' + i + '-price'),
+      features: features.join('\n'),
+      featured: document.getElementById('rc-' + i + '-featured').value,
+    };
+  });
+  var rateData = { packages: pkgs, additionalServices: adminData.ratecard.additionalServices || [] };
+  adminData.ratecard = rateData;
+  doSave('updateRateCard', rateData, 'Rate Card');
+}
+
+function saveTestimonials() {
+  doSave('updateTestimonials', adminData.testimonials, 'Testimoni');
+}
+
+function saveFAQ() {
+  doSave('updateFAQ', adminData.faq, 'FAQ');
+}
+
+function saveContact() {
+  var data = {
+    phone: getVal('c-phone'), email: getVal('c-email'), address: getVal('c-address'),
+    googleMaps: getVal('c-googleMaps'), qrWhatsapp: getVal('c-qrWhatsapp'),
+    hoursMonFri: getVal('c-hoursMonFri'), hoursSaturday: getVal('c-hoursSaturday'),
+    hoursSunday: getVal('c-hoursSunday'),
+  };
+  Object.assign(adminData.contact, data);
+  doSave('updateContact', data, 'Contact');
+}
+
+// ============================================================
+// MODAL HELPERS
+// ============================================================
+function openModal(name) {
+  var el = document.getElementById('modal-' + name);
+  if (el) el.classList.add('open');
+}
+function closeModal(name) {
+  var el = document.getElementById('modal-' + name);
+  if (el) el.classList.remove('open');
+  // Reset idx for new-item modals
+  var idx = document.getElementById(name + '-edit-idx');
+  if (idx) idx.value = '-1';
+}
+
+// Close modal on overlay click
+document.addEventListener('click', function(e) {
+  if (e.target && e.target.classList && e.target.classList.contains('modal-overlay')) {
+    e.target.classList.remove('open');
+  }
+});
+
+// ============================================================
+// TOAST
+// ============================================================
+function showToast(msg, type) {
+  var wrap = document.getElementById('toast-wrap');
+  var t    = document.createElement('div');
+  t.className = 'toast ' + (type || '');
+  t.textContent = msg;
+  wrap.appendChild(t);
+  setTimeout(function() { if (t.parentNode) t.parentNode.removeChild(t); }, 3500);
+}
+
+// ============================================================
+// ESCAPE HELPER
+// ============================================================
+function esc(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+  checkAuth();
+});
+</script>
+</body>
+</html>
