@@ -125,10 +125,23 @@ function doPost(e) {
   var result;
 
   try {
-    if (action === 'contact' || action === 'pesan') {
-      result = saveContactMessage(params);
-    } else {
-      result = { error: 'Action POST tidak dikenali: ' + action };
+    switch (action) {
+      case 'contact':
+      case 'pesan':
+      case 'savecontact':
+        result = saveContactMessage(params); break;
+      case 'updatesettings':  result = updateKeyValue('Settings',           params.data); break;
+      case 'updatehome':      result = updateKeyValue('Home',               params.data); break;
+      case 'updateabout':     result = updateKeyValue('About',              params.data); break;
+      case 'updatecontact':   result = updateKeyValue('Contact',            params.data); break;
+      case 'updateratecard':  result = updateRateCardData(params.data);                   break;
+      case 'updatebrands':    result = updateTableData('Brands',            params.data); break;
+      case 'updateanalytics': result = updateTableData('Analytics',         params.data); break;
+      case 'updateportfolio': result = updateTableData('Portfolio',         params.data); break;
+      case 'updatetestimonials': result = updateTableData('Testimonials',   params.data); break;
+      case 'updatefaq':       result = updateTableData('FAQ',               params.data); break;
+      default:
+        result = { error: 'Action POST tidak dikenali: ' + action };
     }
   } catch (err) {
     result = { error: err.message };
@@ -176,6 +189,123 @@ function saveContactMessage(params) {
   ]);
 
   return { message: 'Pesan berhasil dikirim. Terima kasih, ' + (name || 'Anda') + '!' };
+}
+
+// ============================================================
+// WRITE HELPERS
+// ============================================================
+
+/**
+ * writeKeyValueSheet — tulis object ke sheet format Key|Value
+ * Baris yang ada diupdate, key baru ditambahkan
+ */
+function writeKeyValueSheet(sheetName, data) {
+  var ss    = getSpreadsheet();
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    sheet = ss.insertSheet(sheetName);
+  }
+
+  var lastRow = sheet.getLastRow();
+  var existing = {};
+  if (lastRow > 0) {
+    var rows = sheet.getRange(1, 1, lastRow, 2).getValues();
+    for (var i = 0; i < rows.length; i++) {
+      var k = String(rows[i][0] || '').trim();
+      if (k) existing[k] = i + 1; // 1-based row number
+    }
+  }
+
+  var keys = Object.keys(data);
+  for (var j = 0; j < keys.length; j++) {
+    var key = keys[j];
+    var val = data[key] !== undefined ? String(data[key]) : '';
+    if (existing[key]) {
+      sheet.getRange(existing[key], 2).setValue(val);
+    } else {
+      sheet.appendRow([key, val]);
+    }
+  }
+  return { updated: keys.length };
+}
+
+/**
+ * writeTableSheet — tulis array of objects ke sheet tabel
+ * Header diambil dari baris 1. Data lama dihapus, diganti data baru.
+ */
+function writeTableSheet(sheetName, dataArray) {
+  var ss    = getSpreadsheet();
+  var sheet = ss.getSheetByName(sheetName);
+  if (!sheet) {
+    sheet = ss.insertSheet(sheetName);
+  }
+
+  if (!dataArray || !dataArray.length) return { updated: 0 };
+
+  // Ambil semua key dari semua object
+  var headerSet = [];
+  for (var i = 0; i < dataArray.length; i++) {
+    var keys = Object.keys(dataArray[i]);
+    for (var k = 0; k < keys.length; k++) {
+      if (headerSet.indexOf(keys[k]) === -1) headerSet.push(keys[k]);
+    }
+  }
+
+  // Hapus semua konten lama
+  sheet.clearContents();
+
+  // Tulis header
+  var headerRow = [];
+  for (var h = 0; h < headerSet.length; h++) headerRow.push(headerSet[h]);
+  sheet.appendRow(headerRow);
+  sheet.getRange(1, 1, 1, headerRow.length).setFontWeight('bold');
+
+  // Tulis data
+  for (var r = 0; r < dataArray.length; r++) {
+    var row = [];
+    for (var c = 0; c < headerSet.length; c++) {
+      var v = dataArray[r][headerSet[c]];
+      row.push(v !== undefined && v !== null ? String(v) : '');
+    }
+    sheet.appendRow(row);
+  }
+
+  return { updated: dataArray.length };
+}
+
+/**
+ * updateKeyValue — update sheet key-value dari data object
+ */
+function updateKeyValue(sheetName, data) {
+  if (!data) throw new Error('Data tidak boleh kosong untuk ' + sheetName);
+  var parsed = (typeof data === 'string') ? JSON.parse(data) : data;
+  return writeKeyValueSheet(sheetName, parsed);
+}
+
+/**
+ * updateTableData — replace isi sheet tabel dari array data
+ */
+function updateTableData(sheetName, data) {
+  if (!data) throw new Error('Data tidak boleh kosong untuk ' + sheetName);
+  var parsed = (typeof data === 'string') ? JSON.parse(data) : data;
+  if (!Array.isArray(parsed)) parsed = [parsed];
+  return writeTableSheet(sheetName, parsed);
+}
+
+/**
+ * updateRateCardData — update sheet RateCard Packages + RateCard Services
+ */
+function updateRateCardData(data) {
+  if (!data) throw new Error('Data rate card tidak boleh kosong');
+  var parsed = (typeof data === 'string') ? JSON.parse(data) : data;
+  var result = {};
+  if (parsed.packages) {
+    result.packages = writeTableSheet('RateCard Packages', parsed.packages);
+  }
+  if (parsed.additionalServices) {
+    result.additionalServices = writeTableSheet('RateCard Services', parsed.additionalServices);
+  }
+  return result;
 }
 
 // ============================================================
