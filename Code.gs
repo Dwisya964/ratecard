@@ -1,889 +1,729 @@
 /**
- * ============================================================
- * Code.gs — Google Apps Script Backend
- * Portfolio Content Creator Website
- * ============================================================
+ * Google Apps Script Backend — Creator Portfolio & Rate Card v3
  *
- * SETUP INSTRUCTIONS:
- * 1. Buka Google Apps Script di https://script.google.com
- * 2. Paste seluruh kode ini ke file Code.gs
- * 3. Ganti SPREADSHEET_ID di bawah dengan ID Google Spreadsheet Anda
- * 4. Klik Deploy > New Deployment > Web App
- *    - Execute as: Me
- *    - Who has access: Anyone
- * 5. Copy URL deployment dan paste ke index.html (variabel GAS_URL)
- * 6. Untuk GitHub Pages / cross-origin: tambahkan ?callback=NAMA_FUNGSI
- *    untuk menggunakan mode JSONP (contoh: ?action=all&callback=myFunc)
+ * Perubahan v3 (Video Uploader):
+ *   - Skema video baru: videoUrl, embedUrl, sourceType, durationSeconds
+ *     (backward-compatible dengan data lama)
+ *   - normalizeVideoUrl_() : deteksi platform sosmed (YouTube / TikTok /
+ *     Instagram / X / Facebook / direct file) dan bangun embedUrl.
+ *   - uploadAsset() sekarang mendukung MIME video (mp4, webm, mov, quicktime).
+ *   - Video Drive dikembalikan sebagai URL uc?export=download&id=... agar
+ *     bisa dimainkan tag <video> di browser.
+ *   - Validasi server-side durasi <= 300 detik (5 menit) untuk video upload.
+ *   - Batas ukuran per-file 25 MB (batas keras Apps Script).
+ *   - Baris yang meng-clear blob: dihapus — video lokal wajib sudah di-upload
+ *     via uploadAsset() sebelum saveData().
  *
- * STRUKTUR SPREADSHEET (buat sheet berikut):
- * Sheet: Settings, Home, About, Brands, Analytics,
- *        Portfolio, Testimonials, FAQ, Contact,
- *        RateCard Packages, RateCard Services
- *
- * Setiap sheet memiliki 2 kolom: Key | Value
- * Kecuali: Brands, Analytics, Portfolio, Testimonials, FAQ,
- *          RateCard Packages, RateCard Services
- * yang memiliki format row (header di baris 1)
- * ============================================================
+ * File HTML harus diberi nama "Index.html" agar doGet() dapat menemukannya.
  */
 
-// ============================================================
-// KONFIGURASI — GANTI HANYA BAGIAN INI
-// ============================================================
-// Gunakan var agar kompatibel dengan semua versi Google Apps Script engine
-var SPREADSHEET_ID = 'YOUR_GOOGLE_SPREADSHEET_ID';
+var PORTFOLIO_DATA_KEY = 'PORTFOLIO_DATA';
+var PORTFOLIO_CHUNK_COUNT_KEY = 'PORTFOLIO_DATA_CHUNK_COUNT';
+var PORTFOLIO_CHUNK_PREFIX = 'PORTFOLIO_DATA_CHUNK_';
+var ADMIN_SESSION_PREFIX = 'portfolio_admin_session_';
+var ADMIN_ATTEMPT_KEY = 'portfolio_admin_attempts';
+var ADMIN_SESSION_TTL_SECONDS = 21600; // 6 jam
 
-// ============================================================
-// MAIN HANDLER
-// ============================================================
+// ISI DENGAN FOLDER ID GOOGLE DRIVE ANDA (opsional).
+// Contoh: '1AbCdEfGhIjKlMnOpQrStUvWxYz'
+// Jika kosong, file akan disimpan di root My Drive milik pemilik script.
+var VIDEO_FOLDER_ID = '';
 
-/**
- * doGet — menangani semua permintaan GET
- *
- * Parameter URL:
- *   ?action=settings|home|about|brands|analytics|portfolio|
- *           testimonials|faq|contact|ratecard|all
- *   ?callback=namaFungsi   → aktifkan mode JSONP (wajib untuk GitHub Pages)
- *
- * Contoh pemanggilan dari GitHub Pages (fetch biasa akan CORS-blocked):
- *   <script>
- *     function handleData(resp) { console.log(resp); }
- *   </script>
- *   <script src="https://script.google.com/macros/s/XXXX/exec?action=all&callback=handleData"></script>
- *
- * Contoh pemanggilan tanpa JSONP (dari domain yang sama / sudah pakai no-cors):
- *   fetch('https://script.google.com/macros/s/XXXX/exec?action=all')
- */
+// Batas ukuran keras Apps Script.
+var MAX_ASSET_BYTES = 25 * 1024 * 1024;   // 25 MB
+var MAX_VIDEO_DURATION_SECONDS = 300;     // 5 menit
+var ALLOWED_VIDEO_MIME = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-m4v', 'video/ogg'];
+var ALLOWED_IMAGE_MIME = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
+
+// JSON dapat berisi karakter Unicode yang mengambil lebih dari 1 byte.
+var PROPERTY_CHUNK_SIZE = 2000;
+var PROPERTY_TOTAL_LIMIT = 450000; // di bawah batas total 500 KB
+
 function doGet(e) {
-  var params   = (e && e.parameter) ? e.parameter : {};
-  var action   = params.action   ? params.action.toLowerCase() : 'all';
-  var callback = params.callback ? params.callback.trim()      : '';
+  return HtmlService.createTemplateFromFile('Index')
+    .evaluate()
+    .setTitle('Creator Portfolio & Rate Card')
+    .addMetaTag('viewport', 'width=device-width, initial-scale=1.0')
+    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
 
-  var result;
+function onOpen(e) {
   try {
-    switch (action) {
-      case 'settings':     result = getSettings();     break;
-      case 'home':         result = getHome();          break;
-      case 'about':        result = getAbout();         break;
-      case 'brands':       result = getBrands();        break;
-      case 'analytics':    result = getAnalytics();     break;
-      case 'portfolio':    result = getPortfolio();     break;
-      case 'testimonials': result = getTestimonials();  break;
-      case 'faq':          result = getFAQ();           break;
-      case 'contact':      result = getContact();       break;
-      case 'ratecard':     result = getRateCard();      break;
-      case 'all':          result = getAllData();        break;
-      default:
-        result = {
-          error: 'Action tidak valid: ' + action,
-          available: ['settings','home','about','brands','analytics',
-                      'portfolio','testimonials','faq','contact','ratecard','all']
-        };
-    }
+    SpreadsheetApp.getUi()
+      .createMenu('Creator Portfolio')
+      .addItem('Reset data portfolio', 'resetData')
+      .addToUi();
   } catch (err) {
-    result = { error: err.message };
-  }
-
-  // Tentukan status sukses secara eksplisit
-  var isSuccess = !(result && result.error);
-  var payload = JSON.stringify({
-    success:   isSuccess,
-    data:      result,
-    timestamp: new Date().toISOString()
-  });
-
-  // Mode JSONP — wajib untuk panggilan dari GitHub Pages / cross-origin
-  if (callback && /^[a-zA-Z_$][a-zA-Z0-9_$]*$/.test(callback)) {
-    return ContentService
-      .createTextOutput(callback + '(' + payload + ');')
-      .setMimeType(ContentService.MimeType.JAVASCRIPT);
-  }
-
-  // Mode JSON biasa
-  return ContentService
-    .createTextOutput(payload)
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-/**
- * doPost — menangani permintaan POST (opsional, untuk form contact dll.)
- * Body JSON: { action: 'contact', name: '...', email: '...', message: '...' }
- */
-function doPost(e) {
-  var params = {};
-  try {
-    if (e && e.postData && e.postData.contents) {
-      params = JSON.parse(e.postData.contents);
-    } else if (e && e.parameter) {
-      params = e.parameter;
-    }
-  } catch (err) {
-    params = (e && e.parameter) ? e.parameter : {};
-  }
-
-  var action = params.action ? params.action.toLowerCase() : '';
-  var result;
-
-  try {
-    switch (action) {
-      case 'contact':
-      case 'pesan':
-      case 'savecontact':
-        result = saveContactMessage(params); break;
-      case 'updatesettings':  result = updateKeyValue('Settings',           params.data); break;
-      case 'updatehome':      result = updateKeyValue('Home',               params.data); break;
-      case 'updateabout':     result = updateKeyValue('About',              params.data); break;
-      case 'updatecontact':   result = updateKeyValue('Contact',            params.data); break;
-      case 'updateratecard':  result = updateRateCardData(params.data);                   break;
-      case 'updatebrands':    result = updateTableData('Brands',            params.data); break;
-      case 'updateanalytics': result = updateTableData('Analytics',         params.data); break;
-      case 'updateportfolio': result = updateTableData('Portfolio',         params.data); break;
-      case 'updatetestimonials': result = updateTableData('Testimonials',   params.data); break;
-      case 'updatefaq':       result = updateTableData('FAQ',               params.data); break;
-      default:
-        result = { error: 'Action POST tidak dikenali: ' + action };
-    }
-  } catch (err) {
-    result = { error: err.message };
-  }
-
-  var payload = JSON.stringify({
-    success:   !(result && result.error),
-    data:      result,
-    timestamp: new Date().toISOString()
-  });
-
-  return ContentService
-    .createTextOutput(payload)
-    .setMimeType(ContentService.MimeType.JSON);
-}
-
-/**
- * Menyimpan pesan kontak ke sheet "Messages" (dibuat otomatis jika belum ada)
- * Kolom: Timestamp | Name | Email | Phone | Subject | Message
- */
-function saveContactMessage(params) {
-  var ss    = getSpreadsheet();
-  var sheet = ss.getSheetByName('Messages');
-
-  // Buat sheet jika belum ada
-  if (!sheet) {
-    sheet = ss.insertSheet('Messages');
-    sheet.appendRow(['Timestamp','Nama','Email','Telepon','Subjek','Pesan']);
-    sheet.getRange(1, 1, 1, 6).setFontWeight('bold');
-  }
-
-  var name    = params.name    || params.nama    || '';
-  var email   = params.email   || '';
-  var phone   = params.phone   || params.telepon || '';
-  var subject = params.subject || params.subjek  || '';
-  var message = params.message || params.pesan   || '';
-
-  if (!name && !email) {
-    throw new Error('Nama atau email wajib diisi.');
-  }
-
-  sheet.appendRow([
-    new Date().toISOString(),
-    name, email, phone, subject, message
-  ]);
-
-  return { message: 'Pesan berhasil dikirim. Terima kasih, ' + (name || 'Anda') + '!' };
-}
-
-// ============================================================
-// WRITE HELPERS
-// ============================================================
-
-/**
- * writeKeyValueSheet — tulis object ke sheet format Key|Value
- * Baris yang ada diupdate, key baru ditambahkan
- */
-function writeKeyValueSheet(sheetName, data) {
-  var ss    = getSpreadsheet();
-  var sheet = ss.getSheetByName(sheetName);
-  if (!sheet) {
-    sheet = ss.insertSheet(sheetName);
-  }
-
-  var lastRow = sheet.getLastRow();
-  var existing = {};
-  if (lastRow > 0) {
-    var rows = sheet.getRange(1, 1, lastRow, 2).getValues();
-    for (var i = 0; i < rows.length; i++) {
-      var k = String(rows[i][0] || '').trim();
-      if (k) existing[k] = i + 1; // 1-based row number
-    }
-  }
-
-  var keys = Object.keys(data);
-  for (var j = 0; j < keys.length; j++) {
-    var key = keys[j];
-    var val = data[key] !== undefined ? String(data[key]) : '';
-    if (existing[key]) {
-      sheet.getRange(existing[key], 2).setValue(val);
-    } else {
-      sheet.appendRow([key, val]);
-    }
-  }
-  return { updated: keys.length };
-}
-
-/**
- * writeTableSheet — tulis array of objects ke sheet tabel
- * Header diambil dari baris 1. Data lama dihapus, diganti data baru.
- */
-function writeTableSheet(sheetName, dataArray) {
-  var ss    = getSpreadsheet();
-  var sheet = ss.getSheetByName(sheetName);
-  if (!sheet) {
-    sheet = ss.insertSheet(sheetName);
-  }
-
-  if (!dataArray || !dataArray.length) return { updated: 0 };
-
-  // Ambil semua key dari semua object
-  var headerSet = [];
-  for (var i = 0; i < dataArray.length; i++) {
-    var keys = Object.keys(dataArray[i]);
-    for (var k = 0; k < keys.length; k++) {
-      if (headerSet.indexOf(keys[k]) === -1) headerSet.push(keys[k]);
-    }
-  }
-
-  // Hapus semua konten lama
-  sheet.clearContents();
-
-  // Tulis header
-  var headerRow = [];
-  for (var h = 0; h < headerSet.length; h++) headerRow.push(headerSet[h]);
-  sheet.appendRow(headerRow);
-  sheet.getRange(1, 1, 1, headerRow.length).setFontWeight('bold');
-
-  // Tulis data
-  for (var r = 0; r < dataArray.length; r++) {
-    var row = [];
-    for (var c = 0; c < headerSet.length; c++) {
-      var v = dataArray[r][headerSet[c]];
-      row.push(v !== undefined && v !== null ? String(v) : '');
-    }
-    sheet.appendRow(row);
-  }
-
-  return { updated: dataArray.length };
-}
-
-/**
- * updateKeyValue — update sheet key-value dari data object
- */
-function updateKeyValue(sheetName, data) {
-  if (!data) throw new Error('Data tidak boleh kosong untuk ' + sheetName);
-  var parsed = (typeof data === 'string') ? JSON.parse(data) : data;
-  return writeKeyValueSheet(sheetName, parsed);
-}
-
-/**
- * updateTableData — replace isi sheet tabel dari array data
- */
-function updateTableData(sheetName, data) {
-  if (!data) throw new Error('Data tidak boleh kosong untuk ' + sheetName);
-  var parsed = (typeof data === 'string') ? JSON.parse(data) : data;
-  if (!Array.isArray(parsed)) parsed = [parsed];
-  return writeTableSheet(sheetName, parsed);
-}
-
-/**
- * updateRateCardData — update sheet RateCard Packages + RateCard Services
- */
-function updateRateCardData(data) {
-  if (!data) throw new Error('Data rate card tidak boleh kosong');
-  var parsed = (typeof data === 'string') ? JSON.parse(data) : data;
-  var result = {};
-  if (parsed.packages) {
-    result.packages = writeTableSheet('RateCard Packages', parsed.packages);
-  }
-  if (parsed.additionalServices) {
-    result.additionalServices = writeTableSheet('RateCard Services', parsed.additionalServices);
-  }
-  return result;
-}
-
-// ============================================================
-// HELPER: Open Spreadsheet
-// ============================================================
-function getSpreadsheet() {
-  return SpreadsheetApp.openById(SPREADSHEET_ID);
-}
-
-function getSheet(name) {
-  var ss    = getSpreadsheet();
-  var sheet = ss.getSheetByName(name);
-  if (!sheet) throw new Error('Sheet "' + name + '" tidak ditemukan di Spreadsheet.');
-  return sheet;
-}
-
-/**
- * Membaca sheet dengan format Key-Value (2 kolom)
- * Kolom A = Key, Kolom B = Value
- * Mengembalikan object { key: value }
- */
-function readKeyValueSheet(sheetName) {
-  var sheet   = getSheet(sheetName);
-  var lastRow = sheet.getLastRow();
-  if (lastRow < 1) return {};
-
-  var data   = sheet.getRange(1, 1, lastRow, 2).getValues();
-  var result = {};
-
-  for (var i = 0; i < data.length; i++) {
-    var key   = String(data[i][0] || '').trim();
-    var value = data[i][1];
-    if (key && key !== '') {
-      result[toCamelCase(key)] = (value !== null && value !== undefined) ? String(value) : '';
-    }
-  }
-  return result;
-}
-
-/**
- * Membaca sheet dengan format tabel (baris pertama = header)
- * Mengembalikan array of objects
- */
-function readTableSheet(sheetName) {
-  var sheet   = getSheet(sheetName);
-  var lastRow = sheet.getLastRow();
-  var lastCol = sheet.getLastColumn();
-  if (lastRow < 2 || lastCol < 1) return [];
-
-  var allData = sheet.getRange(1, 1, lastRow, lastCol).getValues();
-  var headers = allData[0].map(function(h) { return toCamelCase(String(h || '').trim()); });
-  var rows    = [];
-
-  for (var i = 1; i < allData.length; i++) {
-    var row     = {};
-    var hasData = false;
-    for (var j = 0; j < headers.length; j++) {
-      if (headers[j]) {
-        var val        = allData[i][j];
-        row[headers[j]] = (val !== null && val !== undefined) ? String(val) : '';
-        if (row[headers[j]] !== '') hasData = true;
-      }
-    }
-    if (hasData) rows.push(row);
-  }
-  return rows;
-}
-
-/**
- * Konversi string ke camelCase
- * Contoh: "Site Name" -> "siteName", "WhatsApp" -> "whatsapp"
- * "Jam Operasional" -> "jamOperasional" (mendukung karakter non-ASCII)
- */
-function toCamelCase(str) {
-  if (!str) return '';
-  // Normalisasi: ganti tanda baca umum dengan spasi, tapi JANGAN hapus huruf aksen
-  return str
-    .trim()
-    .replace(/[^\w\s]/g, ' ')   // hapus tanda baca, sisakan huruf+angka+spasi
-    .replace(/\s+/g, ' ')       // normalisasi spasi ganda
-    .trim()
-    .split(' ')
-    .map(function(word, index) {
-      if (!word) return '';
-      var lower = word.toLowerCase();
-      // Kata pertama seluruhnya lowercase, kata berikutnya kapital di depan
-      return index === 0 ? lower : lower.charAt(0).toUpperCase() + lower.slice(1);
-    })
-    .join('');
-}
-
-// ============================================================
-// SETTINGS
-// ============================================================
-/**
- * Sheet: Settings
- * Format: Key | Value
- *
- * Keys yang digunakan:
- * Site Name | Sarah Amanda
- * Logo | https://drive.google.com/...
- * Favicon | https://...
- * WhatsApp | 6281234567890
- * WA Template | Halo, Saya ingin...
- * PDF Rate Card | https://drive.google.com/...
- * Instagram | https://instagram.com/...
- * TikTok | https://tiktok.com/...
- * YouTube | https://youtube.com/...
- * Threads | https://threads.net/...
- * Facebook | https://facebook.com/...
- * LinkedIn | https://linkedin.com/...
- * Website | https://...
- * Email | hello@example.com
- * Phone | +62 812 ...
- * Address | Jakarta Selatan, Indonesia
- * Google Maps | <iframe...> atau URL
- * QR WhatsApp | https://drive.google.com/...
- * Copyright | © 2025 Sarah Amanda
- * Primary Color | #059669
- * Secondary Color | #84a98c
- */
-function getSettings() {
-  try {
-    var d = readKeyValueSheet('Settings');
-    return {
-      siteName:       d.siteName || d.siteNama || '',
-      logo:           toDirectLink(d.logo || ''),
-      favicon:        toDirectLink(d.favicon || ''),
-      whatsapp:       (d.whatsapp || '').replace(/\D/g,''),
-      waTemplate:     d.waTemplate || d.templateWhatsapp || d.pesanWhatsapp || 'Halo,\n\nSaya ingin melakukan kerja sama.\n\nNama :\nPerusahaan :\nProduk :\nJenis Campaign :\nBudget :\nDeadline :\n\nTerima kasih.',
-      pdfRateCard:    toDirectLink(d.pdfRateCard || d.rateCard || ''),
-      instagram:      d.instagram || '',
-      tiktok:         d.tiktok || '',
-      youtube:        d.youtube || '',
-      threads:        d.threads || '',
-      facebook:       d.facebook || '',
-      linkedin:       d.linkedin || '',
-      website:        d.website || '',
-      email:          d.email || '',
-      phone:          d.phone || d.nomorHp || '',
-      address:        d.address || d.alamat || '',
-      googleMaps:     d.googleMaps || d.maps || '',
-      qrWhatsapp:     toDirectLink(d.qrWhatsapp || d.qr || ''),
-      copyright:      d.copyright || ('© ' + new Date().getFullYear() + ' Portfolio. All rights reserved.'),
-      primaryColor:   d.primaryColor || '#059669',
-      secondaryColor: d.secondaryColor || '#84a98c',
-    };
-  } catch (e) {
-    return { error: e.message };
+    Logger.log('onOpen dilewati (script bukan spreadsheet-bound): ' + err);
   }
 }
 
-// ============================================================
-// HOME
-// ============================================================
-/**
- * Sheet: Home
- * Format: Key | Value
- *
- * Keys:
- * Name | Sarah Amanda
- * Profession | Lifestyle Creator
- * Tagline | Creating Content That Connects
- * Description | I help brands...
- * Photo | https://drive.google.com/...
- * Followers | 150K+
- * Engagement Rate | 5.8%
- * Brands Worked | 120+
- * Monthly Reach | 1.2M+
- */
-function getHome() {
-  try {
-    var d = readKeyValueSheet('Home');
-    return {
-      name:           d.name || d.nama || '',
-      profession:     d.profession || d.profesi || '',
-      tagline:        d.tagline || '',
-      description:    d.description || d.deskripsi || '',
-      photo:          toDirectLink(d.photo || d.foto || ''),
-      followers:      d.followers || d.totalFollowers || '',
-      engagementRate: d.engagementRate || d.engagement || '',
-      brandsWorked:   d.brandsWorked || d.brand || '',
-      monthlyReach:   d.monthlyReach || d.reach || '',
-    };
-  } catch (e) {
-    return { error: e.message };
-  }
+function onInstall(e) {
+  onOpen(e);
 }
 
-// ============================================================
-// ABOUT
-// ============================================================
-/**
- * Sheet: About
- * Format: Key | Value
- *
- * Keys:
- * Photo | https://drive.google.com/...
- * Title | Turning Ideas Into Impactful Content
- * Description | Saya adalah content creator...
- * Experience | 5+
- * Campaign | 120+
- * Repeat Client | 95%
- * Videos Created | 500+
- * Achievement | 10+
- */
-function getAbout() {
-  try {
-    var d = readKeyValueSheet('About');
-    return {
-      photo:         toDirectLink(d.photo || d.foto || ''),
-      title:         d.title || d.judul || '',
-      description:   d.description || d.deskripsi || '',
-      experience:    d.experience || d.pengalaman || '',
-      campaign:      d.campaign || d.campaignCompleted || '',
-      repeatClient:  d.repeatClient || d.repeat || '',
-      videosCreated: d.videosCreated || d.videos || '',
-      achievement:   d.achievement || '',
-    };
-  } catch (e) {
-    return { error: e.message };
-  }
-}
+/* ================================================================
+   DATA DEFAULT DAN PEMBACAAN
+================================================================ */
 
-// ============================================================
-// BRANDS
-// ============================================================
-/**
- * Sheet: Brands
- * Format: Tabel (Header di baris 1)
- *
- * Kolom: Name | Logo | Website | Order
- * Contoh:
- * Name | Logo | Website | Order
- * Tokopedia | https://logo.url | https://tokopedia.com | 1
- */
-function getBrands() {
-  try {
-    var rows = readTableSheet('Brands');
-    return rows
-      .filter(function(r) { return r.name || r.logo; })
-      .sort(function(a, b) { return parseInt(a.order||0) - parseInt(b.order||0); })
-      .map(function(r) { return {
-        name:    r.name || r.nama || '',
-        logo:    toDirectLink(r.logo || ''),
-        website: r.website || '',
-      }; });
-  } catch (e) {
-    return { error: e.message };
-  }
-}
-
-// ============================================================
-// ANALYTICS
-// ============================================================
-/**
- * Sheet: Analytics
- * Format: Tabel (Header di baris 1)
- *
- * Kolom: Platform | Handle | Followers | Engagement Rate | Reach | Age Range | Female Percent | Male Percent | Order
- * Contoh:
- * Platform | Handle | Followers | Engagement Rate | Reach | Age Range | Female Percent | Order
- * Instagram | @sarahamanda | 150K | 5.8% | 1.2M | 18-34 | 68 | 1
- */
-function getAnalytics() {
-  try {
-    var rows = readTableSheet('Analytics');
-    return rows
-      .filter(function(r) { return r.platform; })
-      .sort(function(a, b) { return parseInt(a.order||0) - parseInt(b.order||0); })
-      .map(function(r) { return {
-        platform:       r.platform || '',
-        handle:         r.handle || '',
-        followers:      r.followers || '',
-        engagementRate: r.engagementRate || r.engagement || '',
-        reach:          r.reach || '',
-        ageRange:       r.ageRange || r.age || '18-34',
-        femalePercent:  r.femalePercent || r.female || r.wanita || '65',
-        malePercent:    r.malePercent || r.male || r.pria || '35',
-      }; });
-  } catch (e) {
-    return { error: e.message };
-  }
-}
-
-// ============================================================
-// PORTFOLIO
-// ============================================================
-/**
- * Sheet: Portfolio
- * Format: Tabel (Header di baris 1)
- *
- * Kolom: Title | Category | Description | Thumbnail | Link | Status | Order
- * Contoh:
- * Title | Category | Description | Thumbnail | Link | Status | Order
- * Skincare Review | Beauty | Honest review... | https://img.url | https://ig.url | active | 1
- *
- * Status: active / inactive (inactive = tidak ditampilkan)
- */
-function getPortfolio() {
-  try {
-    var rows = readTableSheet('Portfolio');
-    return rows
-      .filter(function(r) { return r.title && (r.status || 'active').toLowerCase() !== 'inactive'; })
-      .sort(function(a, b) { return parseInt(a.order||0) - parseInt(b.order||0); })
-      .map(function(r) { return {
-        title:       r.title || r.judul || '',
-        category:    r.category || r.kategori || '',
-        description: r.description || r.deskripsi || '',
-        thumbnail:   toDirectLink(r.thumbnail || ''),
-        link:        r.link || '',
-        status:      r.status || 'active',
-        order:       parseInt(r.order || 0),
-      }; });
-  } catch (e) {
-    return { error: e.message };
-  }
-}
-
-// ============================================================
-// TESTIMONIALS
-// ============================================================
-/**
- * Sheet: Testimonials
- * Format: Tabel (Header di baris 1)
- *
- * Kolom: Name | Brand | Rating | Text | Avatar | Order
- * Contoh:
- * Name | Brand | Rating | Text | Avatar | Order
- * Wardah | Beauty Brand | 5 | Sangat profesional... | https://img.url | 1
- *
- * Rating: 1-5
- */
-function getTestimonials() {
-  try {
-    var rows = readTableSheet('Testimonials');
-    return rows
-      .filter(function(r) { return r.name && (r.text || r.testimonial); })
-      .sort(function(a, b) { return parseInt(a.order||0) - parseInt(b.order||0); })
-      .map(function(r) { return {
-        name:   r.name || r.nama || '',
-        brand:  r.brand || r.company || r.perusahaan || '',
-        rating: parseInt(r.rating || 5),
-        text:   r.text || r.testimonial || r.review || '',
-        avatar: toDirectLink(r.avatar || ''),
-      }; });
-  } catch (e) {
-    return { error: e.message };
-  }
-}
-
-// ============================================================
-// FAQ
-// ============================================================
-/**
- * Sheet: FAQ
- * Format: Tabel (Header di baris 1)
- *
- * Kolom: Question | Answer | Order
- * Contoh:
- * Question | Answer | Order
- * Berapa lama proses... | Proses pembuatan... | 1
- */
-function getFAQ() {
-  try {
-    var rows = readTableSheet('FAQ');
-    return rows
-      .filter(function(r) { return r.question && r.answer; })
-      .sort(function(a, b) { return parseInt(a.order||0) - parseInt(b.order||0); })
-      .map(function(r) { return {
-        question: r.question || r.pertanyaan || '',
-        answer:   r.answer || r.jawaban || '',
-      }; });
-  } catch (e) {
-    return { error: e.message };
-  }
-}
-
-// ============================================================
-// CONTACT
-// ============================================================
-/**
- * Sheet: Contact
- * Format: Key | Value
- *
- * Keys:
- * Phone | +62 812 3456 7890
- * Email | hello@example.com
- * Address | Jakarta Selatan, Indonesia
- * Google Maps | <iframe ...> atau embed URL
- * QR WhatsApp | https://drive.google.com/...
- * Hours Mon-Fri | 09:00 - 18:00
- * Hours Saturday | 10:00 - 15:00
- * Hours Sunday | Closed
- */
-function getContact() {
-  try {
-    var d     = readKeyValueSheet('Contact');
-    var hours = {};
-    if (d.hoursMonFri || d.mondayFriday || d.seninJumat)
-      hours['Mon – Fri']  = d.hoursMonFri || d.mondayFriday || d.seninJumat || '09:00 – 18:00';
-    if (d.hoursSaturday || d.sabtu)
-      hours['Saturday']   = d.hoursSaturday || d.sabtu || '10:00 – 15:00';
-    if (d.hoursSunday || d.minggu)
-      hours['Sunday']     = d.hoursSunday || d.minggu || 'Closed';
-    return {
-      phone:      d.phone || d.nomorHp || d.nomor || '',
-      email:      d.email || '',
-      address:    d.address || d.alamat || '',
-      googleMaps: d.googleMaps || d.maps || d.peta || '',
-      qrWhatsapp: toDirectLink(d.qrWhatsapp || d.qr || ''),
-      hours:      Object.keys(hours).length ? hours : { 'Mon – Fri': '09:00 – 18:00', 'Saturday': '10:00 – 15:00', 'Sunday': 'Closed' },
-    };
-  } catch (e) {
-    return { error: e.message };
-  }
-}
-
-// ============================================================
-// RATE CARD
-// ============================================================
-/**
- * Sheet: RateCard (atau Rate Card)
- *
- * Sub-sheet 1: Sheet bernama "RateCard Packages" atau "Rate Card Packages"
- * Format: Tabel
- * Kolom: Tier | Name | Price | Features | Featured | Order
- * Contoh:
- * Tier | Name | Price | Features | Featured | Order
- * STARTER | Story Package | Rp250.000 | 1 Instagram Story\nMention\nMax 3 Slide | false | 1
- * PROFESSIONAL | Bundle Package | Rp1.250.000 | Instagram Reels\nEditing+Caption\n... | true | 2
- *
- * Sub-sheet 2: Sheet bernama "RateCard Services" atau "Additional Services"
- * Format: Tabel
- * Kolom: Name | Order
- * Contoh:
- * Name | Order
- * UGC Content | 1
- * Photography | 2
- *
- * ATAU: Jika menggunakan satu sheet "RateCard":
- * Format Key-Value untuk packages sederhana
- */
-function getRateCard() {
-  try {
-    var packages           = [];
-    var additionalServices = [];
-
-    try { packages = readTableSheet('RateCard Packages'); } catch (e) {}
-    if (!packages.length) { try { packages = readTableSheet('Rate Card Packages'); } catch (e) {} }
-    if (!packages.length) { try { packages = readTableSheet('Packages');           } catch (e) {} }
-    if (!packages.length) { try { var r1 = readTableSheet('RateCard');   if (r1.length) packages = r1; } catch (e) {} }
-    if (!packages.length) { try { var r2 = readTableSheet('Rate Card');  if (r2.length) packages = r2; } catch (e) {} }
-
-    packages = packages
-      .filter(function(p) { return p.name || p.nama; })
-      .sort(function(a, b) { return parseInt(a.order||0) - parseInt(b.order||0); })
-      .map(function(p) { return {
-        tier:     p.tier || p.tipe || '',
-        name:     p.name || p.nama || '',
-        price:    p.price || p.harga || '',
-        features: (p.features || p.fitur || p.items || '').split(/\n|\\n/).map(function(f) { return f.trim(); }).filter(Boolean),
-        featured: String(p.featured || p.popular || '').toLowerCase() === 'true',
-      }; });
-
-    try { additionalServices = readTableSheet('RateCard Services');   } catch (e) {}
-    if (!additionalServices.length) { try { additionalServices = readTableSheet('Additional Services'); } catch (e) {} }
-    if (!additionalServices.length) { try { additionalServices = readTableSheet('Layanan Tambahan');    } catch (e) {} }
-
-    additionalServices = additionalServices
-      .filter(function(s) { return s.name || s.nama; })
-      .sort(function(a, b) { return parseInt(a.order||0) - parseInt(b.order||0); })
-      .map(function(s) { return { name: s.name || s.nama || '' }; });
-
-    return { packages: packages, additionalServices: additionalServices };
-  } catch (e) {
-    return { error: e.message, packages: [], additionalServices: [] };
-  }
-}
-
-// ============================================================
-// ALL DATA (single request untuk pre-loading)
-// ============================================================
-function getAllData() {
+function getDefaultData_() {
   return {
-    settings:     getSettings(),
-    home:         getHome(),
-    about:        getAbout(),
-    brands:       getBrands(),
-    analytics:    getAnalytics(),
-    portfolio:    getPortfolio(),
-    testimonials: getTestimonials(),
-    faq:          getFAQ(),
-    contact:      getContact(),
-    ratecard:     getRateCard(),
+    adminPin: '1234',
+    whatsappNumber: '6281234567890',
+
+    profile: {
+      name: 'Safwa Sakilla',
+      tagline: 'Lifestyle & Beauty Content Creator',
+      bio: 'Saya adalah content creator yang berfokus pada lifestyle, beauty, self development dan daily life. Saya suka membuat konten yang autentik, aesthetic, dan memberikan value untuk audiens saya.',
+      avatarUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600&q=80',
+      location: 'Jakarta, Indonesia',
+      email: 'safwa@email.com'
+    },
+
+    contactInfo: [
+      { icon: 'youtube', label: 'YOUTUBE', value: '@safwasakilla', href: 'https://youtube.com/@safwasakilla' },
+      { icon: 'twitter', label: 'TWITTER / X', value: '@safwasakilla', href: 'https://x.com/safwasakilla' },
+      { icon: 'instagram', label: 'INSTAGRAM', value: '@safwasakilla', href: 'https://instagram.com/safwasakilla' },
+      { icon: 'music', label: 'TIKTOK', value: '@safwasakilla', href: 'https://tiktok.com/@safwasakilla' }
+    ],
+
+    socialStats: [
+      { platform: 'Instagram', handle: '@safwasakilla', value: '250K', label: 'Followers', icon: 'instagram' },
+      { platform: 'TikTok', handle: '@safwasakilla', value: '180K', label: 'Followers', icon: 'music' },
+      { platform: 'YouTube', handle: 'Safwa Sakilla', value: '75K', label: 'Subscribers', icon: 'youtube' },
+      { platform: 'Engagement Rate', handle: '', value: '4.8%', label: 'Rata-rata', icon: 'trending-up' },
+      { platform: 'Reach Bulanan', handle: '', value: '1.2M+', label: 'Accounts', icon: 'eye' },
+      { platform: 'Audience Dominan', handle: '', value: '18 - 34', label: 'Tahun', icon: 'users' }
+    ],
+
+    audienceInfo: [
+      { icon: 'sparkles', label: 'Niche', value: 'Lifestyle, Beauty, Fashion' },
+      { icon: 'users', label: 'Gender Audience', value: '78% Wanita' },
+      { icon: 'map-pin', label: 'Lokasi Audience', value: '92% Indonesia' },
+      { icon: 'globe', label: 'Bahasa', value: 'Indonesia' }
+    ],
+
+    brandCollabs: [
+      { name: 'Somethinc', logoUrl: '', textFallback: 'Somethinc' },
+      { name: 'Brand 2', logoUrl: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?auto=format&fit=crop&w=120&h=60&q=60', textFallback: '' },
+      { name: 'Brand 3', logoUrl: 'https://images.unsplash.com/photo-1542744094-3a31f272c490?auto=format&fit=crop&w=120&h=60&q=60', textFallback: '' },
+      { name: 'Brand 4', logoUrl: 'https://images.unsplash.com/photo-1493119508027-2b584f234d6c?auto=format&fit=crop&w=120&h=60&q=60', textFallback: '' },
+      { name: 'Brand 5', logoUrl: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=120&h=60&q=60', textFallback: '' },
+      { name: 'Brand 6', logoUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=120&h=60&q=60', textFallback: '' },
+      { name: 'Brand 7', logoUrl: 'https://images.unsplash.com/photo-1583241800698-e8ab01830a22?auto=format&fit=crop&w=120&h=60&q=60', textFallback: '' }
+    ],
+
+    videos: [
+      { id: 'v1', title: 'Makeup Tutorial Collab', platform: 'Reels', duration: '0:45', thumbnailUrl: 'https://images.unsplash.com/photo-1487412912498-0447578fcca8?auto=format&fit=crop&w=600&q=70', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', embedUrl: '', sourceType: 'direct', durationSeconds: 45 },
+      { id: 'v2', title: 'Skincare Routine Review', platform: 'TikTok', duration: '0:52', thumbnailUrl: 'https://images.unsplash.com/photo-1515688594390-b649af70d282?auto=format&fit=crop&w=600&q=70', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', embedUrl: '', sourceType: 'direct', durationSeconds: 52 },
+      { id: 'v3', title: 'Beauty Brand Campaign', platform: 'Reels', duration: '0:48', thumbnailUrl: 'https://images.unsplash.com/photo-1583241801015-607ccbda4920?auto=format&fit=crop&w=600&q=70', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', embedUrl: '', sourceType: 'direct', durationSeconds: 48 },
+      { id: 'v4', title: 'Lifestyle Vlog x Brand', platform: 'YouTube', duration: '1:05', thumbnailUrl: 'https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=600&q=70', videoUrl: 'https://www.w3schools.com/html/mov_bbb.mp4', embedUrl: '', sourceType: 'direct', durationSeconds: 65 }
+    ],
+
+    rateCards: [
+      { id: 'r1', title: 'Story 1 Frame', price: 'Rp500.000', popular: false, icon: 'smartphone', features: ['1 Story (1 Frame)', 'Tag @brand', 'Include Link'] },
+      { id: 'r2', title: 'Story 3 Frame', price: 'Rp1.200.000', popular: false, icon: 'smartphone', features: ['3 Story (3 Frame)', 'Tag @brand', 'Include Link'] },
+      { id: 'r3', title: 'Feed Post', price: 'Rp2.500.000', popular: true, icon: 'layers', features: ['1 Feed Instagram', 'Foto / Carousel', 'Caption Review', 'Tag @brand'] },
+      { id: 'r4', title: 'Reel Video', price: 'Rp3.500.000', popular: false, icon: 'video', features: ['1 Video Reel (Max 60s)', 'Tag @brand', 'Include Link', 'Creative Editing'] },
+      { id: 'r5', title: 'Campaign Package', price: 'Custom Price', popular: false, icon: 'film', features: ['Paket campaign', 'Content plan', 'Multiple platform', 'Harga menyesuaikan'] }
+    ]
   };
 }
 
-// ============================================================
-// HELPER: Convert Google Drive share link to direct image URL
-// ============================================================
-/**
- * Mengkonversi berbagai format Google Drive link menjadi
- * URL gambar langsung yang bisa digunakan di <img src="">
- *
- * Mendukung:
- * - https://drive.google.com/file/d/FILE_ID/view
- * - https://drive.google.com/open?id=FILE_ID
- * - https://drive.google.com/uc?id=FILE_ID
- * - URL biasa (dikembalikan apa adanya)
- */
-function toDirectLink(url) {
-  if (!url || url.trim() === '') return '';
-  url = url.trim();
-  if (!url.includes('drive.google.com')) return url;
-  var match1 = url.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
-  if (match1) return 'https://drive.google.com/uc?export=view&id=' + match1[1];
-  var match2 = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
-  if (match2) return 'https://drive.google.com/uc?export=view&id=' + match2[1];
-  if (url.includes('/uc?')) return url;
-  return url;
+function cloneObject_(value) {
+  return JSON.parse(JSON.stringify(value));
 }
 
-// ============================================================
-// HELPER: Test functions (jalankan dari editor Apps Script)
-// ============================================================
-
-/** Jalankan fungsi ini untuk mengetes semua data sekaligus */
-function testAll() {
-  var result = getAllData();
-  Logger.log(JSON.stringify(result, null, 2));
-}
-
-function testSettings()     { Logger.log(JSON.stringify(getSettings(),     null, 2)); }
-function testHome()         { Logger.log(JSON.stringify(getHome(),         null, 2)); }
-function testAbout()        { Logger.log(JSON.stringify(getAbout(),        null, 2)); }
-function testBrands()       { Logger.log(JSON.stringify(getBrands(),       null, 2)); }
-function testAnalytics()    { Logger.log(JSON.stringify(getAnalytics(),    null, 2)); }
-function testPortfolio()    { Logger.log(JSON.stringify(getPortfolio(),    null, 2)); }
-function testTestimonials() { Logger.log(JSON.stringify(getTestimonials(), null, 2)); }
-function testFAQ()          { Logger.log(JSON.stringify(getFAQ(),          null, 2)); }
-function testContact()      { Logger.log(JSON.stringify(getContact(),      null, 2)); }
-function testRateCard()     { Logger.log(JSON.stringify(getRateCard(),     null, 2)); }
-
-/**
- * Simulasi doGet dengan parameter tertentu
- * Contoh: jalankan testDoGet('portfolio') atau testDoGet('all')
- */
-function testDoGet(actionParam) {
-  var fakeEvent = { parameter: { action: actionParam || 'all' } };
-  var output    = doGet(fakeEvent);
-  Logger.log(output.getContent());
-}
-
-/**
- * Simulasi JSONP — cek apakah output terbungkus callback dengan benar
- */
-function testJSONP() {
-  var fakeEvent = { parameter: { action: 'settings', callback: 'myCallback' } };
-  var output    = doGet(fakeEvent);
-  Logger.log(output.getContent()); // harus dimulai dengan: myCallback({...});
-}
-
-/**
- * Tes toCamelCase dengan berbagai input
- */
-function testCamelCase() {
-  var cases = [
-    'Site Name',          // → siteName
-    'WhatsApp',           // → whatsapp
-    'Jam Operasional',    // → jamOperasional
-    'Senin – Jumat',      // → seninJumat
-    'Hours Mon-Fri',      // → hoursMonFri
-    'Female Percent',     // → femalePercent
-    'PDF Rate Card',      // → pdfRateCard
-    'Google Maps',        // → googleMaps
-  ];
-  cases.forEach(function(c) {
-    Logger.log('"' + c + '" → "' + toCamelCase(c) + '"');
+function normalizeContactInfo_(items) {
+  var source = Array.isArray(items) ? items : [];
+  var result = source.map(function(item) {
+    return item && typeof item === 'object' ? item : {};
   });
+
+  if (!result[0] || result[0].icon === 'phone' || result[0].label === 'WHATSAPP ADMIN') {
+    result[0] = { icon: 'youtube', label: 'YOUTUBE', value: '@safwasakilla', href: 'https://youtube.com/@safwasakilla' };
+  }
+  if (!result[1] || result[1].icon === 'mail' || result[1].label === 'EMAIL INQUIRY') {
+    result[1] = { icon: 'twitter', label: 'TWITTER / X', value: '@safwasakilla', href: 'https://x.com/safwasakilla' };
+  }
+  if (!result[2]) result[2] = { icon: 'instagram', label: 'INSTAGRAM', value: '@safwasakilla', href: 'https://instagram.com/safwasakilla' };
+  if (!result[3]) result[3] = { icon: 'music', label: 'TIKTOK', value: '@safwasakilla', href: 'https://tiktok.com/@safwasakilla' };
+
+  result = result.map(function(item) {
+    if (item && typeof item === 'object' && item.href === undefined) item.href = '';
+    return item;
+  });
+  return result;
+}
+
+/* ================================================================
+   NORMALIZE VIDEO URL (deteksi platform sosmed)
+================================================================ */
+
+/**
+ * Deteksi platform video dari URL dan bangun embedUrl-nya.
+ * Return: { sourceType, embedUrl, videoUrl, platform }
+ * sourceType: 'youtube' | 'tiktok' | 'instagram' | 'twitter' | 'facebook' | 'direct' | ''
+ */
+function normalizeVideoUrl_(url) {
+  var u = String(url || '').trim();
+  var empty = { sourceType: '', embedUrl: '', videoUrl: '', platform: '' };
+  if (!u) return empty;
+
+  var m;
+
+  // YouTube (watch, shorts, embed, youtu.be)
+  m = u.match(/(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/);
+  if (m) {
+    return {
+      sourceType: 'youtube',
+      embedUrl: 'https://www.youtube.com/embed/' + m[1],
+      videoUrl: u,
+      platform: 'YouTube'
+    };
+  }
+
+  // TikTok (@user/video/ID atau v/ID)
+  m = u.match(/tiktok\.com\/(?:@[^\/]+\/video\/|v\/)(\d+)/);
+  if (m) {
+    return {
+      sourceType: 'tiktok',
+      embedUrl: 'https://www.tiktok.com/embed/v2/' + m[1],
+      videoUrl: u,
+      platform: 'TikTok'
+    };
+  }
+
+  // Instagram (reel, p, tv)
+  m = u.match(/instagram\.com\/(?:reel|p|tv)\/([A-Za-z0-9_-]+)/);
+  if (m) {
+    return {
+      sourceType: 'instagram',
+      embedUrl: 'https://www.instagram.com/reel/' + m[1] + '/embed',
+      videoUrl: u,
+      platform: 'Instagram'
+    };
+  }
+
+  // Twitter / X
+  m = u.match(/(?:twitter|x)\.com\/[^\/]+\/status\/(\d+)/);
+  if (m) {
+    return {
+      sourceType: 'twitter',
+      embedUrl: 'https://twitframe.com/show?url=' + encodeURIComponent(u),
+      videoUrl: u,
+      platform: 'Twitter'
+    };
+  }
+
+  // Facebook
+  m = u.match(/facebook\.com\/.*\/videos\/(\d+)/);
+  if (m) {
+    return {
+      sourceType: 'facebook',
+      embedUrl: 'https://www.facebook.com/plugins/video.php?href=' + encodeURIComponent(u) + '&show_text=0',
+      videoUrl: u,
+      platform: 'Facebook'
+    };
+  }
+
+  // Direct video file (mp4, webm, mov, m4v, ogg) atau Google Drive uc?export=download
+  if (/\.(mp4|webm|mov|m4v|ogg|ogv)(\?|$)/i.test(u) || /drive\.google\.com\/uc\?/i.test(u)) {
+    return { sourceType: 'direct', embedUrl: '', videoUrl: u, platform: 'Video' };
+  }
+
+  // Fallback — anggap sebagai direct URL apa adanya
+  return { sourceType: 'direct', embedUrl: '', videoUrl: u, platform: 'Video' };
+}
+
+/**
+ * Normalisasi struktur video agar backward-compatible dengan data lama
+ * (yang mungkin tidak punya field embedUrl / sourceType / durationSeconds).
+ */
+function normalizeVideos_(items) {
+  var list = Array.isArray(items) ? items : [];
+  return list.map(function(v, idx) {
+    var video = v && typeof v === 'object' ? v : {};
+    if (!video.id) video.id = 'v' + (idx + 1) + '_' + new Date().getTime();
+    if (video.title == null) video.title = '';
+    if (video.platform == null) video.platform = '';
+    if (video.duration == null) video.duration = '';
+    if (video.thumbnailUrl == null) video.thumbnailUrl = '';
+    if (video.videoUrl == null) video.videoUrl = '';
+    if (video.embedUrl == null) video.embedUrl = '';
+    if (video.sourceType == null) video.sourceType = '';
+    if (video.durationSeconds == null) video.durationSeconds = 0;
+
+    // Deteksi otomatis sourceType kalau kosong tapi ada videoUrl
+    if (!video.sourceType && video.videoUrl && String(video.videoUrl).indexOf('data:') !== 0) {
+      var info = normalizeVideoUrl_(video.videoUrl);
+      if (info.sourceType) {
+        video.sourceType = info.sourceType;
+        if (!video.embedUrl) video.embedUrl = info.embedUrl;
+        if (!video.platform && info.platform) video.platform = info.platform;
+      }
+    }
+    return video;
+  });
+}
+
+function getStoredData_() {
+  var props = PropertiesService.getScriptProperties();
+  var json = '';
+  var chunkCount = Number(props.getProperty(PORTFOLIO_CHUNK_COUNT_KEY) || 0);
+
+  if (chunkCount > 0 && chunkCount <= 300) {
+    var chunks = [];
+    for (var i = 0; i < chunkCount; i++) {
+      chunks.push(props.getProperty(PORTFOLIO_CHUNK_PREFIX + i) || '');
+    }
+    json = chunks.join('');
+  } else {
+    json = props.getProperty(PORTFOLIO_DATA_KEY) || '';
+  }
+
+  if (!json) return null;
+
+  try {
+    var parsed = JSON.parse(json);
+    return parsed && typeof parsed === 'object' ? parsed : null;
+  } catch (err) {
+    Logger.log('PORTFOLIO_DATA tidak valid: ' + err);
+    return null;
+  }
+}
+
+function removePrivateFields_(data) {
+  var copy = cloneObject_(data || {});
+  delete copy.adminPin;
+  (copy.videos || []).forEach(function(video) {
+    delete video._localVideoFile;
+  });
+  return copy;
+}
+
+function getData() {
+  try {
+    var data = getStoredData_();
+    if (!data) {
+      data = getDefaultData_();
+      writeStoredData_(data);
+      Logger.log('Data default dibuat.');
+    }
+    data.contactInfo = normalizeContactInfo_(data.contactInfo);
+    data.videos = normalizeVideos_(data.videos);
+    return removePrivateFields_(data);
+  } catch (err) {
+    Logger.log('getData error: ' + err);
+    return removePrivateFields_(getDefaultData_());
+  }
+}
+
+/* ================================================================
+   AUTENTIKASI ADMIN
+================================================================ */
+
+function constantTimeEquals_(left, right) {
+  left = String(left || '');
+  right = String(right || '');
+  var different = left.length ^ right.length;
+  var maxLength = Math.max(left.length, right.length);
+  for (var i = 0; i < maxLength; i++) {
+    different |= (left.charCodeAt(i) || 0) ^ (right.charCodeAt(i) || 0);
+  }
+  return different === 0;
+}
+
+function getAdminPin_() {
+  var data = getStoredData_();
+  return String((data && data.adminPin) || getDefaultData_().adminPin);
+}
+
+function verifyAdminPin(pin) {
+  try {
+    var cache = CacheService.getUserCache();
+    var attempts = Number(cache.get(ADMIN_ATTEMPT_KEY) || 0);
+    if (attempts >= 5) {
+      return { success: false, message: 'Terlalu banyak percobaan. Coba lagi dalam beberapa menit.' };
+    }
+
+    if (!constantTimeEquals_(pin, getAdminPin_())) {
+      cache.put(ADMIN_ATTEMPT_KEY, String(attempts + 1), 300);
+      Logger.log('Verifikasi PIN gagal.');
+      return { success: false, message: 'PIN salah. Coba lagi.' };
+    }
+
+    cache.remove(ADMIN_ATTEMPT_KEY);
+    var token = Utilities.getUuid();
+    cache.put(ADMIN_SESSION_PREFIX + token, '1', ADMIN_SESSION_TTL_SECONDS);
+    Logger.log('Sesi admin berhasil dibuat.');
+    return { success: true, token: token };
+  } catch (err) {
+    Logger.log('verifyAdminPin error: ' + err);
+    return { success: false, message: 'Verifikasi PIN gagal. Silakan coba lagi.' };
+  }
+}
+
+function isAdminSessionValid_(token) {
+  return Boolean(token) &&
+    CacheService.getUserCache().get(ADMIN_SESSION_PREFIX + String(token)) === '1';
+}
+
+/* ================================================================
+   PENYIMPANAN DAN ASSET DRIVE
+================================================================ */
+
+function isDataUri_(value) {
+  return typeof value === 'string' && /^data:[^;,]+;base64,/i.test(value);
+}
+
+function getTargetFolder_() {
+  if (VIDEO_FOLDER_ID && String(VIDEO_FOLDER_ID).trim()) {
+    try {
+      return DriveApp.getFolderById(String(VIDEO_FOLDER_ID).trim());
+    } catch (folderErr) {
+      Logger.log('VIDEO_FOLDER_ID tidak valid, pakai root: ' + folderErr);
+    }
+  }
+  return null;
+}
+
+/**
+ * Simpan data URI ke Drive. Return URL yang bisa langsung dipakai:
+ *   - Gambar → https://drive.google.com/thumbnail?id=<ID>&sz=w800  (untuk <img>)
+ *   - Video  → https://drive.google.com/uc?export=download&id=<ID> (untuk <video>)
+ */
+function saveDataUriToDrive_(dataUri, fileName, mimeType) {
+  var match = String(dataUri).match(/^data:([^;,]+);base64,(.*)$/i);
+  if (!match) throw new Error('Format data file tidak valid.');
+
+  var detectedMime = (match[1] || mimeType || 'application/octet-stream').toLowerCase();
+  var bytes = Utilities.base64Decode(match[2]);
+  if (bytes.length > MAX_ASSET_BYTES) {
+    throw new Error('Ukuran file melebihi batas 25 MB.');
+  }
+
+  var isVideo = detectedMime.indexOf('video/') === 0;
+
+  var safeName = String(fileName || 'portfolio-asset')
+    .replace(/[^\w.\- ]+/g, '_')
+    .substring(0, 100);
+
+  var blob = Utilities.newBlob(bytes, detectedMime, safeName || 'portfolio-asset');
+  var folder = getTargetFolder_();
+  var file = folder ? folder.createFile(blob) : DriveApp.createFile(blob);
+
+  try {
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  } catch (sharingError) {
+    Logger.log('Sharing publik tidak tersedia: ' + sharingError);
+  }
+
+  var id = file.getId();
+  Logger.log('Asset Drive dibuat: ' + id + ' (' + detectedMime + ')');
+
+  if (isVideo) {
+    // Format ini bisa langsung dimainkan oleh tag <video> di browser.
+    return 'https://drive.google.com/uc?export=download&id=' + id;
+  }
+  // Gambar tetap pakai thumbnail agar tampil via <img>.
+  return 'https://drive.google.com/thumbnail?id=' + id + '&sz=w800';
+}
+
+function persistDataAssets_(data) {
+  var warnings = [];
+  var stamp = new Date().getTime();
+
+  // Avatar
+  if (data.profile && isDataUri_(data.profile.avatarUrl)) {
+    data.profile.avatarUrl = saveDataUriToDrive_(data.profile.avatarUrl, 'portfolio-avatar-' + stamp, 'image/jpeg');
+  }
+
+  // Brand logos
+  (data.brandCollabs || []).forEach(function(brand, index) {
+    if (isDataUri_(brand.logoUrl)) {
+      brand.logoUrl = saveDataUriToDrive_(brand.logoUrl, 'portfolio-brand-' + index + '-' + stamp, 'image/png');
+    }
+  });
+
+  // Videos
+  (data.videos || []).forEach(function(video, index) {
+    // Thumbnail (gambar) – seperti sebelumnya.
+    if (isDataUri_(video.thumbnailUrl)) {
+      video.thumbnailUrl = saveDataUriToDrive_(video.thumbnailUrl, 'portfolio-thumb-' + index + '-' + stamp, 'image/jpeg');
+    }
+
+    // Kalau videoUrl masih data URI (belum di-upload via uploadAsset), tolak.
+    if (isDataUri_(video.videoUrl)) {
+      warnings.push('Video "' + (video.title || ('#' + (index + 1))) + '" belum di-upload — mohon klik tombol upload lagi.');
+      video.videoUrl = '';
+    }
+
+    // Kalau videoUrl blob: (belum di-upload) → beri warning, kosongkan.
+    if (video.videoUrl && String(video.videoUrl).indexOf('blob:') === 0) {
+      warnings.push('Video "' + (video.title || ('#' + (index + 1))) + '" belum di-upload — mohon klik tombol upload lagi.');
+      video.videoUrl = '';
+    }
+
+    // Validasi durasi (upload lokal) — hanya jika ada info durasi.
+    var dur = Number(video.durationSeconds || 0);
+    if (video.sourceType === 'upload' && dur > 0 && dur > MAX_VIDEO_DURATION_SECONDS) {
+      warnings.push('Video "' + (video.title || ('#' + (index + 1))) + '" melebihi 5 menit dan tidak disimpan.');
+      video.videoUrl = '';
+      video.sourceType = '';
+    }
+
+    // Deteksi ulang sourceType untuk URL sosmed (jika kosong).
+    if (video.videoUrl && video.sourceType !== 'upload') {
+      var info = normalizeVideoUrl_(video.videoUrl);
+      if (info.sourceType) {
+        if (!video.sourceType) video.sourceType = info.sourceType;
+        if (!video.embedUrl) video.embedUrl = info.embedUrl;
+        if (!video.platform && info.platform) video.platform = info.platform;
+      }
+    }
+  });
+
+  // Rate icons
+  (data.rateCards || []).forEach(function(rate, index) {
+    if (isDataUri_(rate.iconUrl)) {
+      rate.iconUrl = saveDataUriToDrive_(rate.iconUrl, 'portfolio-rate-icon-' + index + '-' + stamp, 'image/png');
+    }
+  });
+
+  return warnings;
+}
+
+function writeStoredData_(data) {
+  var json = JSON.stringify(data);
+  var jsonBytes = Utilities.newBlob(json, 'application/json').getBytes().length;
+  if (jsonBytes > PROPERTY_TOTAL_LIMIT) {
+    throw new Error('Data terlalu besar. Kurangi jumlah item atau ukuran file.');
+  }
+
+  var props = PropertiesService.getScriptProperties();
+  var oldCount = Number(props.getProperty(PORTFOLIO_CHUNK_COUNT_KEY) || 0);
+  props.deleteProperty(PORTFOLIO_DATA_KEY);
+  props.deleteProperty(PORTFOLIO_CHUNK_COUNT_KEY);
+
+  for (var i = 0; i < oldCount; i++) {
+    props.deleteProperty(PORTFOLIO_CHUNK_PREFIX + i);
+  }
+
+  var count = Math.max(1, Math.ceil(json.length / PROPERTY_CHUNK_SIZE));
+  for (var chunkIndex = 0; chunkIndex < count; chunkIndex++) {
+    props.setProperty(
+      PORTFOLIO_CHUNK_PREFIX + chunkIndex,
+      json.substring(chunkIndex * PROPERTY_CHUNK_SIZE, (chunkIndex + 1) * PROPERTY_CHUNK_SIZE)
+    );
+  }
+  props.setProperty(PORTFOLIO_CHUNK_COUNT_KEY, String(count));
+}
+
+function saveData(newData, authToken) {
+  try {
+    if (!isAdminSessionValid_(authToken)) {
+      Logger.log('saveData ditolak: sesi admin tidak valid.');
+      return { success: false, message: 'Sesi admin tidak valid atau sudah berakhir. Silakan login kembali.' };
+    }
+    if (!newData || typeof newData !== 'object' || Array.isArray(newData)) {
+      return { success: false, message: 'Data tidak valid.' };
+    }
+
+    var oldData = getStoredData_() || getDefaultData_();
+    var cleanData = cloneObject_(newData);
+    cleanData.contactInfo = normalizeContactInfo_(cleanData.contactInfo);
+    cleanData.videos = normalizeVideos_(cleanData.videos);
+
+    var requestedPin = cleanData.adminPin;
+    cleanData.adminPin = requestedPin && String(requestedPin).length >= 4
+      ? String(requestedPin)
+      : String(oldData.adminPin || getDefaultData_().adminPin);
+
+    var warnings = persistDataAssets_(cleanData);
+    (cleanData.videos || []).forEach(function(video) {
+      delete video._localVideoFile;
+    });
+
+    writeStoredData_(cleanData);
+    Logger.log('Data disimpan: ' + new Date().toISOString());
+    return {
+      success: true,
+      message: 'Data berhasil disimpan!',
+      warning: warnings.length ? warnings.join(' ') : '',
+      savedAt: new Date().toISOString(),
+      data: removePrivateFields_(cleanData)
+    };
+  } catch (err) {
+    Logger.log('saveData error: ' + err);
+    return { success: false, message: 'Gagal menyimpan: ' + err.message };
+  }
+}
+
+/**
+ * Upload asset terpisah — dipakai frontend untuk mengunggah:
+ *   • Gambar (image/*)
+ *   • Video  (video/mp4, video/webm, video/quicktime, ...)
+ * Untuk video, wajib menyertakan durationSeconds (dihitung di client).
+ */
+function uploadAsset(dataUri, fileName, mimeType, authToken, durationSeconds) {
+  try {
+    if (!isAdminSessionValid_(authToken)) {
+      return { success: false, message: 'Sesi admin tidak valid.' };
+    }
+    if (!isDataUri_(dataUri)) {
+      return { success: false, message: 'Data file tidak valid.' };
+    }
+
+    var mime = String(mimeType || '').toLowerCase();
+    // Coba deteksi dari data URI jika mimeType tidak dikirim.
+    if (!mime) {
+      var m = String(dataUri).match(/^data:([^;,]+);base64,/i);
+      if (m) mime = m[1].toLowerCase();
+    }
+
+    var isVideo = mime.indexOf('video/') === 0;
+    var isImage = mime.indexOf('image/') === 0;
+
+    if (!isVideo && !isImage) {
+      return { success: false, message: 'Tipe file tidak didukung. Hanya gambar atau video.' };
+    }
+    if (isVideo && ALLOWED_VIDEO_MIME.indexOf(mime) === -1) {
+      return { success: false, message: 'Format video tidak didukung. Pakai MP4, WebM, atau MOV.' };
+    }
+
+    if (isVideo) {
+      var dur = Number(durationSeconds || 0);
+      if (!dur || dur <= 0) {
+        return { success: false, message: 'Durasi video tidak terbaca. Coba upload ulang.' };
+      }
+      if (dur > MAX_VIDEO_DURATION_SECONDS) {
+        return { success: false, message: 'Durasi maksimal 5 menit (300 detik).' };
+      }
+    }
+
+    var url = saveDataUriToDrive_(dataUri, fileName, mime);
+    return {
+      success: true,
+      url: url,
+      sourceType: isVideo ? 'upload' : 'image',
+      durationSeconds: isVideo ? Number(durationSeconds || 0) : 0,
+      mimeType: mime
+    };
+  } catch (err) {
+    Logger.log('uploadAsset error: ' + err);
+    var msg = err && err.message ? err.message : String(err);
+    if (msg.indexOf('exceed') !== -1 || msg.indexOf('too large') !== -1 || msg.indexOf('25 MB') !== -1) {
+      msg = 'Ukuran file melebihi 25 MB. Pakai URL sosmed untuk file besar.';
+    }
+    return { success: false, message: 'Upload gagal: ' + msg };
+  }
+}
+
+/**
+ * Endpoint kecil untuk mendeteksi platform dari URL yang di-paste user.
+ * Dipakai tombol "Deteksi & Preview" di frontend.
+ */
+function detectVideoUrl(url) {
+  try {
+    return { success: true, info: normalizeVideoUrl_(url) };
+  } catch (err) {
+    return { success: false, message: String(err) };
+  }
+}
+
+/* ================================================================
+   INQUIRY KE GOOGLE SHEETS
+================================================================ */
+
+function cleanText_(value, maxLength) {
+  return String(value == null ? '' : value).trim().substring(0, maxLength || 2000);
+}
+
+function submitInquiry(formData) {
+  try {
+    if (!formData || typeof formData !== 'object') {
+      return { success: false, message: 'Data inquiry tidak valid.' };
+    }
+
+    var name = cleanText_(formData.name, 120);
+    var brand = cleanText_(formData.brand, 160);
+    var email = cleanText_(formData.email, 200);
+    var service = cleanText_(formData.service, 160);
+    var message = cleanText_(formData.message, 4000);
+
+    if (!name || !brand || !email || !message) {
+      return { success: false, message: 'Nama, brand, email, dan pesan wajib diisi.' };
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      return { success: false, message: 'Format email tidak valid.' };
+    }
+
+    var props = PropertiesService.getScriptProperties();
+    var spreadsheetId = props.getProperty('INQUIRIES_SPREADSHEET_ID');
+    var spreadsheet = null;
+
+    try {
+      spreadsheet = spreadsheetId
+        ? SpreadsheetApp.openById(spreadsheetId)
+        : SpreadsheetApp.getActiveSpreadsheet();
+    } catch (spreadsheetError) {
+      Logger.log('Spreadsheet inquiry tidak tersedia: ' + spreadsheetError);
+    }
+
+    if (!spreadsheet) {
+      Logger.log('Inquiry diterima tanpa spreadsheet: ' + name);
+      return {
+        success: true,
+        message: 'Inquiry siap diteruskan.',
+        warning: 'Spreadsheet belum terhubung. Pesan WhatsApp tetap dapat dikirim.'
+      };
+    }
+
+    var lock = LockService.getScriptLock();
+    lock.waitLock(10000);
+    try {
+      var sheet = spreadsheet.getSheetByName('Inquiries') || spreadsheet.insertSheet('Inquiries');
+      if (sheet.getLastRow() === 0) {
+        sheet.getRange(1, 1, 1, 6).setValues([[
+          'Tanggal & Waktu', 'Nama', 'Brand', 'Email', 'Paket', 'Pesan'
+        ]]);
+        sheet.getRange(1, 1, 1, 6)
+          .setFontWeight('bold')
+          .setBackground('#4a6741')
+          .setFontColor('#ffffff');
+        sheet.setFrozenRows(1);
+      }
+      sheet.appendRow([new Date(), name, brand, email, service, message]);
+    } finally {
+      lock.releaseLock();
+    }
+
+    Logger.log('Inquiry dari: ' + name + ' (' + brand + ')');
+    return { success: true, message: 'Inquiry tercatat.' };
+  } catch (err) {
+    Logger.log('submitInquiry error: ' + err);
+    return { success: false, message: 'Inquiry tidak dapat dicatat ke Spreadsheet: ' + err.message };
+  }
+}
+
+/* ================================================================
+   RESET
+================================================================ */
+
+function resetData() {
+  try {
+    var props = PropertiesService.getScriptProperties();
+    var count = Number(props.getProperty(PORTFOLIO_CHUNK_COUNT_KEY) || 0);
+    props.deleteProperty(PORTFOLIO_DATA_KEY);
+    props.deleteProperty(PORTFOLIO_CHUNK_COUNT_KEY);
+    for (var i = 0; i < count; i++) {
+      props.deleteProperty(PORTFOLIO_CHUNK_PREFIX + i);
+    }
+    Logger.log('Data direset.');
+    return { success: true, message: 'Data berhasil direset.' };
+  } catch (err) {
+    Logger.log('resetData error: ' + err);
+    return { success: false, message: 'Gagal mereset data: ' + err.message };
+  }
 }
