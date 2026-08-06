@@ -1,2182 +1,777 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Portfolio Content Creator profesional - Lifestyle, Beauty, Travel, Product Review" />
-  <meta name="keywords" content="content creator, lifestyle, beauty, travel, ugc, influencer, portfolio" />
-  <meta name="robots" content="index, follow" />
-  <meta property="og:type" content="website" />
-  <meta property="og:title" content="Portfolio Content Creator" />
-  <meta property="og:description" content="Creating Content That Connects, Inspires & Converts" />
-  <title>Portfolio Content Creator</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400;1,600&display=swap" rel="stylesheet" />
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Creator Portfolio & Rate Card</title>
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <style>
-    /* ============================================================
-       CSS VARIABLES & RESET
-    ============================================================ */
     :root {
-      --emerald:   #059669;
-      --emerald-light: #10b981;
-      --emerald-dark:  #047857;
-      --sage:      #84a98c;
-      --sage-light:#a8c5ae;
-      --sage-bg:   #f0f7f1;
-      --white:     #ffffff;
-      --gray-50:   #f9fafb;
-      --gray-100:  #f3f4f6;
-      --gray-200:  #e5e7eb;
-      --gray-400:  #9ca3af;
-      --gray-600:  #4b5563;
-      --gray-800:  #1f2937;
-      --gray-900:  #111827;
-      --font:      'Plus Jakarta Sans', sans-serif;
-      --shadow-sm: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.05);
-      --shadow-md: 0 4px 16px rgba(0,0,0,.08);
-      --shadow-lg: 0 8px 32px rgba(0,0,0,.12);
-      --shadow-xl: 0 20px 60px rgba(0,0,0,.15);
-      --radius-sm: 12px;
-      --radius-md: 18px;
-      --radius-lg: 28px;
-      --radius-xl: 40px;
-      --transition: .3s cubic-bezier(.4,0,.2,1);
+      --cream:#f5f0e8; --cream-2:#ede8de; --sage:#4a6741;
+      --sage-dark:#385332; --sage-light:#7a9b71; --ink:#2c2c2c;
+      --muted:#686868; --light:#929292; --border:#d8d0c4; --white:#fff;
     }
+    * { box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { margin:0; background:var(--cream); color:var(--ink); font-family:Inter,Arial,sans-serif; }
+    button,input,select,textarea { font:inherit; }
+    button,a { -webkit-tap-highlight-color:transparent; }
+    button { cursor:pointer; }
+    a { color:inherit; }
+    .serif { font-family:Georgia,'Times New Roman',serif; }
+    .container { width:min(1100px,calc(100% - 48px)); margin:auto; }
+    .top-nav { position:sticky; top:0; z-index:20; background:#fff; border-bottom:1px solid var(--border); }
+    .nav-inner { min-height:64px; display:flex; align-items:center; justify-content:space-between; gap:18px; }
+    .brand-mark { min-width:130px; }
+    .brand-mark strong { display:block; font-size:20px; line-height:1; }
+    .brand-mark small { color:var(--light); font-size:8px; font-weight:800; letter-spacing:.2em; }
+    .nav-links { display:flex; align-items:center; gap:24px; font-size:13px; color:var(--muted); }
+    .nav-links a { text-decoration:none; }
+    .nav-links a:hover { color:var(--sage); }
+    .nav-actions { display:flex; align-items:center; gap:8px; }
+    .pill-btn { display:inline-flex; align-items:center; justify-content:center; gap:7px; border-radius:999px; padding:10px 17px; border:1px solid var(--border); background:#fff; color:var(--muted); font-size:12px; font-weight:700; }
+    .pill-btn:hover { border-color:var(--sage); color:var(--sage); }
+    .pill-btn.primary { border-color:var(--sage); background:var(--sage); color:#fff; }
+    .pill-btn.primary:hover { background:var(--sage-dark); }
+    .pill-btn:disabled { opacity:.55; cursor:not-allowed; }
+    .hamburger { display:none; width:40px; height:40px; padding:0; }
+    .mobile-menu { display:none; padding:10px 24px 18px; border-top:1px solid var(--border); }
+    .mobile-menu a { display:block; padding:10px 0; text-decoration:none; border-bottom:1px solid var(--border); font-size:14px; }
+    .mobile-menu button { margin-top:12px; }
+    section { padding:72px 0; }
+    .hero { padding:78px 0; }
+    .hero-grid { display:grid; grid-template-columns:1fr 1fr; gap:70px; align-items:center; }
+    .arch { width:min(350px,100%); margin:auto; overflow:hidden; border:2px solid var(--sage-light); border-radius:190px 190px 0 0; }
+    .arch img { display:block; width:100%; height:450px; object-fit:cover; }
+    .eyebrow { margin:0 0 10px; color:var(--sage); font-size:12px; font-weight:800; letter-spacing:.18em; text-transform:uppercase; }
+    h1,h2,h3,p { margin-top:0; }
+    h1 { margin-bottom:12px; font-size:clamp(42px,6vw,70px); line-height:1.03; }
+    .tagline { margin-bottom:18px; color:var(--sage); font:italic 25px Georgia,serif; }
+    .ornament { display:flex; align-items:center; gap:10px; margin:20px 0; color:var(--sage-light); }
+    .ornament:before,.ornament:after { content:""; width:50px; height:1px; background:var(--sage-light); }
+    .hero-bio { max-width:560px; color:var(--muted); font-size:14px; line-height:1.85; }
+    .button-row { display:flex; flex-wrap:wrap; gap:10px; }
+    .outline-btn { display:inline-flex; align-items:center; justify-content:center; padding:11px 22px; border:1px solid var(--border); border-radius:999px; background:transparent; color:var(--ink); text-decoration:none; font-size:13px; font-weight:700; }
+    .outline-btn:hover { border-color:var(--sage); color:var(--sage); }
+    .soft-section { background:var(--cream-2); }
+    .section-title { margin-bottom:42px; text-align:center; }
+    .section-title h2 { margin-bottom:7px; font:700 clamp(30px,5vw,46px) Georgia,serif; letter-spacing:.04em; text-transform:uppercase; }
+    .section-title p { margin-bottom:10px; color:var(--muted); font:italic 15px Georgia,serif; }
+    .rule { width:48px; height:2px; margin:auto; background:var(--sage); }
+    .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(145px,1fr)); gap:15px; margin-bottom:18px; }
+    .stat-card,.rate-card,.editor-card { background:#fff; border:1px solid var(--border); border-radius:16px; }
+    .stat-card { padding:20px 14px; text-align:center; }
+    .stat-card .value { margin:7px 0 3px; font:700 35px Georgia,serif; }
+    .stat-card .label { color:var(--light); font-size:10px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; }
+    .audience { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); background:#fff; border:1px solid var(--border); border-radius:16px; overflow:hidden; }
+    .audience-item { display:flex; align-items:center; gap:10px; padding:17px 18px; border-right:1px solid var(--border); }
+    .audience-item:last-child { border-right:0; }
+    .audience-item small { display:block; color:var(--light); font-size:9px; font-weight:800; text-transform:uppercase; }
+    .audience-item strong { display:block; margin-top:3px; font-size:13px; }
+    .collab-track,.video-track { display:flex; gap:14px; overflow-x:auto; padding:4px 2px 14px; scrollbar-width:none; }
+    .collab-track::-webkit-scrollbar,.video-track::-webkit-scrollbar { display:none; }
+    .brand-card { display:flex; align-items:center; justify-content:center; flex:0 0 148px; height:100px; padding:16px; border:1px solid var(--border); border-radius:16px; background:#fff; }
+    .brand-card img { max-width:112px; max-height:56px; object-fit:contain; filter:grayscale(1); }
+    .brand-text { font:700 20px Georgia,serif; text-align:center; }
+    .carousel-row { display:flex; align-items:center; gap:14px; }
+    .circle-btn { display:inline-flex; align-items:center; justify-content:center; flex:0 0 40px; width:40px; height:40px; border:1px solid var(--border); border-radius:50%; background:#fff; }
+    .circle-btn:hover { background:var(--sage); color:#fff; }
+    .video-card { position:relative; flex:0 0 260px; height:330px; overflow:hidden; border-radius:16px; background:#222; cursor:pointer; }
+    .video-card img { width:100%; height:100%; object-fit:cover; transition:transform .2s; }
+    .video-card:hover img { transform:scale(1.04); }
+    .video-overlay { position:absolute; inset:auto 0 0; padding:35px 12px 12px; color:#fff; background:linear-gradient(transparent,rgba(0,0,0,.8)); }
+    .play { position:absolute; top:50%; left:50%; display:flex; align-items:center; justify-content:center; width:54px; height:54px; transform:translate(-50%,-50%); border-radius:50%; background:rgba(255,255,255,.92); color:var(--sage); }
+    .duration { position:absolute; right:10px; bottom:10px; padding:3px 7px; border-radius:5px; background:rgba(0,0,0,.6); color:#fff; font-size:11px; }
+    .platform-badge { position:absolute; left:10px; top:10px; padding:3px 8px; border-radius:999px; background:rgba(0,0,0,.65); color:#fff; font-size:10px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; }
+    .rates-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:18px; align-items:stretch; }
+    .rate-card { position:relative; display:flex; flex-direction:column; padding:26px 19px 20px; }
+    .rate-card.is-popular { border:2px solid var(--sage); }
+    .popular-badge { position:absolute; top:-13px; left:50%; padding:5px 14px; transform:translateX(-50%); border-radius:20px; background:var(--sage); color:#fff; font-size:10px; font-weight:800; white-space:nowrap; }
+    .rate-icon { display:flex; align-items:center; justify-content:center; width:48px; height:48px; margin:0 auto 14px; overflow:hidden; border-radius:12px; background:#e8ede5; color:var(--sage); }
+    .rate-icon img { display:block; width:100%; height:100%; object-fit:cover; }
+    .rate-card h3 { margin-bottom:8px; text-align:center; font-size:13px; text-transform:uppercase; }
+    .price { margin-bottom:14px; text-align:center; color:var(--sage); font:700 26px Georgia,serif; }
+    .features { flex:1; padding:0; margin:0 0 18px; list-style:none; }
+    .features li { padding:5px 0; border-bottom:1px solid var(--cream-2); color:var(--muted); font-size:12px; }
+    .features li:before { content:"●"; margin-right:7px; color:var(--sage-light); }
+    .contact-card { display:grid; grid-template-columns:1fr 1fr; gap:45px; align-items:center; padding:48px 52px; border-radius:28px; background:var(--sage); color:#fff; }
+    .contact-main { display:flex; align-items:flex-start; gap:22px; }
+    .contact-avatar { flex:0 0 100px; width:100px; height:100px; border:3px solid rgba(255,255,255,.35); border-radius:50%; object-fit:cover; }
+    .contact-card h2 { margin-bottom:10px; font:700 clamp(30px,4vw,44px) Georgia,serif; line-height:1.1; }
+    .contact-card p { color:rgba(255,255,255,.78); font-size:14px; }
+    .contact-info { overflow:hidden; border-radius:18px; background:rgba(255,255,255,.13); }
+    .contact-row { display:flex; align-items:center; gap:13px; padding:15px 19px; border-bottom:1px solid rgba(255,255,255,.14); color:inherit; text-decoration:none; transition:background .2s; }
+    .contact-row:last-child { border-bottom:0; }
+    .contact-row:hover { background:rgba(255,255,255,.1); }
+    .contact-row small { display:block; color:rgba(255,255,255,.62); font-size:9px; font-weight:800; letter-spacing:.1em; }
+    .contact-row strong { display:block; margin-top:3px; color:#fff; font-size:13px; }
+    footer { padding:45px 24px 30px; background:var(--sage); color:rgba(255,255,255,.7); text-align:center; }
+    footer .footer-name { color:#fff; font:700 25px Georgia,serif; }
+    .modal { position:fixed; inset:0; z-index:100; display:none; align-items:center; justify-content:center; padding:15px; background:rgba(25,25,25,.62); }
+    .modal.open { display:flex; }
+    .modal-box { display:flex; flex-direction:column; width:min(680px,100%); max-height:92vh; overflow:hidden; border-radius:19px; background:#fff; box-shadow:0 20px 60px rgba(0,0,0,.25); }
+    .modal-box.small { width:min(540px,100%); }
+    .modal-head { display:flex; align-items:center; justify-content:space-between; padding:17px 22px; border-bottom:1px solid var(--border); }
+    .modal-head h3 { margin:0; font-size:15px; }
+    .close { border:0; background:none; color:var(--light); }
+    .modal-body { max-height:calc(92vh - 65px); overflow-y:auto; padding:24px; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:13px; }
+    .field { margin-bottom:14px; }
+    .field label { display:block; margin-bottom:5px; color:var(--muted); font-size:11px; font-weight:800; }
+    .field input,.field textarea,.field select,.edit-input { width:100%; padding:10px 11px; border:1px solid var(--border); border-radius:9px; outline:0; background:#fff; color:var(--ink); font-size:13px; }
+    .field textarea { resize:vertical; }
+    .field input:focus,.field textarea:focus,.field select:focus,.edit-input:focus { border-color:var(--sage); }
+    .asset-picker { display:grid; grid-template-columns:82px 1fr; gap:11px; align-items:center; }
+    .asset-preview { display:flex; align-items:center; justify-content:center; width:82px; height:82px; overflow:hidden; border:1px solid var(--border); border-radius:12px; background:var(--cream-2); }
+    .asset-preview img { display:block; width:100%; height:100%; object-fit:cover; }
+    .asset-controls { min-width:0; }
+    .asset-controls input[type="file"] { width:100%; padding:8px; border:1px dashed var(--border); border-radius:9px; background:#fff; color:var(--muted); font-size:11px; }
+    .asset-hint { display:block; margin-top:5px; color:var(--light); font-size:10px; line-height:1.45; }
+    .asset-status { display:block; min-height:14px; margin-top:4px; color:var(--sage); font-size:10px; }
+    .asset-status.error { color:#a43e3e; }
+    .toast { position:fixed; right:18px; bottom:18px; z-index:300; max-width:360px; padding:12px 15px; border-radius:10px; background:var(--sage-dark); color:#fff; font-size:12px; font-weight:700; box-shadow:0 8px 22px rgba(0,0,0,.2); }
+    .toast.error { background:#a43e3e; }
+    .pin-screen { padding:42px 28px; text-align:center; }
+    .pin-screen input { max-width:230px; margin:10px auto 17px; text-align:center; font-size:21px; letter-spacing:.25em; }
+    .admin-screen { display:none; flex:1 1 auto; flex-direction:column; min-height:0; overflow:hidden; }
+    .tabs { position:sticky; top:0; z-index:5; display:flex; flex:0 0 auto; gap:4px; min-height:48px; overflow-x:auto; padding:11px 18px 0; border-bottom:1px solid var(--border); background:#fff; scrollbar-width:thin; }
+    .tab { flex:0 0 auto; padding:8px 13px; border:0; border-radius:8px 8px 0 0; background:transparent; color:var(--light); font-size:11px; font-weight:800; white-space:nowrap; }
+    .tab.active { background:#e8ede5; color:var(--sage); }
+    .admin-body { flex:1 1 auto; min-height:0; overflow-y:auto; padding:19px 22px; overscroll-behavior:contain; }
+    .tab-pane { display:none; }
+    .tab-pane.active { display:block; }
+    .editor-card { margin-bottom:10px; padding:12px; background:var(--cream); }
+    .editor-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+    .editor-actions { display:flex; align-items:center; justify-content:space-between; margin-bottom:11px; }
+    .editor-actions strong { color:var(--muted); font-size:11px; text-transform:uppercase; }
+    .add-btn,.remove-btn { border:0; background:none; font-size:11px; font-weight:800; }
+    .add-btn { color:var(--sage); }
+    .remove-btn { color:#c64b4b; }
+    .admin-footer { padding:13px 22px; border-top:1px solid var(--border); }
+    .hidden { display:none!important; }
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
-    body {
-      font-family: var(--font);
-      color: var(--gray-800);
-      background: var(--white);
-      line-height: 1.6;
-      overflow-x: hidden;
-    }
-    img { max-width: 100%; height: auto; display: block; }
-    a { color: inherit; text-decoration: none; }
-    ul { list-style: none; }
-    button { cursor: pointer; font-family: var(--font); border: none; outline: none; }
-    input, textarea, select { font-family: var(--font); }
+    /* ─── Video source tabs (URL / Upload) di editor ─── */
+    .vsrc-tabs { display:flex; gap:4px; margin:8px 0 10px; }
+    .vsrc-tab { flex:1; padding:8px 10px; border:1px solid var(--border); border-radius:8px 8px 0 0; background:#fff; color:var(--muted); font-size:11px; font-weight:800; letter-spacing:.03em; }
+    .vsrc-tab.active { background:var(--sage); color:#fff; border-color:var(--sage); }
+    .vsrc-pane { display:none; padding:12px; border:1px solid var(--border); border-top:0; border-radius:0 0 10px 10px; background:#fff; }
+    .vsrc-pane.active { display:block; }
+    .vsrc-row { display:flex; gap:8px; align-items:center; }
+    .vsrc-row input { flex:1; }
+    .detect-btn { padding:9px 14px; border:1px solid var(--sage); border-radius:8px; background:var(--sage); color:#fff; font-size:11px; font-weight:800; white-space:nowrap; }
+    .detect-btn:hover { background:var(--sage-dark); }
+    .upload-btn { padding:9px 14px; border:1px solid var(--sage); border-radius:8px; background:var(--sage); color:#fff; font-size:11px; font-weight:800; white-space:nowrap; }
+    .upload-btn:hover { background:var(--sage-dark); }
+    .upload-btn:disabled { opacity:.55; cursor:not-allowed; }
+    .video-preview { position:relative; margin-top:10px; overflow:hidden; border-radius:10px; background:#000; }
+    .video-preview.aspect-16-9 { aspect-ratio:16/9; }
+    .video-preview.aspect-9-16 { aspect-ratio:9/16; max-width:270px; }
+    .video-preview video, .video-preview iframe { position:absolute; inset:0; width:100%; height:100%; border:0; }
+    .video-meta { margin-top:6px; font-size:10px; color:var(--light); }
+    .video-meta strong { color:var(--sage); }
 
-    /* ============================================================
-       PAGE LOADER
-    ============================================================ */
-    #page-loader {
-      position: fixed; inset: 0; z-index: 9999;
-      background: var(--white);
-      display: flex; align-items: center; justify-content: center;
-      flex-direction: column; gap: 16px;
-      transition: opacity .5s, visibility .5s;
-    }
-    #page-loader.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-    .loader-logo {
-      font-size: 1.5rem; font-weight: 800;
-      background: linear-gradient(135deg, var(--emerald), var(--sage));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
-    .loader-bar {
-      width: 180px; height: 3px;
-      background: var(--gray-100);
-      border-radius: 100px; overflow: hidden;
-    }
-    .loader-bar-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--emerald), var(--emerald-light));
-      border-radius: 100px;
-      animation: loaderFill 1.2s ease forwards;
-    }
-    @keyframes loaderFill { from { width: 0 } to { width: 100% } }
-
-    /* ============================================================
-       NAVBAR
-    ============================================================ */
-    #navbar {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
-      padding: 18px 0;
-      transition: background var(--transition), box-shadow var(--transition), padding var(--transition);
-    }
-    #navbar.scrolled {
-      background: rgba(255,255,255,.92);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      box-shadow: 0 1px 0 rgba(0,0,0,.06);
-      padding: 12px 0;
-    }
-    .nav-container {
-      max-width: 1280px; margin: 0 auto; padding: 0 32px;
-      display: flex; align-items: center; justify-content: space-between; gap: 24px;
-    }
-    .nav-brand {
-      display: flex; align-items: center; gap: 10px;
-      flex-shrink: 0;
-    }
-    .nav-brand img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
-    .nav-brand-text { display: flex; flex-direction: column; line-height: 1.2; }
-    .nav-brand-name { font-size: .95rem; font-weight: 700; color: var(--gray-900); }
-    .nav-brand-sub { font-size: .72rem; color: var(--sage); font-style: italic; }
-    .nav-links {
-      display: flex; align-items: center; gap: 4px;
-    }
-    .nav-links a {
-      font-size: .875rem; font-weight: 500; color: var(--gray-600);
-      padding: 6px 14px; border-radius: 100px;
-      transition: color var(--transition), background var(--transition);
-    }
-    .nav-links a:hover, .nav-links a.active {
-      color: var(--emerald); background: var(--sage-bg);
-    }
-    .nav-cta {
-      padding: 10px 22px; border-radius: 100px; font-size: .875rem; font-weight: 600;
-      background: var(--emerald); color: var(--white);
-      box-shadow: 0 4px 14px rgba(5,150,105,.3);
-      transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
-      flex-shrink: 0;
-    }
-    .nav-cta:hover { background: var(--emerald-dark); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(5,150,105,.4); }
-    .nav-hamburger {
-      display: none; flex-direction: column; gap: 5px;
-      width: 36px; height: 36px; align-items: center; justify-content: center;
-      border-radius: 10px; background: transparent;
-      transition: background var(--transition);
-    }
-    .nav-hamburger:hover { background: var(--gray-100); }
-    .nav-hamburger span {
-      width: 20px; height: 2px;
-      background: var(--gray-800); border-radius: 2px;
-      transition: transform .3s, opacity .3s;
-    }
-    .nav-hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
-    .nav-hamburger.open span:nth-child(2) { opacity: 0; }
-    .nav-hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
-    #mobile-menu {
-      display: none; position: fixed;
-      top: 64px; left: 0; right: 0;
-      background: rgba(255,255,255,.97);
-      backdrop-filter: blur(20px);
-      padding: 16px 24px 24px;
-      border-bottom: 1px solid var(--gray-100);
-      box-shadow: var(--shadow-lg);
-      z-index: 999;
-      flex-direction: column; gap: 4px;
-    }
-    #mobile-menu.open { display: flex; }
-    #mobile-menu a {
-      font-size: .95rem; font-weight: 500; color: var(--gray-700);
-      padding: 12px 16px; border-radius: var(--radius-sm);
-      transition: background var(--transition), color var(--transition);
-    }
-    #mobile-menu a:hover { background: var(--sage-bg); color: var(--emerald); }
-    #mobile-menu .nav-cta { text-align: center; margin-top: 8px; }
-
-    /* ============================================================
-       SECTION UTILITIES
-    ============================================================ */
-    section { padding: 96px 0; }
-    .container { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
-    .section-badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      padding: 6px 14px; border-radius: 100px;
-      background: var(--sage-bg); color: var(--emerald);
-      font-size: .78rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
-      margin-bottom: 16px;
-    }
-    .section-badge::before {
-      content: ''; width: 6px; height: 6px; border-radius: 50%;
-      background: var(--emerald);
-    }
-    .section-title {
-      font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 800;
-      color: var(--gray-900); line-height: 1.2; margin-bottom: 16px;
-    }
-    .section-title span { color: var(--emerald); }
-    .section-desc { font-size: 1.05rem; color: var(--gray-600); max-width: 560px; line-height: 1.7; }
-    .section-header { text-align: center; margin-bottom: 64px; }
-    .section-header .section-desc { margin: 0 auto; }
-
-    /* ============================================================
-       ANIMATIONS (Intersection Observer)
-    ============================================================ */
-    .reveal {
-      opacity: 0; transform: translateY(32px);
-      transition: opacity .7s cubic-bezier(.4,0,.2,1), transform .7s cubic-bezier(.4,0,.2,1);
-    }
-    .reveal.visible { opacity: 1; transform: translateY(0); }
-    .reveal-left { opacity: 0; transform: translateX(-40px); transition: opacity .7s cubic-bezier(.4,0,.2,1), transform .7s cubic-bezier(.4,0,.2,1); }
-    .reveal-left.visible { opacity: 1; transform: translateX(0); }
-    .reveal-right { opacity: 0; transform: translateX(40px); transition: opacity .7s cubic-bezier(.4,0,.2,1), transform .7s cubic-bezier(.4,0,.2,1); }
-    .reveal-right.visible { opacity: 1; transform: translateX(0); }
-    .reveal-delay-1 { transition-delay: .1s; }
-    .reveal-delay-2 { transition-delay: .2s; }
-    .reveal-delay-3 { transition-delay: .3s; }
-    .reveal-delay-4 { transition-delay: .4s; }
-    .reveal-delay-5 { transition-delay: .5s; }
-
-    /* ============================================================
-       HERO SECTION
-    ============================================================ */
-    #home {
-      min-height: 100vh;
-      background: linear-gradient(145deg, #f9fdfb 0%, #eef7f2 40%, #f0faf5 100%);
-      display: flex; align-items: center;
-      position: relative; overflow: hidden; padding: 120px 0 80px;
-    }
-    #home::before {
-      content: '';
-      position: absolute; top: -200px; right: -200px;
-      width: 700px; height: 700px;
-      background: radial-gradient(circle, rgba(16,185,129,.12) 0%, transparent 70%);
-      border-radius: 50%; pointer-events: none;
-    }
-    #home::after {
-      content: '';
-      position: absolute; bottom: -100px; left: -100px;
-      width: 500px; height: 500px;
-      background: radial-gradient(circle, rgba(132,169,140,.1) 0%, transparent 70%);
-      border-radius: 50%; pointer-events: none;
-    }
-    .hero-grid {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 64px; align-items: center;
-    }
-    .hero-badge {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 8px 18px; border-radius: 100px;
-      background: rgba(5,150,105,.1); border: 1px solid rgba(5,150,105,.2);
-      color: var(--emerald); font-size: .8rem; font-weight: 600;
-      letter-spacing: .04em; margin-bottom: 20px;
-    }
-    .hero-badge-dot {
-      width: 8px; height: 8px; border-radius: 50%;
-      background: var(--emerald);
-      animation: pulse 2s infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); opacity: 1; }
-      50% { transform: scale(1.4); opacity: .7; }
-    }
-    .hero-title {
-      font-size: clamp(2.4rem, 5vw, 3.8rem); font-weight: 800;
-      color: var(--gray-900); line-height: 1.15; margin-bottom: 12px;
-    }
-    .hero-title span { color: var(--emerald); }
-    .hero-tagline {
-      font-size: clamp(1.4rem, 2.5vw, 2rem); font-weight: 600;
-      color: var(--gray-600); font-style: italic; margin-bottom: 20px;
-      background: linear-gradient(135deg, var(--sage), var(--emerald));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-    }
-    .hero-desc { font-size: 1.05rem; color: var(--gray-600); line-height: 1.75; margin-bottom: 36px; max-width: 480px; }
-    .hero-buttons { display: flex; gap: 14px; flex-wrap: wrap; margin-bottom: 48px; }
-    .btn-primary {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 14px 28px; border-radius: 100px;
-      background: var(--emerald); color: var(--white);
-      font-size: .95rem; font-weight: 700;
-      box-shadow: 0 4px 20px rgba(5,150,105,.35);
-      transition: transform var(--transition), box-shadow var(--transition), background var(--transition);
-    }
-    .btn-primary:hover { background: var(--emerald-dark); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(5,150,105,.45); }
-    .btn-secondary {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 14px 28px; border-radius: 100px;
-      background: var(--white); color: var(--gray-700);
-      font-size: .95rem; font-weight: 600;
-      border: 2px solid var(--gray-200);
-      box-shadow: var(--shadow-sm);
-      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
-    }
-    .btn-secondary:hover { border-color: var(--emerald); color: var(--emerald); transform: translateY(-2px); box-shadow: var(--shadow-md); }
-    .hero-social { display: flex; gap: 10px; flex-wrap: wrap; }
-    .hero-social a {
-      width: 42px; height: 42px; border-radius: 50%;
-      background: var(--white); border: 1.5px solid var(--gray-200);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--gray-500); font-size: .9rem;
-      transition: transform var(--transition), border-color var(--transition), color var(--transition), box-shadow var(--transition);
-    }
-    .hero-social a:hover { transform: translateY(-3px); border-color: var(--emerald); color: var(--emerald); box-shadow: 0 4px 12px rgba(5,150,105,.2); }
-    /* Hero Right */
-    .hero-visual { position: relative; display: flex; justify-content: center; }
-    .hero-photo-wrap {
-      position: relative; width: 340px; height: 420px;
-    }
-    .hero-photo-bg {
-      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 280px; height: 360px;
-      background: linear-gradient(160deg, var(--emerald-light), var(--sage));
-      border-radius: 50% 50% 48% 48% / 40% 40% 60% 60%;
-    }
-    .hero-photo {
-      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 270px; height: 350px;
-      border-radius: 50% 50% 48% 48% / 40% 40% 60% 60%;
-      object-fit: cover; object-position: top;
-      z-index: 2;
-    }
-    .hero-photo-placeholder {
-      position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
-      width: 270px; height: 350px;
-      border-radius: 50% 50% 48% 48% / 40% 40% 60% 60%;
-      background: linear-gradient(160deg, #c3e8d8, #84a98c);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 2; color: rgba(255,255,255,.5); font-size: 4rem;
-    }
-    .hero-stat-cards {
-      position: absolute; right: -20px; top: 50%; transform: translateY(-50%);
-      display: flex; flex-direction: column; gap: 12px; z-index: 3;
-    }
-    .hero-stat-card {
-      background: rgba(255,255,255,.9);
-      backdrop-filter: blur(16px);
-      border: 1px solid rgba(255,255,255,.8);
-      border-radius: var(--radius-sm);
-      padding: 12px 16px;
-      box-shadow: var(--shadow-md);
-      display: flex; align-items: center; gap: 10px;
-      min-width: 140px;
-      transition: transform var(--transition);
-    }
-    .hero-stat-card:hover { transform: translateX(-4px); }
-    .hero-stat-icon {
-      width: 36px; height: 36px; border-radius: 10px;
-      background: var(--sage-bg);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1rem; flex-shrink: 0; color: var(--emerald);
-    }
-    .hero-stat-val { font-size: 1rem; font-weight: 800; color: var(--gray-900); line-height: 1; }
-    .hero-stat-lbl { font-size: .72rem; color: var(--gray-400); }
-
-    /* ============================================================
-       BRANDS MARQUEE
-    ============================================================ */
-    #brands { padding: 40px 0; background: var(--white); border-top: 1px solid var(--gray-100); border-bottom: 1px solid var(--gray-100); }
-    .brands-label { text-align: center; font-size: .78rem; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; color: var(--gray-400); margin-bottom: 28px; }
-    .brands-track-wrap { overflow: hidden; position: relative; }
-    .brands-track-wrap::before, .brands-track-wrap::after {
-      content: ''; position: absolute; top: 0; width: 120px; height: 100%; z-index: 1; pointer-events: none;
-    }
-    .brands-track-wrap::before { left: 0; background: linear-gradient(to right, var(--white), transparent); }
-    .brands-track-wrap::after { right: 0; background: linear-gradient(to left, var(--white), transparent); }
-    .brands-track {
-      display: flex; gap: 48px; align-items: center;
-      animation: marquee 28s linear infinite;
-      width: max-content;
-    }
-    .brands-track:hover { animation-play-state: paused; }
-    @keyframes marquee { from { transform: translateX(0) } to { transform: translateX(-50%) } }
-    .brand-item {
-      display: flex; align-items: center; gap: 8px;
-      white-space: nowrap;
-    }
-    .brand-item img {
-      height: 32px; width: auto; object-fit: contain;
-      filter: grayscale(1) opacity(.5);
-      transition: filter var(--transition);
-    }
-    .brand-item:hover img { filter: grayscale(0) opacity(1); }
-    .brand-item span {
-      font-size: .95rem; font-weight: 700;
-      color: var(--gray-400); letter-spacing: .02em;
-      transition: color var(--transition);
-    }
-    .brand-item:hover span { color: var(--emerald); }
-
-    /* ============================================================
-       ABOUT
-    ============================================================ */
-    #about { background: var(--white); }
-    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: center; }
-    .about-photo-wrap { position: relative; }
-    .about-photo {
-      width: 100%; aspect-ratio: 4/5;
-      border-radius: var(--radius-lg); object-fit: cover;
-      box-shadow: var(--shadow-xl);
-    }
-    .about-photo-placeholder {
-      width: 100%; aspect-ratio: 4/5;
-      border-radius: var(--radius-lg);
-      background: linear-gradient(160deg, var(--sage-bg), var(--sage-light));
-      display: flex; align-items: center; justify-content: center;
-      font-size: 5rem; color: rgba(5,150,105,.2);
-    }
-    .about-card-exp {
-      position: absolute; bottom: 28px; left: -28px;
-      background: var(--white); border-radius: var(--radius-sm);
-      padding: 16px 20px; box-shadow: var(--shadow-lg);
-      border: 1px solid var(--gray-100);
-    }
-    .about-card-exp-num { font-size: 2rem; font-weight: 800; color: var(--emerald); line-height: 1; }
-    .about-card-exp-lbl { font-size: .78rem; color: var(--gray-500); margin-top: 2px; }
-    .about-content { display: flex; flex-direction: column; gap: 28px; }
-    .about-stats {
-      display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;
-    }
-    .about-stat {
-      background: var(--gray-50); border-radius: var(--radius-sm);
-      padding: 18px 20px; border: 1px solid var(--gray-100);
-      transition: transform var(--transition), box-shadow var(--transition);
-    }
-    .about-stat:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
-    .about-stat-num { font-size: 1.6rem; font-weight: 800; color: var(--emerald); line-height: 1; }
-    .about-stat-lbl { font-size: .82rem; color: var(--gray-500); margin-top: 4px; }
-
-    /* ============================================================
-       ANALYTICS
-    ============================================================ */
-    #analytics { background: var(--sage-bg); }
-    .analytics-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
-    .analytics-card {
-      background: var(--white); border-radius: var(--radius-md);
-      padding: 28px; border: 1px solid var(--gray-100);
-      box-shadow: var(--shadow-sm);
-      transition: transform var(--transition), box-shadow var(--transition);
-    }
-    .analytics-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
-    .analytics-card-header {
-      display: flex; align-items: center; gap: 12px; margin-bottom: 20px;
-    }
-    .analytics-platform-icon {
-      width: 44px; height: 44px; border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem;
-    }
-    .platform-instagram { background: linear-gradient(135deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white; }
-    .platform-tiktok { background: #000; color: white; }
-    .platform-youtube { background: #ff0000; color: white; }
-    .platform-threads { background: #000; color: white; }
-    .analytics-platform-name { font-weight: 700; color: var(--gray-900); font-size: 1rem; }
-    .analytics-platform-handle { font-size: .8rem; color: var(--gray-400); }
-    .analytics-metrics {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;
-    }
-    .analytics-metric { }
-    .analytics-metric-val { font-size: 1.3rem; font-weight: 800; color: var(--gray-900); line-height: 1; }
-    .analytics-metric-lbl { font-size: .75rem; color: var(--gray-400); margin-top: 2px; }
-    .analytics-metric-val .highlight { color: var(--emerald); }
-    .analytics-audience-bar { }
-    .analytics-audience-label { font-size: .78rem; font-weight: 600; color: var(--gray-500); margin-bottom: 8px; }
-    .audience-gender { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; }
-    .gender-bar { flex: 1; height: 8px; border-radius: 100px; overflow: hidden; background: var(--gray-100); }
-    .gender-fill-w { height: 100%; background: var(--emerald); border-radius: 100px; transition: width 1s cubic-bezier(.4,0,.2,1); }
-    .gender-fill-m { height: 100%; background: var(--sage); border-radius: 100px; transition: width 1s cubic-bezier(.4,0,.2,1); }
-    .gender-legend { display: flex; gap: 12px; }
-    .gender-dot { display: flex; align-items: center; gap: 5px; font-size: .75rem; color: var(--gray-500); }
-    .gender-dot::before { content: ''; width: 8px; height: 8px; border-radius: 50%; }
-    .gender-dot.w::before { background: var(--emerald); }
-    .gender-dot.m::before { background: var(--sage); }
-
-    /* ============================================================
-       PORTFOLIO
-    ============================================================ */
-    #portfolio { background: var(--white); }
-    .portfolio-filters {
-      display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; margin-bottom: 48px;
-    }
-    .filter-btn {
-      padding: 8px 20px; border-radius: 100px;
-      background: var(--gray-100); color: var(--gray-600);
-      font-size: .875rem; font-weight: 600;
-      transition: all var(--transition);
-    }
-    .filter-btn:hover { background: var(--sage-bg); color: var(--emerald); }
-    .filter-btn.active { background: var(--emerald); color: var(--white); box-shadow: 0 4px 12px rgba(5,150,105,.3); }
-    .portfolio-grid {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;
-    }
-    .portfolio-item {
-      border-radius: var(--radius-md); overflow: hidden;
-      background: var(--gray-50);
-      box-shadow: var(--shadow-sm); border: 1px solid var(--gray-100);
-      cursor: pointer;
-      transition: transform var(--transition), box-shadow var(--transition), opacity var(--transition);
-    }
-    .portfolio-item:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
-    .portfolio-item.hidden { display: none; }
-    .portfolio-thumb-wrap {
-      position: relative; aspect-ratio: 16/10; overflow: hidden;
-    }
-    .portfolio-thumb {
-      width: 100%; height: 100%; object-fit: cover;
-      transition: transform .5s cubic-bezier(.4,0,.2,1);
-    }
-    .portfolio-thumb-placeholder {
-      width: 100%; height: 100%;
-      background: linear-gradient(135deg, var(--sage-bg), var(--sage-light));
-      display: flex; align-items: center; justify-content: center;
-      font-size: 2rem; color: var(--sage);
-    }
-    .portfolio-item:hover .portfolio-thumb { transform: scale(1.06); }
-    .portfolio-overlay {
-      position: absolute; inset: 0;
-      background: linear-gradient(to top, rgba(5,150,105,.85) 0%, transparent 60%);
-      opacity: 0; transition: opacity var(--transition);
-      display: flex; align-items: flex-end; padding: 20px;
-    }
-    .portfolio-item:hover .portfolio-overlay { opacity: 1; }
-    .portfolio-play {
-      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    }
-    .portfolio-play-btn {
-      width: 48px; height: 48px; border-radius: 50%;
-      background: rgba(255,255,255,.9); color: var(--emerald);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem; transform: scale(.7); opacity: 0;
-      transition: transform var(--transition), opacity var(--transition);
-      box-shadow: 0 4px 16px rgba(0,0,0,.2);
-    }
-    .portfolio-item:hover .portfolio-play-btn { transform: scale(1); opacity: 1; }
-    .portfolio-view-label { color: var(--white); font-size: .875rem; font-weight: 600; }
-    .portfolio-info { padding: 16px; }
-    .portfolio-cat {
-      font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
-      color: var(--emerald); margin-bottom: 6px;
-    }
-    .portfolio-title-item { font-size: .95rem; font-weight: 700; color: var(--gray-900); margin-bottom: 4px; }
-    .portfolio-desc { font-size: .82rem; color: var(--gray-500); line-height: 1.5; }
-
-    /* Portfolio Modal */
-    .portfolio-modal {
-      position: fixed; inset: 0; z-index: 2000;
-      background: rgba(0,0,0,.7);
-      backdrop-filter: blur(8px);
-      display: flex; align-items: center; justify-content: center;
-      padding: 24px;
-      opacity: 0; pointer-events: none;
-      transition: opacity .3s;
-    }
-    .portfolio-modal.open { opacity: 1; pointer-events: all; }
-    .portfolio-modal-box {
-      background: var(--white); border-radius: var(--radius-lg);
-      max-width: 640px; width: 100%;
-      box-shadow: var(--shadow-xl); overflow: hidden;
-      transform: scale(.92) translateY(20px);
-      transition: transform .3s cubic-bezier(.4,0,.2,1);
-    }
-    .portfolio-modal.open .portfolio-modal-box { transform: scale(1) translateY(0); }
-    .portfolio-modal-media { aspect-ratio: 16/9; background: var(--gray-100); }
-    .portfolio-modal-media img { width: 100%; height: 100%; object-fit: cover; }
-    .portfolio-modal-media iframe { width: 100%; height: 100%; border: none; }
-    .portfolio-modal-body { padding: 28px; }
-    .portfolio-modal-cat { font-size: .75rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--emerald); margin-bottom: 8px; }
-    .portfolio-modal-title { font-size: 1.4rem; font-weight: 800; color: var(--gray-900); margin-bottom: 12px; }
-    .portfolio-modal-desc { font-size: .95rem; color: var(--gray-600); line-height: 1.7; margin-bottom: 20px; }
-    .portfolio-modal-link {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 12px 24px; border-radius: 100px;
-      background: var(--emerald); color: var(--white); font-weight: 600; font-size: .9rem;
-      transition: background var(--transition), transform var(--transition);
-    }
-    .portfolio-modal-link:hover { background: var(--emerald-dark); transform: translateY(-1px); }
-    .portfolio-modal-close {
-      position: absolute; top: 16px; right: 16px;
-      width: 36px; height: 36px; border-radius: 50%;
-      background: rgba(0,0,0,.4); color: var(--white);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem; cursor: pointer;
-      transition: background var(--transition);
-    }
-    .portfolio-modal-close:hover { background: rgba(0,0,0,.7); }
-    .portfolio-modal-inner { position: relative; }
-
-    /* ============================================================
-       RATE CARD
-    ============================================================ */
-    #rate-card { background: var(--sage-bg); }
-    .rate-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin-bottom: 48px; }
-    .rate-card {
-      background: var(--white); border-radius: var(--radius-md);
-      padding: 32px 28px; border: 2px solid var(--gray-100);
-      box-shadow: var(--shadow-sm); position: relative;
-      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
-    }
-    .rate-card:hover { transform: translateY(-6px); box-shadow: var(--shadow-lg); }
-    .rate-card.featured {
-      border-color: var(--emerald);
-      box-shadow: 0 8px 32px rgba(5,150,105,.18);
-    }
-    .rate-card-badge {
-      position: absolute; top: -14px; left: 50%; transform: translateX(-50%);
-      background: var(--emerald); color: var(--white);
-      font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
-      padding: 5px 14px; border-radius: 100px;
-      box-shadow: 0 4px 12px rgba(5,150,105,.3);
-    }
-    .rate-card-tier { font-size: .78rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--gray-400); margin-bottom: 10px; }
-    .rate-card-name { font-size: 1.3rem; font-weight: 800; color: var(--gray-900); margin-bottom: 6px; }
-    .rate-card-price { font-size: 1.8rem; font-weight: 800; color: var(--emerald); margin-bottom: 20px; line-height: 1; }
-    .rate-card-price span { font-size: 1rem; font-weight: 600; color: var(--gray-400); }
-    .rate-card-features { display: flex; flex-direction: column; gap: 10px; margin-bottom: 28px; }
-    .rate-card-feature {
-      display: flex; align-items: flex-start; gap: 10px;
-      font-size: .875rem; color: var(--gray-600); line-height: 1.4;
-    }
-    .rate-card-check { color: var(--emerald); font-size: .9rem; flex-shrink: 0; margin-top: 1px; }
-    .rate-card-btn {
-      width: 100%; padding: 13px; border-radius: 100px;
-      font-size: .9rem; font-weight: 700;
-      transition: all var(--transition);
-    }
-    .rate-card-btn.primary { background: var(--emerald); color: var(--white); box-shadow: 0 4px 14px rgba(5,150,105,.3); }
-    .rate-card-btn.primary:hover { background: var(--emerald-dark); transform: translateY(-2px); }
-    .rate-card-btn.outline { background: transparent; color: var(--emerald); border: 2px solid var(--emerald); }
-    .rate-card-btn.outline:hover { background: var(--emerald); color: var(--white); }
-    /* Additional services */
-    .rate-addons { background: var(--white); border-radius: var(--radius-md); padding: 32px; border: 1px solid var(--gray-100); }
-    .rate-addons-title { font-size: 1.1rem; font-weight: 700; color: var(--gray-900); margin-bottom: 20px; }
-    .rate-addons-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 12px; }
-    .rate-addon-item {
-      display: flex; align-items: center; gap: 10px;
-      padding: 12px 14px; border-radius: var(--radius-sm);
-      background: var(--sage-bg); font-size: .875rem; color: var(--gray-700);
-    }
-    .rate-addon-icon { color: var(--emerald); font-size: .9rem; flex-shrink: 0; }
-
-    /* ============================================================
-       TESTIMONIALS
-    ============================================================ */
-    #testimonials { background: var(--white); }
-    .testimonials-slider { position: relative; overflow: hidden; }
-    .testimonials-track {
-      display: flex; gap: 24px;
-      transition: transform .5s cubic-bezier(.4,0,.2,1);
-    }
-    .testimonial-card {
-      background: var(--gray-50); border-radius: var(--radius-md);
-      padding: 28px; border: 1px solid var(--gray-100);
-      flex: 0 0 calc(33.333% - 16px); min-width: 0;
-      transition: box-shadow var(--transition);
-    }
-    .testimonial-card:hover { box-shadow: var(--shadow-md); }
-    .testimonial-stars { display: flex; gap: 3px; margin-bottom: 14px; }
-    .testimonial-star { color: #f59e0b; font-size: .9rem; }
-    .testimonial-text { font-size: .95rem; color: var(--gray-600); line-height: 1.7; margin-bottom: 20px; font-style: italic; }
-    .testimonial-author { display: flex; align-items: center; gap: 12px; }
-    .testimonial-avatar {
-      width: 44px; height: 44px; border-radius: 50%;
-      object-fit: cover; background: var(--sage-light);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem; color: var(--white); font-weight: 700; flex-shrink: 0;
-    }
-    .testimonial-author-name { font-weight: 700; font-size: .9rem; color: var(--gray-900); }
-    .testimonial-author-brand { font-size: .78rem; color: var(--gray-400); }
-    .testimonial-controls {
-      display: flex; align-items: center; justify-content: center; gap: 16px; margin-top: 36px;
-    }
-    .testimonial-dots { display: flex; gap: 8px; }
-    .testimonial-dot {
-      width: 8px; height: 8px; border-radius: 100px; background: var(--gray-200);
-      cursor: pointer; transition: all var(--transition);
-    }
-    .testimonial-dot.active { width: 24px; background: var(--emerald); }
-    .testimonial-nav {
-      width: 40px; height: 40px; border-radius: 50%;
-      background: var(--white); border: 2px solid var(--gray-200);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--gray-600); font-size: .9rem;
-      transition: all var(--transition); cursor: pointer;
-    }
-    .testimonial-nav:hover { border-color: var(--emerald); color: var(--emerald); box-shadow: 0 4px 12px rgba(5,150,105,.2); }
-
-    /* ============================================================
-       FAQ
-    ============================================================ */
-    #faq { background: var(--sage-bg); }
-    .faq-list { max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; }
-    .faq-item {
-      background: var(--white); border-radius: var(--radius-sm);
-      border: 1px solid var(--gray-100); overflow: hidden;
-      box-shadow: var(--shadow-sm);
-      transition: box-shadow var(--transition);
-    }
-    .faq-item:hover { box-shadow: var(--shadow-md); }
-    .faq-question {
-      display: flex; align-items: center; justify-content: space-between; gap: 16px;
-      padding: 20px 24px; cursor: pointer;
-      font-size: .95rem; font-weight: 700; color: var(--gray-800);
-    }
-    .faq-icon {
-      width: 28px; height: 28px; border-radius: 50%;
-      background: var(--sage-bg); color: var(--emerald);
-      display: flex; align-items: center; justify-content: center;
-      font-size: .85rem; flex-shrink: 0;
-      transition: transform var(--transition), background var(--transition);
-    }
-    .faq-item.open .faq-icon { transform: rotate(45deg); background: var(--emerald); color: var(--white); }
-    .faq-answer {
-      max-height: 0; overflow: hidden;
-      transition: max-height .4s cubic-bezier(.4,0,.2,1), padding .3s;
-    }
-    .faq-item.open .faq-answer { max-height: 400px; }
-    .faq-answer-inner {
-      padding: 0 24px 20px;
-      font-size: .9rem; color: var(--gray-600); line-height: 1.75;
-    }
-
-    /* ============================================================
-       CONTACT
-    ============================================================ */
-    #contact { background: var(--white); }
-    .contact-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
-    .contact-info { display: flex; flex-direction: column; gap: 24px; }
-    .contact-item {
-      display: flex; align-items: flex-start; gap: 16px;
-    }
-    .contact-item-icon {
-      width: 48px; height: 48px; border-radius: 14px;
-      background: var(--sage-bg); color: var(--emerald);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.1rem; flex-shrink: 0;
-    }
-    .contact-item-lbl { font-size: .78rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--gray-400); margin-bottom: 4px; }
-    .contact-item-val { font-size: .95rem; color: var(--gray-800); font-weight: 500; line-height: 1.5; }
-    .contact-item-val a { color: var(--emerald); text-decoration: none; }
-    .hours-grid { display: flex; flex-direction: column; gap: 6px; }
-    .hours-row { display: flex; justify-content: space-between; font-size: .875rem; color: var(--gray-600); }
-    .hours-row span:first-child { font-weight: 600; color: var(--gray-700); }
-    .contact-map-wrap { border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-md); margin-top: 28px; }
-    .contact-map-wrap iframe { width: 100%; height: 220px; border: none; display: block; }
-    .contact-map-placeholder {
-      width: 100%; height: 220px;
-      background: var(--gray-100);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--gray-400); font-size: .9rem; gap: 8px;
-    }
-    /* QR */
-    .contact-qr { display: flex; flex-direction: column; gap: 16px; }
-    .contact-qr-card {
-      background: var(--sage-bg); border-radius: var(--radius-md);
-      padding: 24px; display: flex; flex-direction: column; align-items: center; gap: 14px;
-      border: 1px solid rgba(5,150,105,.1);
-    }
-    .contact-qr-img { width: 140px; height: 140px; object-fit: contain; border-radius: 12px; }
-    .contact-qr-placeholder {
-      width: 140px; height: 140px; border-radius: 12px;
-      background: var(--white); border: 2px dashed var(--sage-light);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--sage); font-size: 3rem;
-    }
-    .contact-qr-label { font-size: .875rem; font-weight: 600; color: var(--gray-700); text-align: center; }
-    .contact-wa-btn {
-      display: inline-flex; align-items: center; gap: 10px;
-      padding: 14px 28px; border-radius: 100px;
-      background: #25d366; color: var(--white); font-weight: 700; font-size: .95rem;
-      box-shadow: 0 4px 16px rgba(37,211,102,.3);
-      transition: all var(--transition); width: 100%; justify-content: center;
-    }
-    .contact-wa-btn:hover { background: #1ebe5d; transform: translateY(-2px); box-shadow: 0 8px 24px rgba(37,211,102,.4); }
-
-    /* ============================================================
-       FOOTER
-    ============================================================ */
-    footer {
-      background: var(--gray-900);
-      color: var(--white);
-      padding: 64px 0 28px;
-    }
-    .footer-grid {
-      display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px;
-    }
-    .footer-brand { }
-    .footer-logo { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-    .footer-logo img { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; }
-    .footer-logo-name { font-size: 1.1rem; font-weight: 800; }
-    .footer-logo-sub { font-size: .75rem; color: var(--sage-light); font-style: italic; }
-    .footer-tagline { font-size: .875rem; color: rgba(255,255,255,.5); line-height: 1.7; margin-bottom: 20px; }
-    .footer-social { display: flex; gap: 10px; }
-    .footer-social a {
-      width: 38px; height: 38px; border-radius: 50%;
-      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.1);
-      display: flex; align-items: center; justify-content: center;
-      color: rgba(255,255,255,.6); font-size: .85rem;
-      transition: all var(--transition);
-    }
-    .footer-social a:hover { background: var(--emerald); border-color: var(--emerald); color: var(--white); transform: translateY(-2px); }
-    .footer-col-title { font-size: .85rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: 16px; }
-    .footer-links { display: flex; flex-direction: column; gap: 10px; }
-    .footer-links a { font-size: .875rem; color: rgba(255,255,255,.6); transition: color var(--transition); }
-    .footer-links a:hover { color: var(--emerald-light); }
-    .footer-divider { border: none; border-top: 1px solid rgba(255,255,255,.07); margin-bottom: 24px; }
-    .footer-bottom { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
-    .footer-copyright { font-size: .82rem; color: rgba(255,255,255,.35); }
-    .footer-services { display: flex; gap: 20px; }
-    .footer-services a { font-size: .82rem; color: rgba(255,255,255,.4); transition: color var(--transition); }
-    .footer-services a:hover { color: var(--emerald-light); }
-
-    /* ============================================================
-       SVG ICONS (inline)
-    ============================================================ */
-    .icon { display: inline-block; vertical-align: middle; }
-
-    /* ============================================================
-       RESPONSIVE
-    ============================================================ */
-    @media (max-width: 1024px) {
-      .hero-grid { gap: 40px; }
-      .about-grid { gap: 48px; }
-      .contact-grid { gap: 40px; }
-      .footer-grid { grid-template-columns: 1fr 1fr; gap: 36px; }
-      .testimonial-card { flex: 0 0 calc(50% - 12px); }
-    }
-    @media (max-width: 768px) {
-      .nav-links, .nav-cta { display: none; }
-      .nav-hamburger { display: flex; }
-      .hero-grid { grid-template-columns: 1fr; gap: 48px; text-align: center; }
-      .hero-buttons { justify-content: center; }
-      .hero-social { justify-content: center; }
-      .hero-visual { justify-content: center; }
-      .hero-stat-cards { right: -8px; }
-      .about-grid { grid-template-columns: 1fr; }
-      .about-card-exp { left: 16px; }
-      .contact-grid { grid-template-columns: 1fr; }
-      .footer-grid { grid-template-columns: 1fr; gap: 28px; }
-      .footer-bottom { flex-direction: column; text-align: center; }
-      .testimonial-card { flex: 0 0 calc(100% - 0px); }
-    }
-    @media (max-width: 480px) {
-      section { padding: 72px 0; }
-      .container { padding: 0 20px; }
-      .hero-photo-wrap { width: 280px; height: 340px; }
-      .hero-photo-bg { width: 220px; height: 290px; }
-      .hero-photo, .hero-photo-placeholder { width: 210px; height: 280px; }
-      .hero-stat-cards { display: none; }
-      .rate-grid { grid-template-columns: 1fr; }
+    @media(max-width:760px) {
+      .container { width:min(100% - 32px,1100px); }
+      .nav-links { display:none; }
+      .hamburger { display:inline-flex; }
+      .hero-grid,.contact-card { grid-template-columns:1fr; gap:35px; }
+      .hero { padding:48px 0 62px; }
+      .hero-copy { text-align:center; }
+      .hero-copy .button-row,.ornament { justify-content:center; }
+      .hero-bio { margin-inline:auto; }
+      .arch img { height:390px; }
+      .contact-card { padding:30px 22px; }
+      .contact-main { flex-direction:column; }
+      .form-grid,.editor-grid { grid-template-columns:1fr; }
+      section { padding:58px 0; }
     }
   </style>
 </head>
 <body>
-
-<!-- PAGE LOADER -->
-<div id="page-loader">
-  <div class="loader-logo" id="loader-site-name">Portfolio</div>
-  <div class="loader-bar"><div class="loader-bar-fill"></div></div>
-</div>
-
-<!-- NAVBAR -->
-<nav id="navbar">
-  <div class="nav-container">
-    <a href="#home" class="nav-brand">
-      <img id="nav-logo" src="" alt="Logo" style="display:none;" />
-      <div class="nav-brand-text">
-        <span class="nav-brand-name" id="nav-name">Content Creator</span>
-        <span class="nav-brand-sub" id="nav-sub">Portfolio</span>
+  <nav class="top-nav">
+    <div class="container nav-inner">
+      <a class="brand-mark" href="#hero" style="text-decoration:none">
+        <strong id="nav-name">Creator</strong><small>MEDIA KIT</small>
+      </a>
+      <div class="nav-links">
+        <a href="#hero">Home</a><a href="#tentang">Tentang Saya</a><a href="#portfolio">Portfolio</a>
+        <a href="#rate-card">Rate Card</a><a href="#contact">Contact</a>
       </div>
-    </a>
-    <ul class="nav-links" id="nav-links">
-      <li><a href="#home">Home</a></li>
-      <li><a href="#about">About</a></li>
-      <li><a href="#portfolio">Portfolio</a></li>
-      <li><a href="#analytics">Analytics</a></li>
-      <li><a href="#rate-card">Rate Card</a></li>
-      <li><a href="#testimonials">Testimonials</a></li>
-      <li><a href="#faq">FAQ</a></li>
-      <li><a href="#contact">Contact</a></li>
-    </ul>
-    <a href="#home" class="nav-cta" id="nav-book-btn" onclick="handleBookCollaboration(event)">&#x1F4C5; Book Now</a>
-    <button class="nav-hamburger" id="nav-hamburger" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
-  </div>
-</nav>
-
-<!-- MOBILE MENU -->
-<div id="mobile-menu">
-  <a href="#home" onclick="closeMobileMenu()">Home</a>
-  <a href="#about" onclick="closeMobileMenu()">About</a>
-  <a href="#portfolio" onclick="closeMobileMenu()">Portfolio</a>
-  <a href="#analytics" onclick="closeMobileMenu()">Analytics</a>
-  <a href="#rate-card" onclick="closeMobileMenu()">Rate Card</a>
-  <a href="#testimonials" onclick="closeMobileMenu()">Testimonials</a>
-  <a href="#faq" onclick="closeMobileMenu()">FAQ</a>
-  <a href="#contact" onclick="closeMobileMenu()">Contact</a>
-  <a href="#home" class="nav-cta" onclick="handleBookCollaboration(event); closeMobileMenu()">&#x1F4C5; Book Now</a>
-</div>
-
-<!-- ============================================================
-     HOME / HERO
-============================================================ -->
-<section id="home">
-  <div class="container">
-    <div class="hero-grid">
-      <!-- Left: Text Content -->
-      <div>
-        <div class="hero-badge reveal">
-          <div class="hero-badge-dot"></div>
-          <span id="hero-profession">Lifestyle Creator</span>
-        </div>
-        <h1 class="hero-title reveal reveal-delay-1">
-          <span id="hero-name">Sarah Amanda</span>
-        </h1>
-        <p class="hero-tagline reveal reveal-delay-2" id="hero-tagline">Creating Content That Connects,<br>Inspires &amp; Converts</p>
-        <p class="hero-desc reveal reveal-delay-3" id="hero-desc">I help brands tell their story through authentic content that engages, builds trust, and drives results.</p>
-        <div class="hero-buttons reveal reveal-delay-4">
-          <a href="#" class="btn-primary" id="btn-book-hero" onclick="handleBookCollaboration(event)">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-            Book Collaboration
-          </a>
-          <a href="#" class="btn-secondary" id="btn-ratecard-hero" onclick="handleViewRateCard(event)">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-            View Rate Card
-          </a>
-        </div>
-        <div class="hero-social reveal reveal-delay-5" id="hero-social-links">
-          <!-- Populated by JS -->
-        </div>
+      <div class="nav-actions">
+        <button class="pill-btn" type="button" data-action="admin"><i data-lucide="lock"></i><span>Login Admin</span></button>
+        <button class="pill-btn primary" type="button" data-action="inquiry"><i data-lucide="send"></i><span>Kirim Pertanyaan</span></button>
+        <button class="circle-btn hamburger" type="button" data-action="mobile" aria-label="Menu"><i data-lucide="menu"></i></button>
       </div>
-      <!-- Right: Photo + Stats -->
-      <div class="hero-visual reveal-right">
-        <div class="hero-photo-wrap">
-          <div class="hero-photo-bg"></div>
-          <div class="hero-photo-placeholder" id="hero-photo-placeholder">&#128247;</div>
-          <img id="hero-photo" src="" alt="Hero Photo" class="hero-photo" style="display:none;" loading="lazy" />
-          <div class="hero-stat-cards" id="hero-stat-cards">
-            <!-- Populated by JS -->
+    </div>
+    <div id="mobile-menu" class="mobile-menu">
+      <a href="#hero">Home</a><a href="#tentang">Tentang Saya</a><a href="#portfolio">Portfolio</a>
+      <a href="#rate-card">Rate Card</a><a href="#contact">Contact</a>
+      <button class="pill-btn" type="button" data-action="admin">Login Admin</button>
+    </div>
+  </nav>
+
+  <main>
+    <section id="hero" class="hero">
+      <div class="container hero-grid">
+        <div class="arch"><img id="hero-avatar" alt="Creator"></div>
+        <div id="tentang" class="hero-copy">
+          <p class="eyebrow">Hello, I'm</p><h1 id="hero-name" class="serif">Creator</h1>
+          <p id="hero-tagline" class="tagline">Lifestyle & Beauty Content Creator</p>
+          <div class="ornament">✦</div>
+          <p id="hero-bio" class="hero-bio"></p>
+          <div class="button-row">
+            <button class="pill-btn primary" type="button" data-action="inquiry"><i data-lucide="send"></i> Kirim Pertanyaan</button>
+            <a class="outline-btn" href="#portfolio">Lihat Portfolio →</a>
           </div>
         </div>
       </div>
-    </div>
-  </div>
-</section>
+    </section>
 
-<!-- ============================================================
-     BRANDS
-============================================================ -->
-<div id="brands">
-  <div class="brands-label">Trusted by Amazing Brands</div>
-  <div class="brands-track-wrap">
-    <div class="brands-track" id="brands-track">
-      <!-- Populated by JS -->
-    </div>
-  </div>
-</div>
+    <section class="soft-section">
+      <div class="container">
+        <div class="section-title"><h2>Social Media & Statistik</h2><div class="rule"></div></div>
+        <div id="social-stats-grid" class="stats-grid"></div><div id="audience-bar" class="audience"></div>
+      </div>
+    </section>
 
-<!-- ============================================================
-     ABOUT
-============================================================ -->
-<section id="about">
-  <div class="container">
-    <div class="about-grid">
-      <div class="about-photo-wrap reveal-left">
-        <div class="about-photo-placeholder" id="about-photo-placeholder">&#128247;</div>
-        <img id="about-photo" src="" alt="About Photo" class="about-photo" style="display:none;" loading="lazy" />
-        <div class="about-card-exp">
-          <div class="about-card-exp-num" id="about-exp-card">5+</div>
-          <div class="about-card-exp-lbl">Years Experience</div>
+    <section>
+      <div class="container">
+        <div class="section-title"><h2>Brand Collaboration</h2><p>Beberapa brand yang pernah berkolaborasi</p><div class="rule"></div></div>
+        <div class="carousel-row"><button class="circle-btn" type="button" data-scroll="brands" data-dir="-1"><i data-lucide="chevron-left"></i></button><div id="collab-track" class="collab-track"></div><button class="circle-btn" type="button" data-scroll="brands" data-dir="1"><i data-lucide="chevron-right"></i></button></div>
+      </div>
+    </section>
+
+    <section id="portfolio" class="soft-section">
+      <div class="container">
+        <div class="section-title"><h2>Video Portfolio</h2><p>Beberapa konten video kolaborasi dengan brand</p><div class="rule"></div></div>
+        <div class="carousel-row"><button class="circle-btn" type="button" data-scroll="videos" data-dir="-1"><i data-lucide="chevron-left"></i></button><div id="video-track" class="video-track"></div><button class="circle-btn" type="button" data-scroll="videos" data-dir="1"><i data-lucide="chevron-right"></i></button></div>
+      </div>
+    </section>
+
+    <section id="rate-card">
+      <div class="container">
+        <div class="section-title"><h2>Rate Card</h2><p>Pilih paket yang sesuai dengan kebutuhan brand kamu</p><div class="rule"></div></div>
+        <div id="rate-grid" class="rates-grid"></div>
+      </div>
+    </section>
+
+    <section id="contact" class="soft-section">
+      <div class="container">
+        <div class="contact-card">
+          <div class="contact-main"><img id="contact-avatar" class="contact-avatar" alt="Creator"><div><h2>Tertarik untuk<br>berkolaborasi?</h2><p>Yuk, hubungi admin sekarang!</p><div class="button-row"><button class="pill-btn" type="button" data-action="inquiry"><i data-lucide="send"></i> Kirim Pertanyaan</button><button class="pill-btn" type="button" data-action="whatsapp"><i data-lucide="message-circle"></i> Chat via WhatsApp</button></div></div></div>
+          <div id="contact-info-cards" class="contact-info"></div>
         </div>
       </div>
-      <div class="about-content reveal-right">
-        <div>
-          <div class="section-badge">About Me</div>
-          <h2 class="section-title" id="about-title">Turning Ideas Into<br><span>Impactful Content</span></h2>
-          <p class="section-desc" id="about-desc">Saya adalah content creator yang berfokus pada lifestyle, beauty, travel, dan product review.</p>
+    </section>
+  </main>
+
+  <footer><div id="footer-name" class="footer-name">Creator</div><small>MEDIA KIT</small><p class="serif">Thank you! Let's create something amazing together ✨</p><small>© 2025 · Hak Cipta Dilindungi</small></footer>
+
+  <div id="video-modal" class="modal" data-close-modal="video"><div class="modal-box small"><div class="modal-head"><h3>Video Portfolio</h3><button class="close" type="button" data-action="close-video"><i data-lucide="x"></i></button></div><div id="modal-video-container" style="padding:0;background:#000"></div></div></div>
+
+  <div id="inquiry-modal" class="modal" data-close-modal="inquiry">
+    <div class="modal-box small"><div class="modal-head"><h3><i data-lucide="send"></i> Kirimkan Detail Kolaborasi</h3><button class="close" type="button" data-action="close-inquiry"><i data-lucide="x"></i></button></div>
+      <div class="modal-body"><form id="inquiry-form">
+        <div class="form-grid"><div class="field"><label for="form-name">Nama Lengkap</label><input id="form-name" required placeholder="Nama Anda"></div><div class="field"><label for="form-brand">Brand / Perusahaan</label><input id="form-brand" required placeholder="Brand Anda"></div></div>
+        <div class="field"><label for="form-email">Alamat Email</label><input id="form-email" type="email" required placeholder="email@brand.com"></div>
+        <div class="field"><label for="form-service">Paket yang Diminati</label><select id="form-service"><option value="">— Pilih Paket —</option></select></div>
+        <div class="field"><label for="form-message">Pesan / Brief Singkat</label><textarea id="form-message" rows="5" required placeholder="Tuliskan detail produk atau timeline campaign Anda..."></textarea></div>
+        <button id="submit-btn" class="pill-btn primary" type="submit" style="width:100%;padding:13px"><i data-lucide="send"></i> Kirim & Hubungi via WhatsApp</button>
+      </form></div>
+    </div>
+  </div>
+
+  <div id="admin-modal" class="modal" data-close-modal="admin">
+    <div class="modal-box"><div class="modal-head"><h3><i data-lucide="settings"></i> Panel Pengaturan Admin</h3><button class="close" type="button" data-action="close-admin"><i data-lucide="x"></i></button></div>
+      <div id="pin-screen" class="pin-screen"><i data-lucide="lock" style="width:30px;height:30px;color:var(--sage)"></i><h3>Masukkan PIN Admin</h3><p style="font-size:12px;color:var(--light)">PIN diverifikasi oleh server.</p><input id="pin-input" class="field input" type="password" maxlength="32" placeholder="••••"><button class="pill-btn primary" type="button" data-action="verify-pin">Masuk Mode Edit</button><p id="pin-error" class="hidden" style="color:#c64b4b;font-size:12px;margin-bottom:0"></p></div>
+      <div id="admin-screen" class="admin-screen">
+        <div class="tabs"><button class="tab active" data-tab="profile">Profil</button><button class="tab" data-tab="contact">Kontak</button><button class="tab" data-tab="social">Statistik</button><button class="tab" data-tab="audience">Audiens</button><button class="tab" data-tab="brands">Brand</button><button class="tab" data-tab="videos">Video</button><button class="tab" data-tab="rates">Rate Card</button></div>
+        <div class="admin-body">
+          <div class="tab-pane active" data-pane="profile"><div class="editor-grid"><div class="field"><label>Nama Creator</label><input id="edit-name" class="edit-input"></div><div class="field"><label>Tagline / Profesi</label><input id="edit-tagline" class="edit-input"></div></div><div class="field"><label>Foto Avatar</label><div class="asset-picker"><div class="asset-preview"><img id="edit-avatar-preview" data-image-preview="profile.avatarUrl" alt="Preview avatar"></div><div class="asset-controls"><input id="edit-avatar" class="edit-input image-url" data-image-role="url" data-image-target="profile.avatarUrl" placeholder="Tempel URL gambar atau link Google Drive"><input type="file" accept="image/*" data-image-role="file" data-image-target="profile.avatarUrl"><small class="asset-hint">Bisa memakai URL gambar langsung, link Google Drive, atau file dari perangkat.</small><small class="asset-status" data-image-status="profile.avatarUrl"></small></div></div></div><div class="field"><label>Bio</label><textarea id="edit-bio" class="edit-input" rows="4"></textarea></div><div class="editor-grid"><div class="field"><label>Nomor WhatsApp</label><input id="edit-whatsapp" class="edit-input"></div><div class="field"><label>Lokasi</label><input id="edit-location" class="edit-input"></div></div><div class="field"><label>Ganti PIN Admin (kosongkan jika tidak berubah)</label><input id="edit-pin" class="edit-input" type="password"></div></div>
+          <div class="tab-pane" data-pane="contact"><div class="editor-actions"><strong>Info Kontak</strong><button class="add-btn" type="button" data-add="contact">+ Tambah</button></div><div id="contact-editor"></div></div>
+          <div class="tab-pane" data-pane="social"><div class="editor-actions"><strong>Statistik Sosial</strong><button class="add-btn" type="button" data-add="social">+ Tambah</button></div><div id="social-editor"></div></div>
+          <div class="tab-pane" data-pane="audience"><div class="editor-actions"><strong>Info Audiens</strong><button class="add-btn" type="button" data-add="audience">+ Tambah</button></div><div id="audience-editor"></div></div>
+          <div class="tab-pane" data-pane="brands"><div class="editor-actions"><strong>Brand Kolaborasi</strong><button class="add-btn" type="button" data-add="brand">+ Tambah</button></div><div id="brand-editor"></div></div>
+          <div class="tab-pane" data-pane="videos"><div class="editor-actions"><strong>Video Portfolio</strong><button class="add-btn" type="button" data-add="video">+ Tambah</button></div><div id="video-editor"></div></div>
+          <div class="tab-pane" data-pane="rates"><div class="editor-actions"><strong>Paket Rate Card</strong><button class="add-btn" type="button" data-add="rate">+ Tambah</button></div><div id="rate-editor"></div></div>
         </div>
-        <div class="about-stats" id="about-stats">
-          <!-- Populated by JS -->
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================
-     ANALYTICS
-============================================================ -->
-<section id="analytics">
-  <div class="container">
-    <div class="section-header reveal">
-      <div class="section-badge">Social Media Analytics</div>
-      <h2 class="section-title">My Social Media <span>Performance</span></h2>
-      <p class="section-desc">Real numbers that drive real results for your brand campaigns.</p>
-    </div>
-    <div class="analytics-grid" id="analytics-grid">
-      <!-- Populated by JS -->
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================
-     PORTFOLIO
-============================================================ -->
-<section id="portfolio">
-  <div class="container">
-    <div class="section-header reveal">
-      <div class="section-badge">Portfolio</div>
-      <h2 class="section-title">Some of <span>My Work</span></h2>
-      <p class="section-desc">A curated selection of content I've created for amazing brands and personal projects.</p>
-    </div>
-    <div class="portfolio-filters" id="portfolio-filters">
-      <button class="filter-btn active" data-cat="all" onclick="filterPortfolio('all', this)">All</button>
-      <!-- Populated by JS -->
-    </div>
-    <div class="portfolio-grid" id="portfolio-grid">
-      <!-- Populated by JS -->
-    </div>
-  </div>
-</section>
-
-<!-- Portfolio Modal -->
-<div class="portfolio-modal" id="portfolio-modal" onclick="closePortfolioModal(event)">
-  <div class="portfolio-modal-box">
-    <div class="portfolio-modal-inner">
-      <div class="portfolio-modal-close" onclick="closePortfolioModalDirect()">&#10005;</div>
-      <div class="portfolio-modal-media" id="modal-media"></div>
-      <div class="portfolio-modal-body">
-        <div class="portfolio-modal-cat" id="modal-cat"></div>
-        <div class="portfolio-modal-title" id="modal-title"></div>
-        <div class="portfolio-modal-desc" id="modal-desc"></div>
-        <a href="#" class="portfolio-modal-link" id="modal-link" target="_blank" rel="noopener">
-          View Full Content
-          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-        </a>
+        <div class="admin-footer"><button id="save-btn" class="pill-btn primary" type="button" data-action="save" style="width:100%;padding:12px"><i data-lucide="save"></i> Simpan Seluruh Perubahan</button></div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- ============================================================
-     RATE CARD
-============================================================ -->
-<section id="rate-card">
-  <div class="container">
-    <div class="section-header reveal">
-      <div class="section-badge">Rate Card</div>
-      <h2 class="section-title">Choose the Best Package<br><span>for Your Brand</span></h2>
-      <p class="section-desc">Transparent pricing with clear deliverables — find the perfect collaboration package.</p>
-    </div>
-    <div class="rate-grid" id="rate-grid">
-      <!-- Populated by JS -->
-    </div>
-    <div class="rate-addons reveal" id="rate-addons-section" style="display:none;">
-      <div class="rate-addons-title">Additional Services</div>
-      <div class="rate-addons-grid" id="rate-addons-grid">
-        <!-- Populated by JS -->
-      </div>
-    </div>
-  </div>
-</section>
+  <script>
+    'use strict';
+    var appData = {};
+    var adminSessionToken = '';
+    var inquirySubmitting = false;
+    // Menyimpan file lokal & meta upload video per index editor.
+    // Struktur: { <videoIndex>: { file: File, dataUri: string, durationSeconds: number, uploaded: bool, url: string, mimeType: string } }
+    var videoUploadState = {};
 
-<!-- ============================================================
-     TESTIMONIALS
-============================================================ -->
-<section id="testimonials">
-  <div class="container">
-    <div class="section-header reveal">
-      <div class="section-badge">Testimonials</div>
-      <h2 class="section-title">What Brands <span>Say About Me</span></h2>
-      <p class="section-desc">Hear directly from the brands that have trusted me with their campaigns.</p>
-    </div>
-    <div class="testimonials-slider" id="testimonials-slider-wrap">
-      <div class="testimonials-track" id="testimonials-track">
-        <!-- Populated by JS -->
-      </div>
-    </div>
-    <div class="testimonial-controls">
-      <button class="testimonial-nav" onclick="prevTestimonial()" aria-label="Previous">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"/></svg>
-      </button>
-      <div class="testimonial-dots" id="testimonial-dots"></div>
-      <button class="testimonial-nav" onclick="nextTestimonial()" aria-label="Next">
-        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"/></svg>
-      </button>
-    </div>
-  </div>
-</section>
+    /* ── Regex platform (client-side, cerminan Code.gs) ── */
+    var VIDEO_REGEX = {
+      youtube:   /(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/,
+      tiktok:    /tiktok\.com\/(?:@[^\/]+\/video\/|v\/)(\d+)/,
+      instagram: /instagram\.com\/(?:reel|p|tv)\/([A-Za-z0-9_-]+)/,
+      twitter:   /(?:twitter|x)\.com\/[^\/]+\/status\/(\d+)/,
+      facebook:  /facebook\.com\/.*\/videos\/(\d+)/
+    };
 
-<!-- ============================================================
-     FAQ
-============================================================ -->
-<section id="faq">
-  <div class="container">
-    <div class="section-header reveal">
-      <div class="section-badge">FAQ</div>
-      <h2 class="section-title">Frequently Asked <span>Questions</span></h2>
-      <p class="section-desc">Everything you need to know about working with me.</p>
-    </div>
-    <div class="faq-list" id="faq-list">
-      <!-- Populated by JS -->
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================
-     CONTACT
-============================================================ -->
-<section id="contact">
-  <div class="container">
-    <div class="section-header reveal">
-      <div class="section-badge">Contact</div>
-      <h2 class="section-title">Let's Work <span>Together</span></h2>
-      <p class="section-desc">Ready to create amazing content for your brand? Reach out and let's make it happen.</p>
-    </div>
-    <div class="contact-grid">
-      <div class="contact-info reveal-left">
-        <div class="contact-item">
-          <div class="contact-item-icon">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-          </div>
-          <div>
-            <div class="contact-item-lbl">Phone / WhatsApp</div>
-            <div class="contact-item-val" id="contact-phone">—</div>
-          </div>
-        </div>
-        <div class="contact-item">
-          <div class="contact-item-icon">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-          </div>
-          <div>
-            <div class="contact-item-lbl">Email</div>
-            <div class="contact-item-val" id="contact-email">—</div>
-          </div>
-        </div>
-        <div class="contact-item">
-          <div class="contact-item-icon">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-          </div>
-          <div>
-            <div class="contact-item-lbl">Address</div>
-            <div class="contact-item-val" id="contact-address">—</div>
-          </div>
-        </div>
-        <div class="contact-item">
-          <div class="contact-item-icon">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-          </div>
-          <div>
-            <div class="contact-item-lbl">Business Hours</div>
-            <div class="contact-item-val">
-              <div class="hours-grid" id="contact-hours">
-                <div class="hours-row"><span>Mon – Fri</span><span>09:00 – 18:00</span></div>
-                <div class="hours-row"><span>Saturday</span><span>10:00 – 15:00</span></div>
-                <div class="hours-row"><span>Sunday</span><span>Closed</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="contact-map-wrap" id="contact-map-wrap" style="display:none;">
-          <!-- Populated by JS -->
-        </div>
-      </div>
-      <div class="contact-qr reveal-right">
-        <div class="contact-qr-card">
-          <div class="contact-qr-placeholder" id="qr-placeholder">&#128247;</div>
-          <img id="qr-image" src="" alt="WhatsApp QR" class="contact-qr-img" style="display:none;" loading="lazy" />
-          <div class="contact-qr-label">Scan to Chat on WhatsApp</div>
-        </div>
-        <a href="#" class="contact-wa-btn" id="contact-wa-btn" onclick="handleBookCollaboration(event)">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-          Chat on WhatsApp
-        </a>
-        <div style="display:flex; flex-direction:column; gap:10px;">
-          <p style="text-align:center; font-size:.82rem; color:var(--gray-400);">Or connect on social media</p>
-          <div class="hero-social" id="contact-social-links" style="justify-content:center; flex-wrap:wrap;"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================
-     FOOTER
-============================================================ -->
-<footer>
-  <div class="container">
-    <div class="footer-grid">
-      <div class="footer-brand">
-        <div class="footer-logo">
-          <img id="footer-logo" src="" alt="Logo" style="display:none;" />
-          <div>
-            <div class="footer-logo-name" id="footer-name">Content Creator</div>
-            <div class="footer-logo-sub" id="footer-sub">Portfolio</div>
-          </div>
-        </div>
-        <p class="footer-tagline" id="footer-tagline">Creating authentic content that connects brands with their audience.</p>
-        <div class="footer-social" id="footer-social"></div>
-      </div>
-      <div>
-        <div class="footer-col-title">Quick Links</div>
-        <ul class="footer-links">
-          <li><a href="#home">Home</a></li>
-          <li><a href="#about">About</a></li>
-          <li><a href="#portfolio">Portfolio</a></li>
-          <li><a href="#analytics">Analytics</a></li>
-          <li><a href="#rate-card">Rate Card</a></li>
-        </ul>
-      </div>
-      <div>
-        <div class="footer-col-title">Services</div>
-        <ul class="footer-links" id="footer-services-list">
-          <li><a href="#">Content Creation</a></li>
-          <li><a href="#">Brand Campaign</a></li>
-          <li><a href="#">UGC Content</a></li>
-          <li><a href="#">Product Review</a></li>
-          <li><a href="#">Live Streaming</a></li>
-        </ul>
-      </div>
-      <div>
-        <div class="footer-col-title">Legal</div>
-        <ul class="footer-links">
-          <li><a href="#">Privacy Policy</a></li>
-          <li><a href="#">Terms of Use</a></li>
-          <li><a href="#">Cookie Policy</a></li>
-          <li><a href="#">Refund Policy</a></li>
-        </ul>
-      </div>
-    </div>
-    <hr class="footer-divider" />
-    <div class="footer-bottom">
-      <div class="footer-copyright" id="footer-copyright">© 2025 Portfolio Content Creator. All rights reserved.</div>
-      <a href="admin.html" style="font-size:.78rem;color:rgba(255,255,255,.25);text-decoration:none;transition:color .2s" onmouseover="this.style.color='rgba(255,255,255,.6)'" onmouseout="this.style.color='rgba(255,255,255,.25)'">⚙ Admin</a>
-      <div class="footer-services">
-        <a href="#testimonials">Testimonials</a>
-        <a href="#faq">FAQ</a>
-        <a href="#contact">Contact</a>
-      </div>
-    </div>
-  </div>
-</footer>
-
-<!-- ============================================================
-     JAVASCRIPT
-============================================================ -->
-<script>
-  /* ==================================================================
-     CONFIGURATION
-  ================================================================== */
-  // Ganti dengan URL deployment Google Apps Script Anda
-  // Cara mendapatkan: Deploy > New Deployment > Web App > Copy URL
-  var GAS_URL = 'YOUR_GOOGLE_APPS_SCRIPT_DEPLOYMENT_URL';
-  var CACHE_VERSION_KEY = 'portfolio_cache_version';
-  var CACHE_DATA_PREFIX  = 'portfolio_data_';
-  var CACHE_TTL = 30 * 60 * 1000; // 30 menit
-
-  /* ==================================================================
-     GLOBAL APP STATE
-  ================================================================== */
-  var appData = {
-    settings: null,
-    home: null,
-    about: null,
-    brands: null,
-    analytics: null,
-    portfolio: null,
-    testimonials: null,
-    faq: null,
-    contact: null,
-    ratecard: null,
-  };
-
-  var testimonialIndex = 0;
-  var testimonialSlideCount = 0;
-  var testimonialAutoTimer = null;
-
-  /* ==================================================================
-     SMART LOCAL STORAGE CACHE
-  ================================================================== */
-  function cacheGet(key) {
-    try {
-      var raw = localStorage.getItem(CACHE_DATA_PREFIX + key);
-      if (!raw) return null;
-      var parsed = JSON.parse(raw);
-      if (parsed.expires && Date.now() > parsed.expires) {
-        localStorage.removeItem(CACHE_DATA_PREFIX + key);
-        return null;
+    function detectVideoUrlClient(url) {
+      var u = String(url || '').trim();
+      if (!u) return { sourceType:'', embedUrl:'', videoUrl:'', platform:'' };
+      var m;
+      m = u.match(VIDEO_REGEX.youtube);   if (m) return { sourceType:'youtube',   embedUrl:'https://www.youtube.com/embed/'+m[1], videoUrl:u, platform:'YouTube' };
+      m = u.match(VIDEO_REGEX.tiktok);    if (m) return { sourceType:'tiktok',    embedUrl:'https://www.tiktok.com/embed/v2/'+m[1], videoUrl:u, platform:'TikTok' };
+      m = u.match(VIDEO_REGEX.instagram); if (m) return { sourceType:'instagram', embedUrl:'https://www.instagram.com/reel/'+m[1]+'/embed', videoUrl:u, platform:'Instagram' };
+      m = u.match(VIDEO_REGEX.twitter);   if (m) return { sourceType:'twitter',   embedUrl:'https://twitframe.com/show?url='+encodeURIComponent(u), videoUrl:u, platform:'Twitter' };
+      m = u.match(VIDEO_REGEX.facebook);  if (m) return { sourceType:'facebook',  embedUrl:'https://www.facebook.com/plugins/video.php?href='+encodeURIComponent(u)+'&show_text=0', videoUrl:u, platform:'Facebook' };
+      if (/\.(mp4|webm|mov|m4v|ogg|ogv)(\?|$)/i.test(u) || /drive\.google\.com\/uc\?/i.test(u)) {
+        return { sourceType:'direct', embedUrl:'', videoUrl:u, platform:'Video' };
       }
-      return parsed.data;
-    } catch (e) { return null; }
-  }
-
-  function cacheSet(key, data) {
-    try {
-      localStorage.setItem(CACHE_DATA_PREFIX + key, JSON.stringify({
-        data: data,
-        expires: Date.now() + CACHE_TTL,
-        ts: Date.now()
-      }));
-    } catch (e) {}
-  }
-
-  function cacheHasAny() {
-    return !!cacheGet('settings');
-  }
-
-  /* ==================================================================
-     JSONP FETCH — kompatibel dengan GitHub Pages (cross-origin)
-     Gunakan ?callback=xxx karena fetch+CORS diblokir oleh GAS
-  ================================================================== */
-  var _jsonpCallbackCounter = 0;
-
-  function fetchGAS(action) {
-    return new Promise(function(resolve) {
-      var cbName = '__gasCallback_' + (++_jsonpCallbackCounter);
-      var script = document.createElement('script');
-      var timer = setTimeout(function() {
-        cleanup();
-        console.warn('[GAS] Timeout fetching:', action);
-        resolve(null);
-      }, 12000);
-
-      function cleanup() {
-        clearTimeout(timer);
-        delete window[cbName];
-        if (script.parentNode) script.parentNode.removeChild(script);
-      }
-
-      window[cbName] = function(json) {
-        cleanup();
-        resolve((json && json.data !== undefined) ? json.data : json);
-      };
-
-      script.onerror = function() {
-        cleanup();
-        console.warn('[GAS] Script error fetching:', action);
-        resolve(null);
-      };
-
-      script.src = GAS_URL + '?action=' + encodeURIComponent(action) + '&callback=' + cbName;
-      document.head.appendChild(script);
-    });
-  }
-
-  /* ==================================================================
-     FETCH SEMUA SECTION SECARA PARALEL (cache-then-refresh)
-  ================================================================== */
-  // Daftar semua section — termasuk ratecard
-  var ALL_SECTIONS = ['settings','home','about','brands','analytics','portfolio','testimonials','faq','contact','ratecard'];
-
-  function refreshSection(key) {
-    return fetchGAS(key).then(function(fresh) {
-      if (!fresh) return;
-      var cached    = cacheGet(key);
-      var freshStr  = JSON.stringify(fresh);
-      var cachedStr = JSON.stringify(cached);
-      if (freshStr !== cachedStr) {
-        cacheSet(key, fresh);
-        appData[key] = fresh;
-        renderSection(key);
-      }
-    });
-  }
-
-  function loadFromCacheThenRefresh() {
-    var hasCached = false;
-
-    // Langkah 1: tampilkan dari cache secepatnya
-    ALL_SECTIONS.forEach(function(key) {
-      var cached = cacheGet(key);
-      if (cached) {
-        appData[key] = cached;
-        hasCached = true;
-      }
-    });
-
-    if (hasCached) {
-      renderAll();
-      hideLoader();
+      return { sourceType:'direct', embedUrl:'', videoUrl:u, platform:'Video' };
     }
 
-    // Langkah 2: refresh dari GAS di background (paralel via JSONP)
-    var fetchTasks = ALL_SECTIONS.map(function(key) {
-      return fetchGAS(key).then(function(fresh) {
-        if (!fresh) return;
-        var freshStr  = JSON.stringify(fresh);
-        var cachedStr = JSON.stringify(cacheGet(key));
-        if (freshStr !== cachedStr) {
-          cacheSet(key, fresh);
-          appData[key] = fresh;
-          renderSection(key);
-        } else if (!hasCached) {
-          appData[key] = fresh;
-          cacheSet(key, fresh);
-        }
-      });
-    });
+    function $(id) { return document.getElementById(id); }
+    function escHtml(v) { return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+    function escAttr(v) { return escHtml(v); }
+    function icons() { if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons(); }
+    function isAppsScript() { return !!(window.google && google.script && google.script.run); }
+    function fallbackImage() { return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400"><rect width="100%" height="100%" fill="#dfe7dc"/><text x="50%" y="50%" text-anchor="middle" fill="#4a6741" font-family="Arial" font-size="18">Creator</text></svg>'); }
 
-    if (!hasCached) {
-      Promise.all(fetchTasks.map(function(p) {
-        return p.catch(function() { return null; });
-      })).then(function() {
-        // Jika semua data kosong (sheet belum diisi), tampilkan demo data
-        var hasRealData = appData.home && appData.home.name && appData.home.name !== '';
-        if (!hasRealData) {
-          console.info('[GAS] Data kosong, menampilkan demo data...');
-          showDemoData();
+    function imageSource(value) {
+      var url = String(value || '').trim(), match, driveId;
+      if (!url) return '';
+      if (/^data:image\//i.test(url)) return url;
+      if (!/^https?:\/\//i.test(url)) return '';
+      match = url.match(/\/file\/d\/([a-zA-Z0-9_\-]+)/i);
+      if (match) { driveId = match[1]; return 'https://drive.google.com/thumbnail?id='+driveId+'&sz=w800'; }
+      match = url.match(/[?&\/]d\/([a-zA-Z0-9_\-]+)/i);
+      if (match) { driveId = match[1]; return 'https://drive.google.com/thumbnail?id='+driveId+'&sz=w800'; }
+      if (/drive\.google\.com/i.test(url)) {
+        match = url.match(/[?&]id=([a-zA-Z0-9_\-]+)/i);
+        if (match) { driveId = match[1]; return 'https://drive.google.com/thumbnail?id='+driveId+'&sz=w800'; }
+      }
+      match = url.match(/[?&]id=([a-zA-Z0-9_\-]+)/i);
+      if (match && /google\.com/i.test(url)) { driveId = match[1]; return 'https://drive.google.com/thumbnail?id='+driveId+'&sz=w800'; }
+      if (/lh\d*\.googleusercontent\.com/i.test(url)) return url.replace(/=(?:[whs]\d+|s\d+(?:-[a-z]+)*)\s*$/i,'')+'=w800';
+      return url;
+    }
+    function safeContactHref(v) { var href = String(v || '').trim(); return /^(?:https?:\/\/|mailto:)/i.test(href) ? href : ''; }
+    function image(el, url) { if (el) { el.src = imageSource(url) || fallbackImage(); el.onerror = function(){ this.onerror=null; this.src=fallbackImage(); }; } }
+    function getPath(path) { var parts = String(path||'').split('.'), value = appData; for (var i=0;i<parts.length;i++) { if (value==null) return ''; value = value[parts[i]]; } return value==null?'':value; }
+    function setPath(path, value) { var parts = String(path||'').split('.'), target = appData; if (!path||parts.length<2) return; for (var i=0;i<parts.length-1;i++) { if (target[parts[i]]==null) target[parts[i]] = String(Number(parts[i]))===parts[i]?[]:{}; target = target[parts[i]]; } target[parts[parts.length-1]] = value; }
+    function assetStatus(target, message, isError) { document.querySelectorAll('[data-image-status="'+target+'"]').forEach(function(el){ el.textContent = message||''; el.className = 'asset-status'+(isError?' error':''); }); }
+    function updateAssetPreview(target, value) { var src = imageSource(value) || fallbackImage(); document.querySelectorAll('[data-image-preview="'+target+'"]').forEach(function(preview){ preview.src = src; preview.onerror = function(){ this.onerror=null; this.src=fallbackImage(); }; }); }
+    function readImageFile(file, done) { if (!file || !/^image\//i.test(file.type)) { done(null, 'Pilih file gambar yang valid.'); return; } if (file.size > 25*1024*1024) { done(null, 'Ukuran gambar maksimal 25 MB.'); return; } var reader = new FileReader(); reader.onload = function(){ var raw = reader.result; if (raw.length <= 3000000) { done(raw); return; } var imgEl = new Image(); imgEl.onload = function(){ var max=1800, scale=Math.min(1, max/Math.max(imgEl.width, imgEl.height)), canvas=document.createElement('canvas'); canvas.width=Math.max(1, Math.round(imgEl.width*scale)); canvas.height=Math.max(1, Math.round(imgEl.height*scale)); canvas.getContext('2d').drawImage(imgEl,0,0,canvas.width,canvas.height); done(canvas.toDataURL(file.type==='image/png'?'image/png':'image/jpeg',.86)); }; imgEl.onerror=function(){ done(raw); }; imgEl.src=raw; }; reader.onerror = function(){ done(null,'File gambar tidak dapat dibaca.'); }; reader.readAsDataURL(file); }
+    function handleImageFile(input) { var target=input.getAttribute('data-image-target'), file=input.files&&input.files[0]; if (!target||!file) return; assetStatus(target,'Memuat gambar…',false); readImageFile(file,function(data,error){ if(error){ assetStatus(target,error,true); return; } setPath(target,data); updateAssetPreview(target,data); render(appData); assetStatus(target,'Gambar siap. Klik Simpan untuk menerapkan ke website.',false); }); }
+    function handleImageUrl(input) { var target=input.getAttribute('data-image-target'), value=input.value.trim(); if (!target) return; var resolved=imageSource(value); setPath(target,value); document.querySelectorAll('[data-image-preview="'+target+'"]').forEach(function(preview){ if(resolved){ preview.src=resolved; preview.onerror=function(){ this.onerror=null; this.src=fallbackImage(); }; } else { preview.src=fallbackImage(); } }); render(appData); assetStatus(target, resolved?'Preview diperbarui. Klik Simpan untuk menerapkan ke website.':value?'URL tidak dikenali — coba URL lain.':'', !resolved&&value?true:false); }
+    function toast(message, type) { var old=$('toast'); if (old) old.remove(); var el=document.createElement('div'); el.id='toast'; el.className='toast '+(type==='error'?'error':''); el.textContent=message; document.body.appendChild(el); setTimeout(function(){ el.remove(); }, 4500); }
+    function server(method, args, success, failure) {
+      if (!isAppsScript()) { if (failure) failure(new Error('Halaman ini belum berjalan sebagai Google Apps Script Web App.')); return; }
+      var runner = google.script.run.withSuccessHandler(success).withFailureHandler(failure || function(err){ console.error(err); toast('Terjadi kesalahan server.', 'error'); });
+      runner[method].apply(runner, args || []);
+    }
+
+    function defaults() {
+      return { whatsappNumber:'6281234567890', profile:{name:'Safwa Sakilla',tagline:'Lifestyle & Beauty Content Creator',bio:'Saya adalah content creator yang berfokus pada lifestyle, beauty, self development dan daily life.',avatarUrl:'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600&q=80',location:'Jakarta, Indonesia'},
+        contactInfo:[{icon:'youtube',label:'YOUTUBE',value:'@safwasakilla',href:'https://youtube.com/@safwasakilla'},{icon:'twitter',label:'TWITTER / X',value:'@safwasakilla',href:'https://x.com/safwasakilla'},{icon:'instagram',label:'INSTAGRAM',value:'@safwasakilla',href:'https://instagram.com/safwasakilla'},{icon:'music',label:'TIKTOK',value:'@safwasakilla',href:'https://tiktok.com/@safwasakilla'}],
+        socialStats:[{platform:'Instagram',handle:'@safwasakilla',value:'250K',label:'Followers',icon:'instagram'}],
+        audienceInfo:[{icon:'sparkles',label:'Niche',value:'Lifestyle'}],
+        brandCollabs:[{name:'Somethinc',logoUrl:'',textFallback:'Somethinc'}],
+        videos:[{id:'v1',title:'Contoh Video',platform:'Reels',duration:'0:45',thumbnailUrl:'https://images.unsplash.com/photo-1487412912498-0447578fcca8?auto=format&fit=crop&w=600&q=70',videoUrl:'https://www.w3schools.com/html/mov_bbb.mp4',embedUrl:'',sourceType:'direct',durationSeconds:45}],
+        rateCards:[{id:'r1',title:'Story 1 Frame',price:'Rp500.000',popular:false,icon:'smartphone',iconUrl:'',features:['1 Story']}] };
+    }
+    function normalize(data) {
+      var d = defaults(), s = data && typeof data==='object' ? data : {};
+      var out = Object.assign({}, d, s, { profile:Object.assign({}, d.profile, s.profile||{}), contactInfo:Array.isArray(s.contactInfo)?s.contactInfo:d.contactInfo, socialStats:Array.isArray(s.socialStats)?s.socialStats:d.socialStats, audienceInfo:Array.isArray(s.audienceInfo)?s.audienceInfo:d.audienceInfo, brandCollabs:Array.isArray(s.brandCollabs)?s.brandCollabs:d.brandCollabs, videos:Array.isArray(s.videos)?s.videos:d.videos, rateCards:Array.isArray(s.rateCards)?s.rateCards:d.rateCards });
+      // Normalize videos: ensure new fields exist
+      out.videos = out.videos.map(function(v, idx){
+        v = v || {};
+        if (!v.id) v.id = 'v'+(idx+1);
+        if (v.title==null) v.title='';
+        if (v.platform==null) v.platform='';
+        if (v.duration==null) v.duration='';
+        if (v.thumbnailUrl==null) v.thumbnailUrl='';
+        if (v.videoUrl==null) v.videoUrl='';
+        if (v.embedUrl==null) v.embedUrl='';
+        if (v.sourceType==null) v.sourceType='';
+        if (v.durationSeconds==null) v.durationSeconds=0;
+        // Auto-detect kalau sourceType kosong tapi ada URL sosmed
+        if (!v.sourceType && v.videoUrl && !/^data:/i.test(v.videoUrl) && !/^blob:/i.test(v.videoUrl)) {
+          var info = detectVideoUrlClient(v.videoUrl);
+          if (info.sourceType) { v.sourceType = info.sourceType; if (!v.embedUrl) v.embedUrl = info.embedUrl; if (!v.platform) v.platform = info.platform; }
+        }
+        return v;
+      });
+      return out;
+    }
+
+    /* ── Render public sections ── */
+    function renderVideoCard(v, i) {
+      var thumb = imageSource(v.thumbnailUrl) || fallbackImage();
+      var badge = v.platform ? '<span class="platform-badge">'+escHtml(v.platform)+'</span>' : '';
+      return '<div class="video-card" data-video-index="'+i+'">'+
+        '<img src="'+escAttr(thumb)+'" alt="'+escAttr(v.title)+'" onerror="this.onerror=null;this.src=\''+fallbackImage()+'\'">'+
+        badge+
+        '<span class="play"><i data-lucide="play"></i></span>'+
+        (v.duration?'<span class="duration">'+escHtml(v.duration)+'</span>':'')+
+        '<div class="video-overlay">'+escHtml(v.title)+'</div>'+
+      '</div>';
+    }
+
+    function render(data) {
+      appData = normalize(data); delete appData.adminPin; var p = appData.profile;
+      $('nav-name').textContent = p.name||'Creator'; $('hero-name').textContent = p.name||''; $('hero-tagline').textContent = p.tagline||''; $('hero-bio').textContent = p.bio||''; $('footer-name').textContent = p.name||'Creator';
+      image($('hero-avatar'), p.avatarUrl); image($('contact-avatar'), p.avatarUrl);
+      $('form-service').innerHTML = '<option value="">— Pilih Paket —</option>'+appData.rateCards.map(function(r){ return '<option value="'+escAttr(r.title)+'">'+escHtml(r.title)+'</option>'; }).join('');
+      $('social-stats-grid').innerHTML = appData.socialStats.map(function(s){ return '<div class="stat-card"><div><i data-lucide="'+escAttr(s.icon||'bar-chart-2')+'"></i> '+escHtml(s.handle||s.platform)+'</div><div class="value">'+escHtml(s.value)+'</div><div class="label">'+escHtml(s.label)+'</div></div>'; }).join('');
+      $('audience-bar').innerHTML = appData.audienceInfo.map(function(a){ return '<div class="audience-item"><i data-lucide="'+escAttr(a.icon||'info')+'"></i><div><small>'+escHtml(a.label)+'</small><strong>'+escHtml(a.value)+'</strong></div></div>'; }).join('');
+      $('collab-track').innerHTML = appData.brandCollabs.map(function(b){ var src=imageSource(b.logoUrl); return '<div class="brand-card">'+(src?'<img src="'+escAttr(src)+'" alt="'+escAttr(b.name)+'" onerror="this.style.display=\'none\'">':'')+((!src||b.textFallback)?'<span class="brand-text">'+escHtml(b.textFallback||b.name)+'</span>':'')+'</div>'; }).join('');
+      $('video-track').innerHTML = appData.videos.map(renderVideoCard).join('');
+      $('rate-grid').innerHTML = appData.rateCards.map(function(r,i){ return '<div class="rate-card '+(r.popular?'is-popular':'')+'">'+(r.popular?'<span class="popular-badge">Popular Choice</span>':'')+'<div class="rate-icon">'+(r.iconUrl?'<img src="'+escAttr(imageSource(r.iconUrl))+'" alt="'+escAttr(r.title)+'">':'<i data-lucide="'+escAttr(r.icon||'package')+'"></i>')+'</div><h3>'+escHtml(r.title)+'</h3><div class="price">'+escHtml(r.price)+'</div><ul class="features">'+(r.features||[]).map(function(f){return '<li>'+escHtml(f)+'</li>';}).join('')+'</ul><button class="pill-btn primary" type="button" data-rate-index="'+i+'"><i data-lucide="message-circle"></i> Pesan Sekarang</button></div>'; }).join('');
+      $('contact-info-cards').innerHTML = appData.contactInfo.map(function(c){ var href=safeContactHref(c.href); return (href?'<a class="contact-row" href="'+escAttr(href)+'" target="_blank" rel="noopener noreferrer">':'<div class="contact-row">')+'<i data-lucide="'+escAttr(c.icon||'info')+'"></i><div><small>'+escHtml(c.label)+'</small><strong>'+escHtml(c.value)+'</strong></div>'+(href?'</a>':'</div>'); }).join('');
+      icons();
+    }
+
+    function openModal(id){ $(id).classList.add('open'); }
+    function closeModal(id){ $(id).classList.remove('open'); if(id==='video-modal'){ $('modal-video-container').innerHTML=''; } }
+    function openInquiry(preselect){ $('inquiry-form').reset(); openModal('inquiry-modal'); if (preselect) $('form-service').value = preselect; }
+    function openAdmin(){ openModal('admin-modal'); $('pin-screen').style.display='block'; $('admin-screen').style.display='none'; $('pin-input').value=''; $('pin-error').className='hidden'; setTimeout(function(){ $('pin-input').focus(); }, 80); }
+    function verifyPin(){ var pin=$('pin-input').value.trim(); if(!pin){ showPinError('PIN wajib diisi.'); return; } server('verifyAdminPin', [pin], function(r){ if(r&&r.success){ adminSessionToken=r.token||''; $('pin-screen').style.display='none'; $('admin-screen').style.display='flex'; fillEditors(); } else showPinError(r&&r.message||'PIN salah.'); }, function(){ showPinError('Verifikasi gagal. Pastikan Web App sudah dideploy ulang.'); }); }
+    function showPinError(message){ $('pin-error').textContent=message; $('pin-error').className=''; }
+    function fillEditors(){ var p=appData.profile||{}; $('edit-name').value=p.name||''; $('edit-tagline').value=p.tagline||''; $('edit-avatar').value=p.avatarUrl||''; updateAssetPreview('profile.avatarUrl', p.avatarUrl); $('edit-bio').value=p.bio||''; $('edit-whatsapp').value=appData.whatsappNumber||''; $('edit-location').value=p.location||''; videoUploadState = {}; renderEditor('contact'); renderEditor('social'); renderEditor('audience'); renderEditor('brand'); renderEditor('video'); renderEditor('rate'); }
+    function field(label, value, cls){ return '<div class="field"><label>'+label+'</label><input class="edit-input '+(cls||'')+'" value="'+escAttr(value||'')+'"></div>'; }
+    function assetField(label, value, target, key){ var prev=imageSource(value)||''; return '<div class="field"><label>'+escHtml(label)+'</label><div class="asset-picker"><div class="asset-preview"><img data-image-preview="'+escAttr(target)+'" src="'+escAttr(prev||fallbackImage())+'" alt="Preview" onerror="this.onerror=null;this.src=\''+fallbackImage()+'\'"></div><div class="asset-controls"><input class="edit-input '+escAttr(key)+' image-url" data-image-role="url" data-image-target="'+escAttr(target)+'" value="'+escAttr(value||'')+'" placeholder="Tempel URL gambar, link Google Drive, atau link gambar Google"><input type="file" accept="image/*" data-image-role="file" data-image-target="'+escAttr(target)+'"><small class="asset-hint">✓ Upload dari perangkat ・ ✓ Link Google Drive ・ ✓ Link gambar Google / URL lainnya</small><small class="asset-status" data-image-status="'+escAttr(target)+'"></small></div></div></div>'; }
+
+    /* ── Video editor (URL sosmed / Upload File) ── */
+    function videoEditorBlock(v, i) {
+      var isUpload = v.sourceType === 'upload';
+      var previewHtml = renderVideoPreviewEditor(v);
+      return '<div class="editor-card" data-editor="video" data-index="'+i+'">'+
+        '<div class="editor-actions"><strong>Video '+(i+1)+'</strong><button class="remove-btn" type="button" data-remove="video" data-index="'+i+'">Hapus</button></div>'+
+        '<div class="editor-grid">'+field('Judul', v.title, 'title')+field('Platform', v.platform, 'platform')+field('Durasi (0:45)', v.duration, 'duration')+'</div>'+
+        assetField('Foto Thumbnail', v.thumbnailUrl, 'videos.'+i+'.thumbnailUrl', 'thumbnailUrl')+
+        '<div class="vsrc-tabs">'+
+          '<button type="button" class="vsrc-tab '+(!isUpload?'active':'')+'" data-vsrc-tab="url" data-index="'+i+'"><i data-lucide="link"></i> URL Sosmed</button>'+
+          '<button type="button" class="vsrc-tab '+(isUpload?'active':'')+'" data-vsrc-tab="upload" data-index="'+i+'"><i data-lucide="upload"></i> Upload File</button>'+
+        '</div>'+
+        '<div class="vsrc-pane '+(!isUpload?'active':'')+'" data-vsrc-pane="url" data-index="'+i+'">'+
+          '<div class="vsrc-row"><input class="edit-input video-url-input" data-video-index="'+i+'" value="'+escAttr(!isUpload?(v.videoUrl||''):'')+'" placeholder="Paste URL YouTube / TikTok / Instagram / X / Facebook"><button type="button" class="detect-btn" data-detect-index="'+i+'"><i data-lucide="search"></i> Deteksi</button></div>'+
+          '<small class="asset-hint">Contoh: https://youtu.be/... · https://tiktok.com/@user/video/... · https://instagram.com/reel/...</small>'+
+        '</div>'+
+        '<div class="vsrc-pane '+(isUpload?'active':'')+'" data-vsrc-pane="upload" data-index="'+i+'">'+
+          '<div class="vsrc-row"><input type="file" accept="video/mp4,video/webm,video/quicktime,video/*" class="edit-input video-file-input" data-video-file-index="'+i+'"><button type="button" class="upload-btn" data-upload-index="'+i+'" disabled><i data-lucide="upload"></i> Upload</button></div>'+
+          '<small class="asset-hint">Maks 25 MB · Durasi ≤ 5 menit · Format MP4 / WebM / MOV</small>'+
+        '</div>'+
+        '<small class="asset-status" data-video-status="'+i+'"></small>'+
+        '<div class="video-preview-wrap" data-video-preview-wrap="'+i+'">'+previewHtml+'</div>'+
+      '</div>';
+    }
+
+    function aspectClassFor(sourceType) {
+      if (sourceType==='tiktok' || sourceType==='instagram') return 'aspect-9-16';
+      return 'aspect-16-9';
+    }
+
+    function renderVideoPreviewEditor(v) {
+      if (!v || !v.videoUrl) return '';
+      var meta = '';
+      if (v.durationSeconds > 0) {
+        var mm = Math.floor(v.durationSeconds/60), ss = String(v.durationSeconds%60).padStart(2,'0');
+        meta = '<div class="video-meta">Durasi: <strong>'+mm+':'+ss+'</strong>'+(v.platform?' · Platform: <strong>'+escHtml(v.platform)+'</strong>':'')+'</div>';
+      } else if (v.platform) {
+        meta = '<div class="video-meta">Platform: <strong>'+escHtml(v.platform)+'</strong></div>';
+      }
+      // Video langsung (upload / direct)
+      if (v.sourceType==='upload' || v.sourceType==='direct') {
+        return '<div class="video-preview '+aspectClassFor(v.sourceType)+'"><video controls preload="metadata" src="'+escAttr(v.videoUrl)+'"></video></div>'+meta;
+      }
+      // Video sosmed (embed)
+      if (v.embedUrl) {
+        return '<div class="video-preview '+aspectClassFor(v.sourceType)+'"><iframe src="'+escAttr(v.embedUrl)+'" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>'+meta;
+      }
+      return '';
+    }
+
+    function refreshVideoEditorRow(i) {
+      var wrap = document.querySelector('[data-video-preview-wrap="'+i+'"]');
+      if (wrap) { wrap.innerHTML = renderVideoPreviewEditor(appData.videos[i]); icons(); }
+    }
+
+    function renderEditor(type){
+      var list = type==='contact'?appData.contactInfo : type==='social'?appData.socialStats : type==='audience'?appData.audienceInfo : type==='brand'?appData.brandCollabs : type==='video'?appData.videos : appData.rateCards;
+      var el = $(type==='brand'?'brand-editor':type==='video'?'video-editor':type==='rate'?'rate-editor':type+'-editor');
+      el.innerHTML = list.map(function(item, i){
+        if (type==='rate') return '<div class="editor-card" data-editor="'+type+'" data-index="'+i+'"><div class="editor-actions"><strong>Paket '+(i+1)+'</strong><button class="remove-btn" type="button" data-remove="'+type+'" data-index="'+i+'">Hapus</button></div><div class="editor-grid">'+field('Judul',item.title,'title')+field('Harga',item.price,'price')+field('Ikon Lucide',item.icon,'icon')+'</div>'+assetField('Ikon Gambar',item.iconUrl,'rateCards.'+i+'.iconUrl','iconUrl')+field('Fitur (pisahkan dengan koma)',(item.features||[]).join(', '),'features')+'</div>';
+        if (type==='video') return videoEditorBlock(item, i);
+        if (type==='brand') return '<div class="editor-card" data-editor="'+type+'" data-index="'+i+'"><div class="editor-actions"><strong>Brand '+(i+1)+'</strong><button class="remove-btn" type="button" data-remove="'+type+'" data-index="'+i+'">Hapus</button></div>'+field('Nama',item.name,'name')+assetField('Logo Brand',item.logoUrl,'brandCollabs.'+i+'.logoUrl','logoUrl')+'</div>';
+        if (type==='social') return '<div class="editor-card" data-editor="'+type+'" data-index="'+i+'"><div class="editor-actions"><strong>Statistik '+(i+1)+'</strong><button class="remove-btn" type="button" data-remove="'+type+'" data-index="'+i+'">Hapus</button></div><div class="editor-grid">'+field('Platform',item.platform,'platform')+field('Handle',item.handle,'handle')+field('Nilai',item.value,'value')+field('Label',item.label,'label')+field('Ikon',item.icon,'icon')+'</div></div>';
+        var title = type==='contact'?item.label : type==='audience'?item.label : item.title;
+        return '<div class="editor-card" data-editor="'+type+'" data-index="'+i+'"><div class="editor-actions"><strong>'+escHtml(title)+'</strong><button class="remove-btn" type="button" data-remove="'+type+'" data-index="'+i+'">Hapus</button></div><div class="editor-grid">'+field('Ikon',item.icon,'icon')+field('Label',item.label,'label')+field('Nilai',item.value,'value')+'</div>'+field('Link URL (href)',item.href||'','href')+'</div>';
+      }).join('');
+      el.querySelectorAll('[data-image-preview]').forEach(function(preview){ var target=preview.getAttribute('data-image-preview'); var src=imageSource(getPath(target))||fallbackImage(); preview.src=src; preview.onerror=function(){ this.onerror=null; this.src=fallbackImage(); }; });
+      icons();
+    }
+
+    function collectEditors(){
+      ['contact','social','audience','brand','video','rate'].forEach(function(type){
+        var list = type==='contact'?appData.contactInfo : type==='social'?appData.socialStats : type==='audience'?appData.audienceInfo : type==='brand'?appData.brandCollabs : type==='video'?appData.videos : appData.rateCards;
+        document.querySelectorAll('[data-editor="'+type+'"]').forEach(function(card){
+          var i = Number(card.getAttribute('data-index'));
+          card.querySelectorAll('input').forEach(function(input){
+            if (input.matches('[data-image-role="url"]')) return;
+            if (input.matches('.video-url-input')) return;
+            if (input.matches('.video-file-input')) return;
+            var key = [].slice.call(input.classList).find(function(c){ return c!=='edit-input' && c!=='video-url-input' && c!=='video-file-input' && c!=='image-url'; });
+            if (key) list[i][key] = input.value;
+          });
+          if (type==='contact') { var hrefInput = card.querySelector('input.href'); if (hrefInput) list[i].href = hrefInput.value.trim(); }
+          if (type==='rate') { var feat=card.querySelector('.features'); if (feat) list[i].features = (feat.value||'').split(',').map(function(x){return x.trim();}).filter(Boolean); }
+        });
+      });
+    }
+
+    /* ── Video URL detect ── */
+    function detectVideoRow(i){
+      var input = document.querySelector('input.video-url-input[data-video-index="'+i+'"]');
+      var status = document.querySelector('[data-video-status="'+i+'"]');
+      var url = (input.value||'').trim();
+      if (!url) { status.className='asset-status error'; status.textContent='Isi URL video terlebih dahulu.'; return; }
+      var info = detectVideoUrlClient(url);
+      if (!info.sourceType || info.sourceType==='direct' && !/\.(mp4|webm|mov|m4v|ogg|ogv)/i.test(url)) {
+        // Coba pakai URL apa adanya sebagai direct
+        info = detectVideoUrlClient(url);
+      }
+      var v = appData.videos[i];
+      v.videoUrl = url;
+      v.sourceType = info.sourceType || 'direct';
+      v.embedUrl = info.embedUrl || '';
+      if (info.platform) v.platform = info.platform;
+      // Update field Platform di form kalau kosong / masih default
+      var platformInput = document.querySelector('[data-editor="video"][data-index="'+i+'"] input.platform');
+      if (platformInput && info.platform && !platformInput.value.trim()) platformInput.value = info.platform;
+      // YouTube: coba ambil thumbnail otomatis
+      if (info.sourceType==='youtube') {
+        var m = url.match(VIDEO_REGEX.youtube);
+        if (m && !v.thumbnailUrl) {
+          v.thumbnailUrl = 'https://i.ytimg.com/vi/'+m[1]+'/hqdefault.jpg';
+          updateAssetPreview('videos.'+i+'.thumbnailUrl', v.thumbnailUrl);
+          var thumbInput = document.querySelector('[data-editor="video"][data-index="'+i+'"] input.image-url[data-image-target="videos.'+i+'.thumbnailUrl"]');
+          if (thumbInput) thumbInput.value = v.thumbnailUrl;
+        }
+      }
+      status.className='asset-status'; status.textContent = 'Terdeteksi: '+(info.platform||'Direct URL')+'. Preview di bawah.';
+      refreshVideoEditorRow(i);
+      render(appData);
+    }
+
+    /* ── Video file input ── */
+    function handleVideoFileChange(input){
+      var i = Number(input.getAttribute('data-video-file-index'));
+      var status = document.querySelector('[data-video-status="'+i+'"]');
+      var uploadBtn = document.querySelector('button.upload-btn[data-upload-index="'+i+'"]');
+      var file = input.files && input.files[0];
+      if (!file) { if (uploadBtn) uploadBtn.disabled=true; return; }
+      var allowed = ['video/mp4','video/webm','video/quicktime','video/x-m4v','video/ogg'];
+      if (allowed.indexOf(file.type) === -1 && !/\.(mp4|webm|mov|m4v|ogg)$/i.test(file.name)) {
+        status.className='asset-status error'; status.textContent='Format tidak didukung. Pakai MP4 / WebM / MOV.'; input.value=''; return;
+      }
+      if (file.size > 25*1024*1024) {
+        status.className='asset-status error'; status.textContent='Ukuran melebihi 25 MB. Pakai URL sosmed untuk file besar.'; input.value=''; return;
+      }
+      status.className='asset-status'; status.textContent='Membaca durasi video...';
+      // Baca durasi lewat objectURL
+      var objectUrl = URL.createObjectURL(file);
+      var videoEl = document.createElement('video');
+      videoEl.preload = 'metadata';
+      videoEl.src = objectUrl;
+      videoEl.onloadedmetadata = function(){
+        var duration = Math.round(videoEl.duration);
+        URL.revokeObjectURL(objectUrl);
+        if (!duration || !isFinite(duration)) {
+          status.className='asset-status error'; status.textContent='Durasi tidak terbaca. Coba file lain.'; return;
+        }
+        if (duration > 300) {
+          status.className='asset-status error'; status.textContent='Durasi '+Math.floor(duration/60)+':'+String(duration%60).padStart(2,'0')+' melebihi 5 menit. Ditolak.';
+          input.value=''; if (uploadBtn) uploadBtn.disabled=true; return;
+        }
+        // Baca ke base64
+        var reader = new FileReader();
+        reader.onload = function(){
+          videoUploadState[i] = { file:file, dataUri:reader.result, durationSeconds:duration, uploaded:false, url:'', mimeType:file.type||'video/mp4' };
+          status.className='asset-status'; status.textContent='Siap upload. Durasi '+Math.floor(duration/60)+':'+String(duration%60).padStart(2,'0')+' · '+ (file.size/1024/1024).toFixed(1) + ' MB. Klik "Upload".';
+          if (uploadBtn) uploadBtn.disabled=false;
+          // Tampilkan preview lokal langsung
+          appData.videos[i].videoUrl = URL.createObjectURL(file); // sementara — akan diganti setelah upload
+          appData.videos[i].sourceType = 'upload';
+          appData.videos[i].embedUrl = '';
+          appData.videos[i].durationSeconds = duration;
+          appData.videos[i].platform = appData.videos[i].platform || 'Upload';
+          refreshVideoEditorRow(i);
+        };
+        reader.onerror = function(){ status.className='asset-status error'; status.textContent='Gagal membaca file.'; };
+        reader.readAsDataURL(file);
+      };
+      videoEl.onerror = function(){ URL.revokeObjectURL(objectUrl); status.className='asset-status error'; status.textContent='File video tidak valid.'; };
+    }
+
+    function uploadVideoRow(i){
+      var state = videoUploadState[i];
+      var status = document.querySelector('[data-video-status="'+i+'"]');
+      var btn = document.querySelector('button.upload-btn[data-upload-index="'+i+'"]');
+      if (!state || !state.dataUri) { status.className='asset-status error'; status.textContent='Pilih file dulu.'; return; }
+      if (!isAppsScript()) { status.className='asset-status error'; status.textContent='Deploy sebagai Apps Script Web App untuk upload.'; return; }
+      btn.disabled = true; var oldHtml = btn.innerHTML; btn.innerHTML = 'Mengupload...';
+      status.className='asset-status'; status.textContent='Mengupload ke Google Drive...';
+      server('uploadAsset', [state.dataUri, 'portfolio-video-'+Date.now()+'-'+i, state.mimeType, adminSessionToken, state.durationSeconds], function(r){
+        btn.disabled = false; btn.innerHTML = oldHtml; icons();
+        if (r && r.success) {
+          state.uploaded = true; state.url = r.url;
+          appData.videos[i].videoUrl = r.url;
+          appData.videos[i].sourceType = 'upload';
+          appData.videos[i].embedUrl = '';
+          appData.videos[i].durationSeconds = r.durationSeconds || state.durationSeconds;
+          status.className='asset-status'; status.textContent = 'Video terupload. Klik Simpan untuk menerapkan.';
+          refreshVideoEditorRow(i);
+          render(appData);
         } else {
-          renderAll();
+          status.className='asset-status error'; status.textContent = (r&&r.message)||'Upload gagal.';
         }
-        hideLoader();
-      });
-    }
-  }
-
-  /* ==================================================================
-     LOADER
-  ================================================================== */
-  function hideLoader() {
-    setTimeout(function() {
-      var loader = document.getElementById('page-loader');
-      if (loader) loader.classList.add('hidden');
-    }, 400);
-  }
-
-  /* ==================================================================
-     RENDER DISPATCHER
-  ================================================================== */
-  function renderAll() {
-    renderSection('settings');
-    renderSection('home');
-    renderSection('about');
-    renderSection('brands');
-    renderSection('analytics');
-    renderSection('portfolio');
-    renderSection('testimonials');
-    renderSection('faq');
-    renderSection('contact');
-    renderSection('ratecard');
-  }
-
-  function renderSection(key) {
-    var d = appData[key];
-    if (!d) return;
-    var map = {
-      settings:     renderSettings,
-      home:         renderHome,
-      about:        renderAbout,
-      brands:       renderBrands,
-      analytics:    renderAnalytics,
-      portfolio:    renderPortfolio,
-      testimonials: renderTestimonials,
-      faq:          renderFAQ,
-      contact:      renderContact,
-      ratecard:     renderRateCard,
-    };
-    if (map[key]) {
-      try { map[key](d); } catch (e) { console.warn('[Render] ' + key + ':', e); }
-    }
-  }
-
-  /* ==================================================================
-     RENDER: SETTINGS
-  ================================================================== */
-  function renderSettings(d) {
-    // Terapkan warna dinamis dari Spreadsheet
-    if (d.primaryColor)   document.documentElement.style.setProperty('--emerald', d.primaryColor);
-    if (d.secondaryColor) document.documentElement.style.setProperty('--sage', d.secondaryColor);
-
-    if (d.siteName) {
-      document.title = d.siteName;
-      var loaderName = document.getElementById('loader-site-name');
-      var navName    = document.getElementById('nav-name');
-      var footerName = document.getElementById('footer-name');
-      if (loaderName) loaderName.textContent = d.siteName;
-      if (navName)    navName.textContent    = d.siteName;
-      if (footerName) footerName.textContent = d.siteName;
-      var ogTitle = document.querySelector('meta[property="og:title"]');
-      if (ogTitle) ogTitle.setAttribute('content', d.siteName);
-    }
-
-    if (d.favicon) {
-      var link = document.querySelector("link[rel*='icon']");
-      if (!link) { link = document.createElement('link'); link.rel = 'shortcut icon'; document.head.appendChild(link); }
-      link.href = d.favicon;
-    }
-
-    ['nav-logo','footer-logo'].forEach(function(id) {
-      var el = document.getElementById(id);
-      if (el && d.logo) { el.src = d.logo; el.style.display = ''; }
-    });
-
-    var copyrightEl = document.getElementById('footer-copyright');
-    if (copyrightEl && d.copyright) copyrightEl.textContent = d.copyright;
-
-    var socials    = buildSocialLinks(d);
-    var heroSoc    = document.getElementById('hero-social-links');
-    var contactSoc = document.getElementById('contact-social-links');
-    var footerSoc  = document.getElementById('footer-social');
-    if (heroSoc)    heroSoc.innerHTML    = socials.icons;
-    if (contactSoc) contactSoc.innerHTML = socials.icons;
-    if (footerSoc)  footerSoc.innerHTML  = socials.icons;
-
-    // Simpan untuk aksi WA & RateCard
-    appData._settings = d;
-  }
-
-  function buildSocialLinks(d) {
-    var platforms = [
-      { key: 'instagram', icon: igIcon(),      label: 'Instagram' },
-      { key: 'tiktok',    icon: tiktokIcon(),   label: 'TikTok' },
-      { key: 'youtube',   icon: ytIcon(),       label: 'YouTube' },
-      { key: 'threads',   icon: threadsIcon(),  label: 'Threads' },
-      { key: 'facebook',  icon: fbIcon(),       label: 'Facebook' },
-      { key: 'linkedin',  icon: liIcon(),       label: 'LinkedIn' },
-      { key: 'website',   icon: webIcon(),      label: 'Website' },
-    ];
-    var icons = '';
-    platforms.forEach(function(p) {
-      if (d[p.key]) {
-        icons += '<a href="' + esc(d[p.key]) + '" target="_blank" rel="noopener" title="' + p.label + '">' + p.icon + '</a>';
-      }
-    });
-    return { icons: icons };
-  }
-
-  /* ==================================================================
-     RENDER: HOME
-  ================================================================== */
-  function renderHome(d) {
-    var heroName   = document.getElementById('hero-name');
-    var navName    = document.getElementById('nav-name');
-    var footerName = document.getElementById('footer-name');
-    var heroProfEl = document.getElementById('hero-profession');
-    var navSub     = document.getElementById('nav-sub');
-    var footerSub  = document.getElementById('footer-sub');
-
-    if (d.name) {
-      if (heroName)   heroName.textContent   = d.name;
-      if (navName)    navName.textContent    = d.name;
-      if (footerName) footerName.textContent = d.name;
-    }
-    if (d.profession) {
-      if (heroProfEl) heroProfEl.textContent = d.profession;
-      if (navSub)     navSub.textContent     = d.profession;
-      if (footerSub)  footerSub.textContent  = d.profession;
-    }
-    var taglineEl = document.getElementById('hero-tagline');
-    if (taglineEl && d.tagline) taglineEl.innerHTML = d.tagline;
-    var descEl = document.getElementById('hero-desc');
-    if (descEl && d.description) descEl.textContent = d.description;
-
-    if (d.photo) {
-      var img = document.getElementById('hero-photo');
-      var placeholder = document.getElementById('hero-photo-placeholder');
-      if (img) { img.src = d.photo; img.style.display = ''; }
-      if (placeholder) placeholder.style.display = 'none';
-    }
-
-    var footerTagline = document.getElementById('footer-tagline');
-    if (footerTagline && d.tagline) footerTagline.textContent = d.tagline.replace(/<[^>]*>/g, ' ');
-
-    var stats = [
-      { icon: followersIcon(), val: d.followers,      lbl: 'Total Followers' },
-      { icon: engagIcon(),     val: d.engagementRate, lbl: 'Engagement Rate' },
-      { icon: brandsIcon(),    val: d.brandsWorked,   lbl: 'Brands Worked' },
-      { icon: reachIcon(),     val: d.monthlyReach,   lbl: 'Monthly Reach' },
-    ];
-    var sc = document.getElementById('hero-stat-cards');
-    if (sc) {
-      sc.innerHTML = stats.filter(function(s) { return s.val; }).map(function(s) {
-        return '<div class="hero-stat-card">' +
-          '<div class="hero-stat-icon">' + s.icon + '</div>' +
-          '<div><div class="hero-stat-val">' + esc(s.val) + '</div>' +
-          '<div class="hero-stat-lbl">' + s.lbl + '</div></div>' +
-          '</div>';
-      }).join('');
-    }
-  }
-
-  /* ==================================================================
-     RENDER: ABOUT
-  ================================================================== */
-  function renderAbout(d) {
-    if (d.photo) {
-      var img = document.getElementById('about-photo');
-      var ph  = document.getElementById('about-photo-placeholder');
-      if (img) { img.src = d.photo; img.style.display = ''; }
-      if (ph)  ph.style.display = 'none';
-    }
-    var titleEl = document.getElementById('about-title');
-    if (titleEl && d.title) titleEl.innerHTML = d.title.replace(/\n/, '<br>').replace(/(Impactful Content|amazing content|Great Content)/, '<span>$1</span>');
-    var descEl = document.getElementById('about-desc');
-    if (descEl && d.description) descEl.textContent = d.description;
-
-    var expCard    = document.getElementById('about-exp-card');
-    var aboutCardExp = document.getElementById('about-card-exp');
-    if (d.experience) {
-      if (expCard)     expCard.textContent     = d.experience;
-      if (aboutCardExp) aboutCardExp.textContent = d.experience;
-    }
-
-    var statsData = [
-      { num: d.campaign,      lbl: 'Campaign\nCompleted' },
-      { num: d.repeatClient,  lbl: 'Repeat\nClient' },
-      { num: d.videosCreated, lbl: 'Videos\nCreated' },
-      { num: d.experience,    lbl: 'Years\nExperience' },
-      { num: d.achievement,   lbl: 'Achievement' },
-    ];
-    var grid = document.getElementById('about-stats');
-    if (grid) {
-      grid.innerHTML = statsData.filter(function(s) { return s.num; }).map(function(s) {
-        return '<div class="about-stat reveal">' +
-          '<div class="about-stat-num">' + esc(s.num) + '</div>' +
-          '<div class="about-stat-lbl">' + s.lbl.replace('\n', '<br>') + '</div>' +
-          '</div>';
-      }).join('');
-      initReveal();
-    }
-  }
-
-  /* ==================================================================
-     RENDER: BRANDS
-  ================================================================== */
-  function renderBrands(d) {
-    if (!d || !d.length) return;
-    var track = document.getElementById('brands-track');
-    if (!track) return;
-    var items = d.concat(d).map(function(b) {
-      if (b.logo) return '<div class="brand-item"><img src="' + esc(b.logo) + '" alt="' + esc(b.name || '') + '" loading="lazy" /></div>';
-      return '<div class="brand-item"><span>' + esc(b.name || '') + '</span></div>';
-    }).join('');
-    track.innerHTML = items;
-  }
-
-  /* ==================================================================
-     RENDER: ANALYTICS
-  ================================================================== */
-  function renderAnalytics(d) {
-    if (!d) return;
-    var grid = document.getElementById('analytics-grid');
-    if (!grid) return;
-
-    var platforms = Array.isArray(d) ? d : Object.values(d);
-    var platformStyles = {
-      instagram: { cls: 'platform-instagram', icon: igIcon() },
-      tiktok:    { cls: 'platform-tiktok',    icon: tiktokIcon() },
-      youtube:   { cls: 'platform-youtube',   icon: ytIcon() },
-      threads:   { cls: 'platform-threads',   icon: threadsIcon() },
-    };
-
-    grid.innerHTML = platforms.map(function(p, i) {
-      var pKey  = (p.platform || '').toLowerCase();
-      var style = platformStyles[pKey] || { cls: '', icon: '📱' };
-      var wPct  = parseInt(p.femalePercent || p.womenPercent || 65);
-      var mPct  = 100 - wPct;
-      return '<div class="analytics-card reveal reveal-delay-' + ((i % 4) + 1) + '">' +
-        '<div class="analytics-card-header">' +
-          '<div class="analytics-platform-icon ' + style.cls + '">' + style.icon + '</div>' +
-          '<div>' +
-            '<div class="analytics-platform-name">'   + esc(p.platform || '') + '</div>' +
-            '<div class="analytics-platform-handle">' + esc(p.handle   || '') + '</div>' +
-          '</div>' +
-        '</div>' +
-        '<div class="analytics-metrics">' +
-          '<div class="analytics-metric"><div class="analytics-metric-val">'              + esc(p.followers      || '—') + '</div><div class="analytics-metric-lbl">Followers</div></div>' +
-          '<div class="analytics-metric"><div class="analytics-metric-val highlight">'    + esc(p.engagementRate || '—') + '</div><div class="analytics-metric-lbl">Engagement</div></div>' +
-          '<div class="analytics-metric"><div class="analytics-metric-val">'              + esc(p.reach          || '—') + '</div><div class="analytics-metric-lbl">Reach</div></div>' +
-          '<div class="analytics-metric"><div class="analytics-metric-val">'              + esc(p.ageRange        || '18-34') + '</div><div class="analytics-metric-lbl">Age Range</div></div>' +
-        '</div>' +
-        '<div class="analytics-audience-bar">' +
-          '<div class="analytics-audience-label">Audience Gender</div>' +
-          '<div class="audience-gender"><div class="gender-bar"><div class="gender-fill-w" style="width:' + wPct + '%"></div></div></div>' +
-          '<div class="gender-legend">' +
-            '<span class="gender-dot w">' + wPct + '% Women</span>' +
-            '<span class="gender-dot m">' + mPct + '% Men</span>' +
-          '</div>' +
-        '</div>' +
-      '</div>';
-    }).join('');
-    initReveal();
-  }
-
-  /* ==================================================================
-     RENDER: PORTFOLIO
-  ================================================================== */
-  var portfolioData = [];
-
-  function renderPortfolio(d) {
-    if (!d || !d.length) return;
-    portfolioData = d.filter(function(item) {
-      return (item.status || '').toLowerCase() !== 'inactive';
-    }).sort(function(a, b) { return (parseInt(a.order || 0)) - (parseInt(b.order || 0)); });
-
-    var filterContainer = document.getElementById('portfolio-filters');
-    if (filterContainer) {
-      var cats = [];
-      portfolioData.forEach(function(p) { if (p.category && cats.indexOf(p.category) === -1) cats.push(p.category); });
-      filterContainer.innerHTML = '';
-      var allBtn = document.createElement('button');
-      allBtn.className = 'filter-btn active'; allBtn.dataset.cat = 'all';
-      allBtn.textContent = 'All';
-      allBtn.onclick = function() { filterPortfolio('all', allBtn); };
-      filterContainer.appendChild(allBtn);
-      cats.forEach(function(cat) {
-        var btn = document.createElement('button');
-        btn.className = 'filter-btn'; btn.dataset.cat = cat;
-        btn.textContent = cat;
-        btn.onclick = function() { filterPortfolio(cat, btn); };
-        filterContainer.appendChild(btn);
+      }, function(err){
+        btn.disabled = false; btn.innerHTML = oldHtml; icons();
+        status.className='asset-status error'; status.textContent='Server error: '+(err&&err.message||err);
       });
     }
 
-    var grid = document.getElementById('portfolio-grid');
-    if (!grid) return;
-    grid.innerHTML = portfolioData.map(function(item, i) {
-      var thumbHtml = item.thumbnail
-        ? '<img class="portfolio-thumb" src="' + esc(item.thumbnail) + '" alt="' + esc(item.title || '') + '" loading="lazy" />'
-        : '<div class="portfolio-thumb-placeholder">🎬</div>';
-      return '<div class="portfolio-item reveal reveal-delay-' + ((i % 5) + 1) + '" data-cat="' + esc(item.category || 'all') + '" onclick="openPortfolioModal(' + i + ')">' +
-        '<div class="portfolio-thumb-wrap">' + thumbHtml +
-          '<div class="portfolio-overlay">' +
-            '<div class="portfolio-play"><div class="portfolio-play-btn">▶</div></div>' +
-            '<div class="portfolio-view-label">View Content</div>' +
-          '</div>' +
-        '</div>' +
-        '<div class="portfolio-info">' +
-          '<div class="portfolio-cat">'        + esc(item.category    || '') + '</div>' +
-          '<div class="portfolio-title-item">' + esc(item.title       || '') + '</div>' +
-          '<div class="portfolio-desc">'       + esc(item.description || '') + '</div>' +
-        '</div>' +
-      '</div>';
-    }).join('');
-    initReveal();
-  }
+    function saveData(){
+      collectEditors();
+      var p = appData.profile||{};
+      p.name = $('edit-name').value.trim(); p.tagline = $('edit-tagline').value.trim(); p.avatarUrl = getPath('profile.avatarUrl'); p.bio = $('edit-bio').value.trim(); p.location = $('edit-location').value.trim();
+      appData.profile = p; appData.whatsappNumber = $('edit-whatsapp').value.trim();
+      var pin = $('edit-pin').value.trim(); if (pin) appData.adminPin = pin;
 
-  function filterPortfolio(cat, btn) {
-    document.querySelectorAll('.filter-btn').forEach(function(b) { b.classList.remove('active'); });
-    btn.classList.add('active');
-    document.querySelectorAll('.portfolio-item').forEach(function(item) {
-      if (cat === 'all' || item.dataset.cat === cat) {
-        item.classList.remove('hidden');
-        item.style.animation = 'none';
-        requestAnimationFrame(function() { item.style.animation = ''; });
-      } else {
-        item.classList.add('hidden');
-      }
-    });
-  }
-
-  function openPortfolioModal(idx) {
-    var item = portfolioData[idx];
-    if (!item) return;
-    document.getElementById('modal-cat').textContent   = item.category    || '';
-    document.getElementById('modal-title').textContent = item.title       || '';
-    document.getElementById('modal-desc').textContent  = item.description || '';
-    var linkEl = document.getElementById('modal-link');
-    if (item.link) { linkEl.href = item.link; linkEl.style.display = ''; }
-    else { linkEl.style.display = 'none'; }
-
-    var media    = document.getElementById('modal-media');
-    var ytMatch  = (item.link || '').match(/youtu(?:be\.com\/watch\?v=|\.be\/)([a-zA-Z0-9_-]+)/);
-    if (ytMatch) {
-      media.innerHTML = '<iframe src="https://www.youtube.com/embed/' + ytMatch[1] + '?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
-    } else if (item.thumbnail) {
-      media.innerHTML = '<img src="' + esc(item.thumbnail) + '" alt="' + esc(item.title || '') + '" style="width:100%;height:100%;object-fit:cover;" />';
-    } else {
-      media.innerHTML = '<div style="background:var(--gray-100);width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem;">🎬</div>';
-    }
-
-    document.getElementById('portfolio-modal').classList.add('open');
-    document.body.style.overflow = 'hidden';
-  }
-
-  function closePortfolioModal(e) {
-    if (e.target === document.getElementById('portfolio-modal')) closePortfolioModalDirect();
-  }
-  function closePortfolioModalDirect() {
-    document.getElementById('portfolio-modal').classList.remove('open');
-    document.body.style.overflow = '';
-    document.getElementById('modal-media').innerHTML = '';
-  }
-
-  /* ==================================================================
-     RENDER: RATE CARD
-  ================================================================== */
-  function renderRateCard(d) {
-    if (!d) return;
-    var packages           = d.packages           || [];
-    var additionalServices = d.additionalServices || [];
-    var grid = document.getElementById('rate-grid');
-    if (!grid) return;
-
-    if (packages.length) {
-      grid.innerHTML = packages.map(function(pkg, i) {
-        var isFeatured = pkg.featured === 'true' || pkg.featured === true;
-        var feats = Array.isArray(pkg.features)
-          ? pkg.features
-          : (pkg.features || '').split('\n').filter(Boolean);
-        return '<div class="rate-card ' + (isFeatured ? 'featured' : '') + ' reveal reveal-delay-' + (i + 1) + '">' +
-          (isFeatured ? '<div class="rate-card-badge">Most Popular</div>' : '') +
-          '<div class="rate-card-tier">'  + esc(pkg.tier  || '') + '</div>' +
-          '<div class="rate-card-name">'  + esc(pkg.name  || '') + '</div>' +
-          '<div class="rate-card-price">' + esc(pkg.price || '') + '</div>' +
-          '<div class="rate-card-features">' +
-            feats.map(function(f) {
-              return '<div class="rate-card-feature"><span class="rate-card-check">✓</span><span>' + esc(f) + '</span></div>';
-            }).join('') +
-          '</div>' +
-          '<button class="rate-card-btn ' + (isFeatured ? 'primary' : 'outline') + '" onclick="handleBookCollaboration(event)">Choose Package</button>' +
-        '</div>';
-      }).join('');
-      initReveal();
-    }
-
-    if (additionalServices.length) {
-      var addSec  = document.getElementById('rate-addons-section');
-      var addGrid = document.getElementById('rate-addons-grid');
-      if (addSec && addGrid) {
-        addSec.style.display = '';
-        addGrid.innerHTML = additionalServices.map(function(s) {
-          return '<div class="rate-addon-item"><span class="rate-addon-icon">✦</span><span>' + esc(s.name || s) + '</span></div>';
-        }).join('');
-      }
-    }
-  }
-
-  /* ==================================================================
-     RENDER: TESTIMONIALS
-  ================================================================== */
-  function renderTestimonials(d) {
-    if (!d || !d.length) return;
-    var track = document.getElementById('testimonials-track');
-    var dots  = document.getElementById('testimonial-dots');
-    if (!track) return;
-
-    track.innerHTML = d.map(function(t) {
-      var stars     = parseInt(t.rating || 5);
-      var starsHtml = '';
-      for (var i = 0; i < stars; i++) starsHtml += '<span class="testimonial-star">★</span>';
-      var initials  = (t.name || '?').charAt(0).toUpperCase();
-      var avatarHtml = t.avatar
-        ? '<img src="' + esc(t.avatar) + '" alt="' + esc(t.name || '') + '" class="testimonial-avatar" loading="lazy" />'
-        : '<div class="testimonial-avatar" style="background:var(--emerald);">' + initials + '</div>';
-      return '<div class="testimonial-card">' +
-        '<div class="testimonial-stars">' + starsHtml + '</div>' +
-        '<p class="testimonial-text">"' + esc(t.text || t.testimonial || '') + '"</p>' +
-        '<div class="testimonial-author">' +
-          avatarHtml +
-          '<div>' +
-            '<div class="testimonial-author-name">'  + esc(t.name  || '')                    + '</div>' +
-            '<div class="testimonial-author-brand">' + esc(t.brand || t.company || '') + '</div>' +
-          '</div>' +
-        '</div>' +
-      '</div>';
-    }).join('');
-
-    testimonialSlideCount = d.length;
-    testimonialIndex      = 0;
-
-    if (dots) {
-      var slidePerView = getTestimonialsPerView();
-      var dotCount     = Math.ceil(d.length / slidePerView);
-      dots.innerHTML   = '';
-      for (var i = 0; i < dotCount; i++) {
-        dots.innerHTML += '<div class="testimonial-dot ' + (i === 0 ? 'active' : '') + '" onclick="goTestimonial(' + i + ')"></div>';
-      }
-    }
-    startTestimonialAuto();
-  }
-
-  function getTestimonialsPerView() {
-    return window.innerWidth < 768 ? 1 : window.innerWidth < 1024 ? 2 : 3;
-  }
-
-  function updateTestimonialSlider() {
-    var track = document.getElementById('testimonials-track');
-    if (!track) return;
-    var perView   = getTestimonialsPerView();
-    var cardWidth = track.parentElement.offsetWidth / perView;
-    var gap       = 24;
-    var offset    = testimonialIndex * (cardWidth + gap);
-    track.style.transform = 'translateX(-' + offset + 'px)';
-    document.querySelectorAll('.testimonial-dot').forEach(function(dot, i) {
-      dot.classList.toggle('active', i === testimonialIndex);
-    });
-  }
-
-  function nextTestimonial() {
-    var perView = getTestimonialsPerView();
-    var maxIdx  = Math.ceil(testimonialSlideCount / perView) - 1;
-    testimonialIndex = testimonialIndex >= maxIdx ? 0 : testimonialIndex + 1;
-    updateTestimonialSlider();
-  }
-
-  function prevTestimonial() {
-    var perView = getTestimonialsPerView();
-    var maxIdx  = Math.ceil(testimonialSlideCount / perView) - 1;
-    testimonialIndex = testimonialIndex <= 0 ? maxIdx : testimonialIndex - 1;
-    updateTestimonialSlider();
-  }
-
-  function goTestimonial(idx) {
-    testimonialIndex = idx;
-    updateTestimonialSlider();
-    resetTestimonialAuto();
-  }
-
-  function startTestimonialAuto() {
-    clearInterval(testimonialAutoTimer);
-    testimonialAutoTimer = setInterval(nextTestimonial, 4500);
-  }
-  function resetTestimonialAuto() { startTestimonialAuto(); }
-
-  /* ==================================================================
-     RENDER: FAQ
-  ================================================================== */
-  function renderFAQ(d) {
-    if (!d || !d.length) return;
-    var list = document.getElementById('faq-list');
-    if (!list) return;
-    list.innerHTML = d.map(function(item, i) {
-      return '<div class="faq-item reveal reveal-delay-' + ((i % 4) + 1) + '" onclick="toggleFAQ(this)">' +
-        '<div class="faq-question">' +
-          '<span>' + esc(item.question || '') + '</span>' +
-          '<div class="faq-icon">+</div>' +
-        '</div>' +
-        '<div class="faq-answer">' +
-          '<div class="faq-answer-inner">' + esc(item.answer || '') + '</div>' +
-        '</div>' +
-      '</div>';
-    }).join('');
-    initReveal();
-  }
-
-  function toggleFAQ(el) {
-    var isOpen = el.classList.contains('open');
-    document.querySelectorAll('.faq-item.open').forEach(function(i) { i.classList.remove('open'); });
-    if (!isOpen) el.classList.add('open');
-  }
-
-  /* ==================================================================
-     RENDER: CONTACT
-  ================================================================== */
-  function renderContact(d) {
-    if (!d) return;
-
-    var phoneEl   = document.getElementById('contact-phone');
-    var emailEl   = document.getElementById('contact-email');
-    var addrEl    = document.getElementById('contact-address');
-    if (phoneEl && d.phone)   phoneEl.innerHTML   = '<a href="tel:' + esc(d.phone) + '">' + esc(d.phone) + '</a>';
-    if (emailEl && d.email)   emailEl.innerHTML   = '<a href="mailto:' + esc(d.email) + '">' + esc(d.email) + '</a>';
-    if (addrEl  && d.address) addrEl.textContent  = d.address;
-
-    if (d.hours && typeof d.hours === 'object') {
-      var hoursGrid = document.getElementById('contact-hours');
-      if (hoursGrid) {
-        hoursGrid.innerHTML = Object.keys(d.hours).map(function(day) {
-          return '<div class="hours-row"><span>' + esc(day) + '</span><span>' + esc(d.hours[day]) + '</span></div>';
-        }).join('');
-      }
-    }
-
-    if (d.googleMaps) {
-      var mapWrap = document.getElementById('contact-map-wrap');
-      if (mapWrap) {
-        mapWrap.style.display = '';
-        var src = d.googleMaps.includes('<iframe')
-          ? d.googleMaps.replace(/width="[^"]*"/, 'width="100%"').replace(/height="[^"]*"/, 'height="220"')
-          : '<iframe src="' + esc(d.googleMaps) + '" width="100%" height="220" allowfullscreen="" loading="lazy"></iframe>';
-        mapWrap.innerHTML = src.includes('<iframe') ? src : '<div class="contact-map-placeholder">Map tidak tersedia</div>';
-      }
-    }
-
-    if (d.qrWhatsapp) {
-      var qrImg = document.getElementById('qr-image');
-      var qrPh  = document.getElementById('qr-placeholder');
-      if (qrImg) { qrImg.src = d.qrWhatsapp; qrImg.style.display = ''; }
-      if (qrPh)  qrPh.style.display = 'none';
-    }
-  }
-
-  /* ==================================================================
-     ACTION HANDLERS
-  ================================================================== */
-  function handleBookCollaboration(e) {
-    e.preventDefault();
-    var s = appData._settings || appData.settings;
-    if (!s) return;
-    var phone    = (s.whatsapp || s.phone || '').replace(/\D/g, '');
-    var template = s.waTemplate || 'Halo,\n\nSaya ingin melakukan kerja sama.\n\nNama :\nPerusahaan :\nProduk :\nJenis Campaign :\nBudget :\nDeadline :\n\nTerima kasih.';
-    window.open('https://wa.me/' + phone + '?text=' + encodeURIComponent(template), '_blank');
-  }
-
-  function handleViewRateCard(e) {
-    e.preventDefault();
-    var s = appData._settings || appData.settings;
-    if (!s) { alert('Rate card sedang tidak tersedia. Silakan hubungi kami.'); return; }
-    var pdfUrl = s.pdfRateCard || s.ratecardPdf;
-    if (pdfUrl) {
-      var a = document.createElement('a');
-      a.href = pdfUrl; a.download = 'rate-card.pdf';
-      a.target = '_blank'; document.body.appendChild(a);
-      a.click(); document.body.removeChild(a);
-    } else {
-      alert('Rate card PDF tidak tersedia. Silakan hubungi kami langsung.');
-    }
-  }
-
-  /* ==================================================================
-     NAVBAR SCROLL + ACTIVE LINK
-  ================================================================== */
-  function initNavbar() {
-    var navbar   = document.getElementById('navbar');
-    var sections = document.querySelectorAll('section[id], div[id="brands"]');
-    var navLinks = document.querySelectorAll('.nav-links a');
-
-    window.addEventListener('scroll', function() {
-      navbar.classList.toggle('scrolled', window.scrollY > 60);
-      var current = '';
-      sections.forEach(function(sec) {
-        if (window.scrollY >= sec.offsetTop - 100) current = sec.id;
-      });
-      navLinks.forEach(function(link) {
-        link.classList.toggle('active', link.getAttribute('href') === '#' + current);
-      });
-    }, { passive: true });
-
-    var hamburger  = document.getElementById('nav-hamburger');
-    var mobileMenu = document.getElementById('mobile-menu');
-    hamburger.addEventListener('click', function() {
-      hamburger.classList.toggle('open');
-      mobileMenu.classList.toggle('open');
-    });
-  }
-
-  function closeMobileMenu() {
-    document.getElementById('nav-hamburger').classList.remove('open');
-    document.getElementById('mobile-menu').classList.remove('open');
-  }
-
-  /* ==================================================================
-     INTERSECTION OBSERVER (REVEAL ANIMATIONS)
-  ================================================================== */
-  function initReveal() {
-    var observer = new IntersectionObserver(function(entries) {
-      entries.forEach(function(e) {
-        if (e.isIntersecting) {
-          e.target.classList.add('visible');
-          observer.unobserve(e.target);
+      // Cek: apakah masih ada video dengan URL blob: (belum di-upload)?
+      var unresolved = [];
+      (appData.videos||[]).forEach(function(v, i){
+        if (v.videoUrl && String(v.videoUrl).indexOf('blob:')===0) {
+          if (!videoUploadState[i] || !videoUploadState[i].uploaded) unresolved.push('Video #'+(i+1));
         }
       });
-    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+      if (unresolved.length) { toast('Klik "Upload" dulu untuk: '+unresolved.join(', '), 'error'); return; }
 
-    document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(function(el) {
-      if (!el.classList.contains('visible')) observer.observe(el);
-    });
-  }
-      if (!el.classList.contains('visible')) observer.observe(el);
-    });
-  }
-
-  /* ==================================================================
-     SVG ICON HELPERS
-  ================================================================== */
-  function igIcon() { return `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>`; }
-  function tiktokIcon() { return `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.33 6.33 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.95a8.16 8.16 0 004.77 1.52V7.01a4.85 4.85 0 01-1-.32z"/></svg>`; }
-  function ytIcon() { return `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M23.495 6.205a3.007 3.007 0 00-2.088-2.088c-1.87-.501-9.396-.501-9.396-.501s-7.507-.01-9.396.501A3.007 3.007 0 00.527 6.205a31.247 31.247 0 00-.522 5.805 31.247 31.247 0 00.522 5.783 3.007 3.007 0 002.088 2.088c1.868.502 9.396.502 9.396.502s7.506 0 9.396-.502a3.007 3.007 0 002.088-2.088 31.247 31.247 0 00.5-5.783 31.247 31.247 0 00-.5-5.805zM9.609 15.601V8.408l6.264 3.602z"/></svg>`; }
-  function threadsIcon() { return `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12.186 24h-.007c-3.581-.024-6.334-1.205-8.184-3.509C2.35 18.44 1.5 15.586 1.472 12.01v-.017c.03-3.579.879-6.43 2.525-8.482C5.845 1.205 8.6.024 12.18 0h.014c2.746.02 5.043.725 6.826 2.098 1.677 1.29 2.858 3.13 3.508 5.467l-2.reconnect.22-.632c-.52-1.986-1.48-3.54-2.86-4.617C16.1.945 14.2.39 12.2.375H12.18c-2.908.02-5.162.978-6.698 2.842C4.106 4.994 3.348 7.553 3.32 10.96v.1c.028 3.405.785 5.965 2.162 7.73 1.538 1.869 3.794 2.834 6.707 2.854h.007c2.625-.017 4.458-.644 5.773-1.949.985-.973 1.614-2.315 1.872-3.992l2.04.284c-.344 2.197-1.188 3.957-2.51 5.24C17.63 23.152 15.347 23.985 12.186 24zm0-20.834c-.003 0-.007 0-.01 0-1.734.01-3.071.468-3.973 1.36C7.26 5.47 6.798 6.665 6.775 8.23v.006c-.007.68.074 1.32.24 1.905.47 1.669 1.694 2.783 3.434 3.134 1.48.295 2.88.018 3.951-.774.94-.7 1.492-1.693 1.596-2.862C16.08 8.01 15.186 6.7 13.672 5.75c-.657-.41-1.396-.618-2.178-.63a4.34 4.34 0 00-.307-.01l-.001.056zm-.44 12.9h-.005c-1.832-.013-3.28-.576-4.307-1.673-1.053-1.124-1.59-2.72-1.596-4.74l-.001-.165c.006-2.022.543-3.618 1.596-4.742 1.028-1.097 2.478-1.66 4.313-1.673h.014c.73.005 1.43.133 2.077.382 1.36.518 2.39 1.553 2.9 2.908.31.82.46 1.74.45 2.742-.005 1.327-.295 2.492-.86 3.462-.718 1.24-1.826 2.033-3.098 2.243a5.4 5.4 0 01-.482.056z"/></svg>`; }
-  function fbIcon() { return `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>`; }
-  function liIcon() { return `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>`; }
-  function webIcon() { return `<svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/></svg>`; }
-  function followersIcon() { return `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>`; }
-  function engagIcon() { return `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>`; }
-  function brandsIcon() { return `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>`; }
-  function reachIcon() { return `<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`; }
-
-  /* ==================================================================
-     UTILITY
-  ================================================================== */
-  function esc(str) {
-    if (str === null || str === undefined) return '';
-    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  /* ==================================================================
-     INIT
-  ================================================================== */
-  document.addEventListener('DOMContentLoaded', function() {
-    initNavbar();
-    initReveal();
-
-    if (GAS_URL === 'YOUR_GOOGLE_APPS_SCRIPT_DEPLOYMENT_URL') {
-      showDemoData();
-      hideLoader();
-      return;
+      var btn = $('save-btn'); btn.disabled = true; btn.innerHTML = 'Menyimpan...';
+      server('saveData', [appData, adminSessionToken], function(r){
+        btn.disabled = false; btn.innerHTML = '<i data-lucide="save"></i> Simpan Seluruh Perubahan'; icons();
+        if (r && r.success) {
+          toast(r.warning || 'Data berhasil disimpan.');
+          // Refresh UI dengan data hasil server (agar URL Drive yang di-normalize ikut)
+          if (r.data) render(r.data); else render(appData);
+          closeModal('admin-modal');
+        } else {
+          toast(r&&r.message || 'Data gagal disimpan.', 'error');
+        }
+      }, function(){
+        btn.disabled = false; btn.innerHTML = '<i data-lucide="save"></i> Simpan Seluruh Perubahan'; icons();
+        toast('Data gagal disimpan ke server.', 'error');
+      });
     }
 
-    loadFromCacheThenRefresh();
-  });
+    function submitInquiry(e){ e.preventDefault(); if (inquirySubmitting) return; var data={ name:$('form-name').value.trim(), brand:$('form-brand').value.trim(), email:$('form-email').value.trim(), service:$('form-service').value, message:$('form-message').value.trim() }; var btn=$('submit-btn'); var number=String(appData.whatsappNumber||'6281234567890').replace(/\D/g,''); var text=encodeURIComponent('*Inquiry Kolaborasi*\nNama: '+data.name+'\nBrand: '+data.brand+'\nEmail: '+data.email+'\n'+(data.service?'Paket: '+data.service+'\n':'')+'Pesan: '+data.message); var waWindow=null; try{ waWindow=window.open('about:blank','_blank'); }catch(err){} inquirySubmitting=true; btn.disabled=true; btn.textContent='Memproses...'; var done=function(r){ inquirySubmitting=false; btn.disabled=false; if (!r||r.success===false){ if (waWindow&&!waWindow.closed) waWindow.close(); btn.innerHTML='<i data-lucide="send"></i> Kirim & Hubungi via WhatsApp'; icons(); toast(r&&r.message||'Inquiry gagal.','error'); return; } var waUrl='https://wa.me/'+number+'?text='+text; if (waWindow&&!waWindow.closed) waWindow.location.href=waUrl; else window.open(waUrl,'_blank'); toast(r.warning||'Inquiry siap dikirim melalui WhatsApp.'); closeModal('inquiry-modal'); $('inquiry-form').reset(); btn.innerHTML='<i data-lucide="send"></i> Kirim & Hubungi via WhatsApp'; icons(); }; if (isAppsScript()) server('submitInquiry', [data], done, function(){ if (waWindow&&!waWindow.closed) waWindow.close(); inquirySubmitting=false; btn.disabled=false; btn.innerHTML='<i data-lucide="send"></i> Kirim & Hubungi via WhatsApp'; icons(); toast('Server tidak merespons. Coba lagi.','error'); }); else done({success:true}); }
 
-  window.addEventListener('resize', function() {
-    updateTestimonialSlider();
-  });
+    /* ── Global event bindings ── */
+    document.addEventListener('input', function(e){
+      if (e.target.matches('[data-image-role="url"]')) handleImageUrl(e.target);
+    });
+    document.addEventListener('change', function(e){
+      if (e.target.matches('[data-image-role="file"]')) handleImageFile(e.target);
+      if (e.target.matches('.video-file-input')) handleVideoFileChange(e.target);
+    });
+    document.addEventListener('click', function(e){
+      var action = e.target.closest('[data-action]');
+      if (action) {
+        var a = action.getAttribute('data-action');
+        if (a==='admin') openAdmin();
+        if (a==='inquiry') openInquiry();
+        if (a==='whatsapp') { var n=String(appData.whatsappNumber||'6281234567890').replace(/\D/g,''); window.open('https://wa.me/'+n, '_blank'); }
+        if (a==='mobile') { $('mobile-menu').style.display = $('mobile-menu').style.display==='block'?'none':'block'; }
+        if (a==='close-video') closeModal('video-modal');
+        if (a==='close-inquiry') closeModal('inquiry-modal');
+        if (a==='close-admin') closeModal('admin-modal');
+        if (a==='verify-pin') verifyPin();
+        if (a==='save') saveData();
+      }
+      var tab = e.target.closest('[data-tab]');
+      if (tab) { document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('active'); }); document.querySelectorAll('.tab-pane').forEach(function(x){ x.classList.remove('active'); }); tab.classList.add('active'); document.querySelector('[data-pane="'+tab.getAttribute('data-tab')+'"]').classList.add('active'); }
+      // Video source tabs (URL/Upload)
+      var vsrcTab = e.target.closest('[data-vsrc-tab]');
+      if (vsrcTab) {
+        var i = Number(vsrcTab.getAttribute('data-index')); var mode = vsrcTab.getAttribute('data-vsrc-tab');
+        var card = vsrcTab.closest('[data-editor="video"]');
+        card.querySelectorAll('.vsrc-tab').forEach(function(x){ x.classList.remove('active'); });
+        card.querySelectorAll('.vsrc-pane').forEach(function(x){ x.classList.remove('active'); });
+        vsrcTab.classList.add('active');
+        card.querySelector('[data-vsrc-pane="'+mode+'"]').classList.add('active');
+      }
+      // Detect video URL
+      var detect = e.target.closest('[data-detect-index]');
+      if (detect) detectVideoRow(Number(detect.getAttribute('data-detect-index')));
+      // Upload video
+      var upBtn = e.target.closest('[data-upload-index]');
+      if (upBtn) uploadVideoRow(Number(upBtn.getAttribute('data-upload-index')));
 
-  /* ==================================================================
-     DEMO DATA (for local preview before connecting GAS)
-  ================================================================== */
-  function showDemoData() {
-    appData._settings = appData.settings = {
-      siteName: 'Sarah Amanda',
-      primaryColor: '#059669',
-      secondaryColor: '#84a98c',
-      whatsapp: '6281234567890',
-      waTemplate: 'Halo,\n\nSaya ingin melakukan kerja sama.\n\nNama :\nPerusahaan :\nProduk :\nJenis Campaign :\nBudget :\nDeadline :\n\nTerima kasih.',
-      instagram: 'https://instagram.com/sarahamanda',
-      tiktok: 'https://tiktok.com/@sarahamanda',
-      youtube: 'https://youtube.com/@sarahamanda',
-      copyright: '© 2025 Sarah Amanda. All rights reserved.',
-    };
-    appData.home = {
-      name: 'Sarah Amanda',
-      profession: 'Lifestyle Creator',
-      tagline: 'Creating Content That Connects,<br>Inspires &amp; Converts',
-      description: 'I help brands tell their story through authentic content that engages, builds trust, and drives results.',
-      followers: '150K+',
-      engagementRate: '5.8%',
-      brandsWorked: '120+',
-      monthlyReach: '1.2M+',
-    };
-    appData.about = {
-      title: 'Turning Ideas Into\nImpactful Content',
-      description: 'Saya adalah content creator yang berfokus pada lifestyle, beauty, travel, dan product review. Dengan gaya konten yang autentik dan engaging, saya membantu brand terhubung dengan audiens secara lebih personal.',
-      experience: '5+',
-      campaign: '120+',
-      repeatClient: '95%',
-      videosCreated: '500+',
-    };
-    appData.brands = [
-      { name: 'tokopedia' }, { name: 'Shopee' }, { name: 'Wardah' },
-      { name: 'Scarlett' }, { name: 'BCA' }, { name: 'Indomie' },
-      { name: 'Somethinc' }, { name: 'Erigo' },
-    ];
-    appData.analytics = [
-      { platform: 'Instagram', handle: '@sarahamanda', followers: '150K', engagementRate: '5.8%', reach: '1.2M', ageRange: '18-34', femalePercent: 68 },
-      { platform: 'TikTok', handle: '@sarahamanda', followers: '220K', engagementRate: '6.2%', reach: '2.5M', ageRange: '18-34', femalePercent: 70 },
-      { platform: 'YouTube', handle: 'Sarah Amanda', followers: '85K', engagementRate: '4.5%', reach: '500K', ageRange: '18-34', femalePercent: 65 },
-      { platform: 'Threads', handle: '@sarahamanda', followers: '45K', engagementRate: '8.1%', reach: '300K', ageRange: '18-34', femalePercent: 72 },
-    ];
-    appData.portfolio = [
-      { title: 'Skincare Review', category: 'Beauty', description: 'Honest review video for a leading skincare brand.', status: 'active', order: 1 },
-      { title: 'Travel Vlog', category: 'Travel', description: 'Cinematic travel content from Bali.', status: 'active', order: 2 },
-      { title: 'Daily Lifestyle', category: 'Lifestyle', description: 'A day in the life as a content creator.', status: 'active', order: 3 },
-      { title: 'Food Content', category: 'Lifestyle', description: 'Restaurant visit and food review content.', status: 'active', order: 4 },
-      { title: 'Tech Review', category: 'Lifestyle', description: 'Smartphone unboxing and first impressions.', status: 'active', order: 5 },
-      { title: 'UGC Content', category: 'UGC', description: 'User generated content for e-commerce brands.', status: 'active', order: 6 },
-    ];
-    appData.testimonials = [
-      { name: 'Wardah', brand: 'Beauty Brand', rating: 5, text: 'Sangat profesional dan kontennya selalu on-point. Hasil kolaborasi melebihi ekspektasi kami. Pasti akan kerja sama lagi!' },
-      { name: 'Garron Kweit', brand: 'Skincare Brand', rating: 5, text: 'Konten luar biasa! Autentik, memotivasi. Terima kasih sudah mempercayai produk kami.' },
-      { name: 'Shopee', brand: 'E-Commerce', rating: 5, text: 'Peningkatan penjualan signifikan setelah campaign bersama. Pengiriman tepat waktu dan hasilnya melampaui target!' },
-      { name: 'BCA Finance', brand: 'Financial Brand', rating: 5, text: 'Content yang dihasilkan sangat engaging dan relevan dengan target audience kami. Sangat recommended!' },
-      { name: 'Indomie', brand: 'Food Brand', rating: 5, text: 'Kolaborasi yang menyenangkan dan hasilnya sangat memuaskan. Akan kembali untuk campaign berikutnya.' },
-      { name: 'Somethinc', brand: 'Beauty Brand', rating: 5, text: 'Sarah sangat paham target market kami. Konten yang dihasilkan natural dan sangat engaging.' },
-    ];
-    appData.faq = [
-      { question: 'Berapa lama proses pembuatan konten?', answer: 'Proses pembuatan konten biasanya memakan waktu 3-7 hari kerja tergantung kompleksitas dan jenis konten yang diminta. Untuk konten yang lebih kompleks seperti video panjang atau campaign multi-platform, bisa memakan waktu hingga 2 minggu.' },
-      { question: 'Apakah ada minimum budget?', answer: 'Minimum budget untuk kolaborasi dimulai dari paket Starter dengan harga Rp250.000. Saya juga menerima custom package untuk kebutuhan spesifik brand Anda.' },
-      { question: 'Platform apa saja yang tersedia?', answer: 'Saya aktif di Instagram, TikTok, YouTube, dan Threads. Setiap platform memiliki kekuatan masing-masing dan saya dapat menyesuaikan konten untuk memaksimalkan engagement di tiap platform.' },
-      { question: 'Bagaimana sistem pembayarannya?', answer: 'Pembayaran dilakukan dengan DP 50% di awal sebelum produksi dimulai, dan 50% sisanya setelah konten diserahkan dan disetujui. Metode pembayaran: transfer bank, e-wallet (GoPay, OVO, Dana).' },
-      { question: 'Apakah bisa request revisi?', answer: 'Ya, setiap paket sudah termasuk revisi. Paket Starter mendapat 1x revisi, Bundle Package mendapat 2x revisi, dan Premium Package mendapat revisi unlimited dalam periode pengerjaan.' },
-    ];
-    appData.ratecard = {
-      packages: [
-        { tier: 'STARTER',      name: 'Story Package',  price: 'Rp250.000',   features: ['1 Instagram Story','Mention Brand','Maks 3 Slide','1x Revisi'],        featured: false },
-        { tier: 'PROFESSIONAL', name: 'Bundle Package', price: 'Rp1.250.000', features: ['1 Reels + 3 Story','Editing + Caption','Insight Report','2x Revisi'],   featured: true  },
-        { tier: 'PREMIUM',      name: 'Full Package',   price: 'Rp3.500.000', features: ['Multi-platform','Dedicated Shoot','Analytics Report','Revisi Unlimited'], featured: false },
-      ],
-      additionalServices: [
-        { name: 'UGC Content' }, { name: 'Photography' }, { name: 'Voiceover' },
-      ],
-    };
-  }
-</script>
+      var add = e.target.closest('[data-add]');
+      if (add) {
+        var t = add.getAttribute('data-add');
+        if (t==='contact') appData.contactInfo.push({icon:'info',label:'LABEL',value:'Nilai',href:''});
+        if (t==='social') appData.socialStats.push({platform:'Platform',handle:'',value:'0',label:'Followers',icon:'bar-chart-2'});
+        if (t==='audience') appData.audienceInfo.push({icon:'info',label:'Label Baru',value:'—'});
+        if (t==='brand') appData.brandCollabs.push({name:'Brand Baru',logoUrl:'',textFallback:'Brand Baru'});
+        if (t==='video') appData.videos.push({id:'v'+Date.now(),title:'Video Baru',platform:'',duration:'0:00',thumbnailUrl:'',videoUrl:'',embedUrl:'',sourceType:'',durationSeconds:0});
+        if (t==='rate') appData.rateCards.push({id:'r'+Date.now(),title:'Paket Baru',price:'Rp0',popular:false,icon:'package',iconUrl:'',features:['Fitur 1']});
+        renderEditor(t);
+      }
+      var rem = e.target.closest('[data-remove]');
+      if (rem) {
+        var t2 = rem.getAttribute('data-remove'), i2 = Number(rem.getAttribute('data-index'));
+        var list = t2==='contact'?appData.contactInfo : t2==='social'?appData.socialStats : t2==='audience'?appData.audienceInfo : t2==='brand'?appData.brandCollabs : t2==='video'?appData.videos : appData.rateCards;
+        list.splice(i2, 1);
+        if (t2==='video') delete videoUploadState[i2];
+        renderEditor(t2);
+      }
+      var rate = e.target.closest('[data-rate-index]');
+      if (rate) openInquiry(appData.rateCards[Number(rate.getAttribute('data-rate-index'))].title);
+      // Play video di modal publik
+      var video = e.target.closest('[data-video-index]');
+      if (video) {
+        var v = appData.videos[Number(video.getAttribute('data-video-index'))];
+        var c = $('modal-video-container');
+        var aspect = aspectClassFor(v.sourceType);
+        if (v.sourceType==='upload' || v.sourceType==='direct') {
+          c.innerHTML = '<div class="video-preview '+aspect+'" style="border-radius:0"><video controls autoplay playsinline src="'+escAttr(v.videoUrl)+'"></video></div>';
+        } else if (v.embedUrl) {
+          c.innerHTML = '<div class="video-preview '+aspect+'" style="border-radius:0"><iframe src="'+escAttr(v.embedUrl)+'" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>';
+        } else if (v.videoUrl) {
+          c.innerHTML = '<div class="video-preview aspect-16-9" style="border-radius:0"><video controls autoplay playsinline src="'+escAttr(v.videoUrl)+'"></video></div>';
+        } else {
+          c.innerHTML = '<div style="padding:40px;text-align:center;color:#fff">Video belum tersedia.</div>';
+        }
+        openModal('video-modal');
+      }
+      var scroll = e.target.closest('[data-scroll]');
+      if (scroll) $(scroll.getAttribute('data-scroll')==='brands'?'collab-track':'video-track').scrollBy({ left: Number(scroll.getAttribute('data-dir'))*560, behavior:'smooth' });
+      if (e.target.matches('[data-close-modal]')) closeModal(e.target.id);
+    });
+
+    $('inquiry-form').addEventListener('submit', submitInquiry);
+    document.querySelectorAll('.modal').forEach(function(m){ m.addEventListener('click', function(e){ if (e.target===m) closeModal(m.id); }); });
+    $('pin-input').addEventListener('keydown', function(e){ if (e.key==='Enter') verifyPin(); });
+
+    window.addEventListener('load', function(){
+      if (isAppsScript()) server('getData', [], render, function(){ render(defaults()); toast('Data server gagal dimuat. Data lokal ditampilkan.','error'); });
+      else render(defaults());
+    });
+  </script>
 </body>
 </html>
