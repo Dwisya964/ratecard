@@ -40,11 +40,13 @@ var PROPERTY_CHUNK_SIZE = 2000;
 var PROPERTY_TOTAL_LIMIT = 450000; // di bawah batas total 500 KB
 
 function doGet(e) {
-  return HtmlService.createTemplateFromFile('Index')
+  // Catatan: addMetaTag hanya mendukung 'keywords' dan 'description'.
+  // Meta viewport, theme-color, apple-* sudah ditulis langsung di Index.html.
+  var output = HtmlService.createTemplateFromFile('index')
     .evaluate()
     .setTitle('Creator Portfolio & Rate Card')
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1.0')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+  return output;
 }
 
 function onOpen(e) {
@@ -704,6 +706,265 @@ function submitInquiry(formData) {
   } catch (err) {
     Logger.log('submitInquiry error: ' + err);
     return { success: false, message: 'Inquiry tidak dapat dicatat ke Spreadsheet: ' + err.message };
+  }
+}
+
+/* ================================================================
+   INVOICE — CRUD + GENERATE PDF (via HtmlService)
+================================================================ */
+
+var INVOICE_CHUNK_PREFIX = 'INVOICE_DATA_CHUNK_';
+var INVOICE_CHUNK_COUNT_KEY = 'INVOICE_DATA_CHUNK_COUNT';
+
+function readInvoices_() {
+  var props = PropertiesService.getScriptProperties();
+  var count = Number(props.getProperty(INVOICE_CHUNK_COUNT_KEY) || 0);
+  if (count <= 0) return [];
+  var chunks = [];
+  for (var i = 0; i < count; i++) {
+    chunks.push(props.getProperty(INVOICE_CHUNK_PREFIX + i) || '');
+  }
+  var json = chunks.join('');
+  if (!json) return [];
+  try {
+    var parsed = JSON.parse(json);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    Logger.log('readInvoices_ parse error: ' + e);
+    return [];
+  }
+}
+
+function writeInvoices_(list) {
+  var json = JSON.stringify(Array.isArray(list) ? list : []);
+  var props = PropertiesService.getScriptProperties();
+  var oldCount = Number(props.getProperty(INVOICE_CHUNK_COUNT_KEY) || 0);
+  props.deleteProperty(INVOICE_CHUNK_COUNT_KEY);
+  for (var i = 0; i < oldCount; i++) {
+    props.deleteProperty(INVOICE_CHUNK_PREFIX + i);
+  }
+  var count = Math.max(1, Math.ceil(json.length / PROPERTY_CHUNK_SIZE));
+  for (var c = 0; c < count; c++) {
+    props.setProperty(INVOICE_CHUNK_PREFIX + c, json.substring(c * PROPERTY_CHUNK_SIZE, (c + 1) * PROPERTY_CHUNK_SIZE));
+  }
+  props.setProperty(INVOICE_CHUNK_COUNT_KEY, String(count));
+}
+
+function getInvoices(authToken) {
+  try {
+    if (!isAdminSessionValid_(authToken)) {
+      return { success: false, message: 'Sesi admin tidak valid.' };
+    }
+    return { success: true, invoices: readInvoices_() };
+  } catch (e) {
+    Logger.log('getInvoices error: ' + e);
+    return { success: false, message: 'Gagal memuat invoice: ' + e.message };
+  }
+}
+
+function saveInvoice(invoiceData, authToken) {
+  try {
+    if (!isAdminSessionValid_(authToken)) {
+      return { success: false, message: 'Sesi admin tidak valid.' };
+    }
+    if (!invoiceData || typeof invoiceData !== 'object') {
+      return { success: false, message: 'Data invoice tidak valid.' };
+    }
+
+    // Validasi signatureDataUrl — hanya terima data URI gambar yang valid
+    if (invoiceData.signatureDataUrl) {
+      var sig = String(invoiceData.signatureDataUrl);
+      if (!/^data:image\//i.test(sig)) {
+        invoiceData.signatureDataUrl = '';
+      }
+      // Batasi ukuran tanda tangan agar tidak membebani Properties (maks ~200 KB base64)
+      if (sig.length > 200000) {
+        invoiceData.signatureDataUrl = '';
+        Logger.log('signatureDataUrl terlalu besar (' + Math.round(sig.length/1024) + ' KB), dibuang.');
+      }
+    }
+
+    var list = readInvoices_();
+    var now = new Date();
+
+    if (invoiceData.id) {
+      // Update invoice yang sudah ada
+      var found = false;
+      for (var i = 0; i < list.length; i++) {
+        if (list[i].id === invoiceData.id) {
+          list[i] = Object.assign({}, list[i], invoiceData, { updatedAt: now.toISOString() });
+          found = true;
+          break;
+        }
+      }
+      if (!found) return { success: false, message: 'Invoice tidak ditemukan.' };
+    } else {
+      // Invoice baru
+      var invNumber = 'INV-' + Utilities.formatDate(now, Session.getScriptTimeZone(), 'yyyyMMdd') + '-' + String(list.length + 1).padStart(3, '0');
+      invoiceData.id = Utilities.getUuid();
+      invoiceData.invoiceNumber = invNumber;
+      invoiceData.createdAt = now.toISOString();
+      invoiceData.updatedAt = now.toISOString();
+      list.push(invoiceData);
+    }
+    writeInvoices_(list);
+    return { success: true, message: 'Invoice berhasil disimpan.', invoices: list };
+  } catch (e) {
+    Logger.log('saveInvoice error: ' + e);
+    return { success: false, message: 'Gagal menyimpan invoice: ' + e.message };
+  }
+}
+
+function deleteInvoice(id, authToken) {
+  try {
+    if (!isAdminSessionValid_(authToken)) {
+      return { success: false, message: 'Sesi admin tidak valid.' };
+    }
+    var list = readInvoices_();
+    var newList = list.filter(function(inv) { return inv.id !== id; });
+    if (newList.length === list.length) {
+      return { success: false, message: 'Invoice tidak ditemukan.' };
+    }
+    writeInvoices_(newList);
+    return { success: true, message: 'Invoice berhasil dihapus.', invoices: newList };
+  } catch (e) {
+    Logger.log('deleteInvoice error: ' + e);
+    return { success: false, message: 'Gagal menghapus invoice: ' + e.message };
+  }
+}
+
+/**
+ * Menghasilkan konten HTML invoice sebagai string,
+ * lalu dikembalikan ke frontend untuk di-print/save PDF via browser print dialog.
+ *
+ * @param {string} id          - ID invoice
+ * @param {string} authToken   - Token sesi admin
+ * @param {string} [signatureDataUrl] - Data URI PNG tanda tangan (opsional, override tanda tangan tersimpan)
+ */
+function generateInvoicePdf(id, authToken, signatureDataUrl) {
+  try {
+    if (!isAdminSessionValid_(authToken)) {
+      return { success: false, message: 'Sesi admin tidak valid.' };
+    }
+    var list = readInvoices_();
+    var inv = null;
+    for (var i = 0; i < list.length; i++) {
+      if (list[i].id === id) { inv = list[i]; break; }
+    }
+    if (!inv) return { success: false, message: 'Invoice tidak ditemukan.' };
+
+    // Ambil data portfolio untuk header invoice
+    var data = getStoredData_() || getDefaultData_();
+    var creatorName = (data.profile && data.profile.name) ? data.profile.name : 'Creator';
+    var creatorLocation = (data.profile && data.profile.location) ? data.profile.location : '';
+    var creatorEmail = (data.profile && data.profile.email) ? data.profile.email : '';
+
+    var tanggal = inv.tanggalKerjaSama || inv.createdAt || '';
+    var tanggalFormatted = '';
+    try {
+      var d = new Date(tanggal);
+      tanggalFormatted = Utilities.formatDate(d, Session.getScriptTimeZone(), 'dd MMMM yyyy');
+    } catch(fe) { tanggalFormatted = tanggal; }
+
+    var createdFormatted = '';
+    try {
+      var dc = new Date(inv.createdAt);
+      createdFormatted = Utilities.formatDate(dc, Session.getScriptTimeZone(), 'dd MMMM yyyy');
+    } catch(fe2) { createdFormatted = inv.createdAt || ''; }
+
+    var syarat = String(inv.syaratKetentuan || '').replace(/\n/g, '<br>');
+
+    // Tentukan tanda tangan: parameter langsung lebih prioritas dari yang tersimpan di invoice
+    var sigUrl = '';
+    if (signatureDataUrl && /^data:image\//i.test(String(signatureDataUrl))) {
+      sigUrl = signatureDataUrl;
+    } else if (inv.signatureDataUrl && /^data:image\//i.test(String(inv.signatureDataUrl))) {
+      sigUrl = inv.signatureDataUrl;
+    }
+
+    // Blok HTML tanda tangan creator — ukuran diperbesar agar standar dan jelas di PDF
+    var creatorSignHtml = sigUrl
+      ? '<img src="' + sigUrl + '" alt="Tanda Tangan" style="max-width:500px;max-height:290px;width:auto;height:auto;display:block;margin:0 auto 4px;object-fit:contain">'
+      : '<div style="height:290px"></div>';
+
+    var htmlContent = '<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8">' +
+      '<title>Invoice ' + inv.invoiceNumber + '</title>' +
+      '<style>' +
+        'body{margin:0;padding:0;font-family:Arial,sans-serif;font-size:13px;color:#222}' +
+        '.page{max-width:740px;margin:0 auto;padding:40px 44px}' +
+        '.header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:32px;padding-bottom:20px;border-bottom:3px solid #4a6741}' +
+        '.brand-col h1{margin:0 0 4px;font-size:24px;color:#4a6741;letter-spacing:.02em}' +
+        '.brand-col p{margin:2px 0;font-size:11px;color:#666}' +
+        '.inv-meta{text-align:right}' +
+        '.inv-meta .inv-num{font-size:18px;font-weight:700;color:#4a6741;margin-bottom:4px}' +
+        '.inv-meta p{margin:2px 0;font-size:11px;color:#666}' +
+        '.section-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:#4a6741;margin:22px 0 8px}' +
+        '.info-box{background:#f7f9f5;border:1px solid #dde8d9;border-radius:8px;padding:14px 18px}' +
+        '.info-row{display:flex;gap:8px;margin-bottom:6px;font-size:13px}' +
+        '.info-row:last-child{margin-bottom:0}' +
+        '.info-label{flex:0 0 150px;color:#666;font-size:12px}' +
+        '.info-value{flex:1;font-weight:600;color:#222}' +
+        '.paket-box{background:#4a6741;color:#fff;border-radius:8px;padding:16px 18px;margin:12px 0}' +
+        '.paket-box .paket-name{font-size:16px;font-weight:700;margin-bottom:4px}' +
+        '.syarat-box{background:#fffdf5;border:1px solid #e8e0c8;border-radius:8px;padding:14px 18px;line-height:1.7;font-size:12px;color:#444}' +
+        '.transfer-box{display:flex;align-items:center;gap:16px;background:#f0f6ff;border:1px solid #c8d8f0;border-radius:8px;padding:14px 18px}' +
+        '.transfer-icon{font-size:28px}' +
+        '.transfer-label{font-size:10px;color:#666;font-weight:800;text-transform:uppercase;letter-spacing:.08em}' +
+        '.transfer-value{font-size:15px;font-weight:700;color:#1a4080;letter-spacing:.04em}' +
+        '.footer{margin-top:40px;padding-top:16px;border-top:1px solid #dde8d9;display:flex;justify-content:space-between;font-size:11px;color:#888}' +
+        '.sign-area{margin-top:48px;display:flex;justify-content:space-between;gap:24px}' +
+        '.sign-block{text-align:center;flex:0 0 200px}' +
+        '.sign-block .sign-img-wrap{min-height:290px;display:flex;align-items:flex-end;justify-content:center;margin-bottom:0}' +
+        '.sign-block .sign-line{width:180px;border-top:1px solid #aaa;margin:6px auto 6px}' +
+        '.sign-block .sign-label{font-size:11px;color:#666}' +
+        '@media print{body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}' +
+      '</style></head><body><div class="page">' +
+        '<div class="header">' +
+          '<div class="brand-col"><h1>' + creatorName + '</h1>' +
+            '<p>Creator Portfolio &amp; Media Kit</p>' +
+            (creatorLocation ? '<p>' + creatorLocation + '</p>' : '') +
+            (creatorEmail ? '<p>' + creatorEmail + '</p>' : '') +
+          '</div>' +
+          '<div class="inv-meta">' +
+            '<div class="inv-num">' + inv.invoiceNumber + '</div>' +
+            '<p>Tanggal Dibuat: ' + createdFormatted + '</p>' +
+          '</div>' +
+        '</div>' +
+        '<div class="section-title">Data Pelanggan</div>' +
+        '<div class="info-box">' +
+          '<div class="info-row"><span class="info-label">Nama Pelanggan</span><span class="info-value">' + (inv.namaPelanggan || '-') + '</span></div>' +
+          '<div class="info-row"><span class="info-label">Tanggal Kerja Sama</span><span class="info-value">' + tanggalFormatted + '</span></div>' +
+        '</div>' +
+        '<div class="section-title">Paket Rate Card</div>' +
+        '<div class="paket-box">' +
+          '<div class="paket-name">' + (inv.paketRateCard || '-') + '</div>' +
+        '</div>' +
+        '<div class="section-title">Nomor Tujuan Transfer</div>' +
+        '<div class="transfer-box">' +
+          '<div class="transfer-icon">🏦</div>' +
+          '<div><div class="transfer-label">Transfer ke</div><div class="transfer-value">' + (inv.nomorTransfer || '-') + '</div></div>' +
+        '</div>' +
+        '<div class="section-title">Syarat &amp; Ketentuan</div>' +
+        '<div class="syarat-box">' + (syarat || 'Tidak ada syarat &amp; ketentuan.') + '</div>' +
+        '<div class="sign-area">' +
+          '<div class="sign-block">' +
+            '<div class="sign-img-wrap"><div style="height:70px"></div></div>' +
+            '<div class="sign-line"></div>' +
+            '<div class="sign-label">Pelanggan<br>' + (inv.namaPelanggan || '') + '</div>' +
+          '</div>' +
+          '<div class="sign-block">' +
+            '<div class="sign-img-wrap">' + creatorSignHtml + '</div>' +
+            '<div class="sign-line"></div>' +
+            '<div class="sign-label">Creator<br>' + creatorName + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="footer"><span>' + inv.invoiceNumber + ' · Digenerate otomatis</span><span>' + creatorName + ' &copy; 2025</span></div>' +
+      '</div></body></html>';
+
+    return { success: true, html: htmlContent, invoiceNumber: inv.invoiceNumber };
+  } catch (e) {
+    Logger.log('generateInvoicePdf error: ' + e);
+    return { success: false, message: 'Gagal membuat invoice: ' + e.message };
   }
 }
 
