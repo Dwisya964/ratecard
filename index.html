@@ -6,16 +6,21 @@
   <meta name="description" content="Portofolio creator & rate card kolaborasi brand.">
   <title>Creator Portfolio & Rate Card</title>
 
-  <!-- ── Favicon & PWA ── -->
-  <link rel="icon"             type="image/png" sizes="32x32"   href="logotoko.png">
-  <link rel="icon"             type="image/png" sizes="16x16"   href="logotoko.png">
-  <link rel="apple-touch-icon"                  sizes="180x180" href="logotoko.png">
-  <link rel="manifest"         href="manifest.json">
+  <!-- ── Favicon & PWA ──
+       Untuk GitHub Pages : letakkan logotoko.png di root repo (sama folder dengan index.html).
+       Untuk Google Apps Script : favicon tidak bisa di-serve dari GAS, tag ini diabaikan browser
+       tapi tidak menimbulkan error.
+  -->
+  <link rel="icon"             type="image/png" sizes="32x32"   href="./logotoko.png">
+  <link rel="icon"             type="image/png" sizes="16x16"   href="./logotoko.png">
+  <link rel="shortcut icon"    type="image/png"                 href="./logotoko.png">
+  <link rel="apple-touch-icon"                  sizes="180x180" href="./logotoko.png">
+  <link rel="manifest"         href="./manifest.json">
   <meta name="theme-color"     content="#4a6741">
-  <meta name="mobile-web-app-capable"             content="yes">
-  <meta name="apple-mobile-web-app-capable"       content="yes">
+  <meta name="mobile-web-app-capable"                content="yes">
+  <meta name="apple-mobile-web-app-capable"          content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title"         content="Creator Portfolio">
+  <meta name="apple-mobile-web-app-title"            content="Creator Portfolio">
   <!-- ── /Favicon & PWA ── -->
 
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
@@ -205,6 +210,20 @@
     .admin-footer { padding:13px 22px; border-top:1px solid var(--border); }
     .hidden { display:none!important; }
 
+    /* ─── Icon picker ─── */
+    .edit-input.icon-input { cursor:pointer; background:#fbfaf8 url('data:image/svg+xml;utf8,<svg xmlns=%22http://www.w3.org/2000/svg%22 width=%2220%22 height=%2220%22 viewBox=%220 0 24 24%22 fill=%22none%22 stroke=%22%23686868%22 stroke-width=%221.5%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22><circle cx=%2212%22 cy=%2212%22 r=%2210%22/><path d=%22M12 8v8M8 12h8%22/></svg>') no-repeat right 10px center; padding-right:36px; }
+    .icon-picker { position:absolute; z-index:200; background:#fff; border:1px solid var(--border); border-radius:14px; box-shadow:0 16px 50px rgba(0,0,0,.14); padding:14px; display:none; max-width:320px; width:90vw; }
+    .icon-picker-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px; }
+    .icon-picker-tab { border:1px solid var(--border); background:#fff; border-radius:20px; padding:5px 11px; font-size:11px; cursor:pointer; color:var(--muted); }
+    .icon-picker-tab.active { background:var(--sage); color:#fff; border-color:var(--sage); }
+    .icon-picker-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(44px,1fr)); gap:6px; max-height:220px; overflow:auto; }
+    .icon-picker-item { display:flex; align-items:center; justify-content:center; width:100%; aspect-ratio:1; border:1px solid var(--border); border-radius:10px; background:#fafafa; cursor:pointer; transition:all .15s; }
+    .icon-picker-item:hover, .icon-picker-item.active { background:var(--sage); border-color:var(--sage); color:#fff; }
+    .icon-picker-item i { width:20px; height:20px; }
+    .icon-picker-search { width:100%; margin-bottom:10px; padding:8px 12px; border:1px solid var(--border); border-radius:10px; font-size:13px; }
+    .icon-picker-overlay { position:fixed; inset:0; z-index:199; display:none; background:transparent; }
+    .icon-picker-wrap { position:relative; }
+
     /* ─── Video source tabs (URL / Upload) di editor ─── */
     .vsrc-tabs { display:flex; gap:4px; margin:8px 0 10px; }
     .vsrc-tab { flex:1; padding:8px 10px; border:1px solid var(--border); border-radius:8px 8px 0 0; background:#fff; color:var(--muted); font-size:11px; font-weight:800; letter-spacing:.03em; }
@@ -368,7 +387,14 @@
 
   <div id="admin-modal" class="modal" data-close-modal="admin">
     <div class="modal-box"><div class="modal-head"><h3><i data-lucide="settings"></i> Panel Pengaturan Admin</h3><button class="close" type="button" data-action="close-admin"><i data-lucide="x"></i></button></div>
-      <div id="pin-screen" class="pin-screen"><i data-lucide="lock" style="width:30px;height:30px;color:var(--sage)"></i><h3>Masukkan PIN Admin</h3><p style="font-size:12px;color:var(--light)">PIN diverifikasi oleh server.</p><input id="pin-input" class="field input" type="password" maxlength="32" placeholder="••••"><button class="pill-btn primary" type="button" data-action="verify-pin">Masuk Mode Edit</button><p id="pin-error" class="hidden" style="color:#c64b4b;font-size:12px;margin-bottom:0"></p></div>
+      <!-- Overlay + icon picker (ditempatkan di dalam modal agar z-index terkontrol) -->
+      <div class="icon-picker-overlay" id="icon-picker-overlay"></div>
+      <div class="icon-picker" id="icon-picker">
+        <input class="icon-picker-search" type="text" id="icon-picker-search" placeholder="Cari ikon...">
+        <div class="icon-picker-tabs" id="icon-picker-tabs"></div>
+        <div class="icon-picker-grid" id="icon-picker-grid"></div>
+      </div>
+      <div id="pin-screen" class="pin-screen"><i data-lucide="lock" style="width:30px;height:30px;color:var(--sage)"></i><h3>Masukkan PIN Admin</h3><p id="pin-hint" style="font-size:12px;color:var(--light)">PIN diverifikasi oleh server.</p><input id="pin-input" class="field input" type="password" maxlength="32" placeholder="••••"><button class="pill-btn primary" type="button" data-action="verify-pin">Masuk Mode Edit</button><p id="pin-error" class="hidden" style="color:#c64b4b;font-size:12px;margin-bottom:0"></p><button type="button" class="add-btn" data-action="bypass-local" style="margin-top:10px;display:none;">Mode Lokal / Demo (tanpa PIN)</button></div>
       <div id="admin-screen" class="admin-screen">
         <div class="tabs"><button class="tab active" data-tab="profile">Profil</button><button class="tab" data-tab="contact">Kontak</button><button class="tab" data-tab="social">Statistik</button><button class="tab" data-tab="audience">Audiens</button><button class="tab" data-tab="brands">Brand</button><button class="tab" data-tab="videos">Video</button><button class="tab" data-tab="rates">Rate Card</button><button class="tab" data-tab="invoices">Invoice</button></div>
         <div class="admin-body">
@@ -471,6 +497,87 @@
     // Struktur: { <videoIndex>: { file: File, dataUri: string, durationSeconds: number, uploaded: bool, url: string, mimeType: string } }
     var videoUploadState = {};
 
+    /* ── Daftar ikon pilihan (Lucide) ── */
+    var ICON_CATEGORIES = {
+      'Sosial Media': [
+        'instagram','youtube','twitter','facebook','linkedin','tiktok','message-circle','send','share-2','at-sign','hash','mail',
+        'phone','smartphone','globe','chrome','radio','rss','video','play-circle','camera','image','gallery-horizontal'
+      ],
+      'Bisnis/Kolaborasi': [
+        'briefcase','building-2','handshake','megaphone','trending-up','bar-chart-2','pie-chart','line-chart','dollar-sign','banknote','credit-card',
+        'receipt','file-text','clipboard-list','stamp','award','badge-check','star','heart','thumbs-up','users','user-check'
+      ],
+      'Lifestyle & Konten': [
+        'sparkles','flame','zap','sun','moon','music','film','clapperboard','palette','pen-tool','book-open','coffee','shopping-bag','gift',
+        'plane','map-pin','home','flower-2','gem','crown','smile','laugh','party-popper'
+      ],
+      'Umum': [
+        'info','help-circle','check-circle','x-circle','alert-circle','bell','settings','menu','grid-3x3','list','search','link','external-link',
+        'download','upload','copy','trash-2','edit','eye','bookmark','calendar','clock','map'
+      ]
+    };
+    var ICON_FLAT_LIST = [].concat.apply([], Object.keys(ICON_CATEGORIES).map(function(k){ return ICON_CATEGORIES[k]; }));
+    var iconPickerActiveInput = null;
+
+    function renderIconPickerTabs(activeTab) {
+      var tabs = ['Semua'].concat(Object.keys(ICON_CATEGORIES));
+      $('icon-picker-tabs').innerHTML = tabs.map(function(t){
+        return '<button class="icon-picker-tab '+(t===activeTab?'active':'')+'" data-icon-tab="'+escAttr(t)+'">'+escHtml(t)+'</button>';
+      }).join('');
+    }
+
+    function renderIconGrid(filter, activeTab) {
+      filter = String(filter||'').toLowerCase().trim();
+      var list = activeTab === 'Semua' ? ICON_FLAT_LIST : (ICON_CATEGORIES[activeTab] || []);
+      var unique = [];
+      list.forEach(function(name){ if(unique.indexOf(name)===-1) unique.push(name); });
+      if (filter) {
+        unique = unique.filter(function(name){ return name.toLowerCase().indexOf(filter) !== -1; });
+      }
+      $('icon-picker-grid').innerHTML = unique.map(function(name){
+        var isActive = iconPickerActiveInput && iconPickerActiveInput.value === name;
+        return '<button type="button" class="icon-picker-item '+(isActive?'active':'')+'" data-icon-name="'+escAttr(name)+'" title="'+escAttr(name)+'">'+
+               '<i data-lucide="'+escAttr(name)+'"></i></button>';
+      }).join('') || '<div style="grid-column:1/-1;text-align:center;color:var(--light);font-size:12px;padding:12px 0;">Ikon tidak ditemukan</div>';
+      icons();
+    }
+
+    function openIconPicker(input) {
+      iconPickerActiveInput = input;
+      var picker = $('icon-picker');
+      var overlay = $('icon-picker-overlay');
+      var rect = input.getBoundingClientRect();
+      picker.style.display = 'block';
+      overlay.style.display = 'block';
+      // Posisi picker di bawah input, jika tidak muat di bawah pindah ke atas
+      var top = rect.bottom + 8 + window.scrollY;
+      var left = Math.min(rect.left + window.scrollX, window.innerWidth - 340);
+      if (top + 280 > window.innerHeight + window.scrollY) top = Math.max(8, rect.top - 280 + window.scrollY);
+      picker.style.top = top + 'px';
+      picker.style.left = left + 'px';
+      $('icon-picker-search').value = '';
+      renderIconPickerTabs('Semua');
+      renderIconGrid('', 'Semua');
+      $('icon-picker-search').focus();
+    }
+
+    function closeIconPicker() {
+      $('icon-picker').style.display = 'none';
+      $('icon-picker-overlay').style.display = 'none';
+      iconPickerActiveInput = null;
+    }
+
+    function pickIcon(name) {
+      if (iconPickerActiveInput) {
+        iconPickerActiveInput.value = name;
+        // Trigger perubahan agar preview ikon di admin ikut terupdate
+        var evt = document.createEvent('Event');
+        evt.initEvent('input', true, true);
+        iconPickerActiveInput.dispatchEvent(evt);
+      }
+      closeIconPicker();
+    }
+
     /* ── Regex platform (client-side, cerminan Code.gs) ── */
     var VIDEO_REGEX = {
       youtube:   /(?:youtube\.com\/(?:watch\?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{11})/,
@@ -499,7 +606,15 @@
     function escHtml(v) { return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
     function escAttr(v) { return escHtml(v); }
     function icons() { if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons(); }
-    function isAppsScript() { return !!(window.google && google.script && google.script.run); }
+    function isAppsScript() {
+      try {
+        return !!(window.google && google.script && google.script.run && typeof google.script.run === 'object');
+      } catch(e) { return false; }
+    }
+    function isGitHubPages() {
+      try { return location.hostname.indexOf('github.io') !== -1; } catch(e) { return false; }
+    }
+    function isLocalMode() { return !isAppsScript(); }
     function fallbackImage() { return 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="300" height="400"><rect width="100%" height="100%" fill="#dfe7dc"/><text x="50%" y="50%" text-anchor="middle" fill="#4a6741" font-family="Arial" font-size="18">Creator</text></svg>'); }
 
     function imageSource(value) {
@@ -600,11 +715,77 @@
     function openModal(id){ $(id).classList.add('open'); }
     function closeModal(id){ $(id).classList.remove('open'); if(id==='video-modal'){ $('modal-video-container').innerHTML=''; } }
     function openInquiry(preselect){ $('inquiry-form').reset(); openModal('inquiry-modal'); if (preselect) $('form-service').value = preselect; }
-    function openAdmin(){ openModal('admin-modal'); $('pin-screen').style.display='block'; $('admin-screen').style.display='none'; $('pin-input').value=''; $('pin-error').className='hidden'; setTimeout(function(){ $('pin-input').focus(); }, 80); }
-    function verifyPin(){ var pin=$('pin-input').value.trim(); if(!pin){ showPinError('PIN wajib diisi.'); return; } server('verifyAdminPin', [pin], function(r){ if(r&&r.success){ adminSessionToken=r.token||''; $('pin-screen').style.display='none'; $('admin-screen').style.display='flex'; fillEditors(); } else showPinError(r&&r.message||'PIN salah.'); }, function(){ showPinError('Verifikasi gagal. Pastikan Web App sudah dideploy ulang.'); }); }
+    function openAdmin(){
+      openModal('admin-modal');
+      $('pin-screen').style.display='block';
+      $('admin-screen').style.display='none';
+      $('pin-input').value='';
+      $('pin-error').className='hidden';
+      var hint = $('pin-hint');
+      var bypassBtn = document.querySelector('[data-action="bypass-local"]');
+      if (isLocalMode()) {
+        hint.textContent = 'Mode GitHub Pages / lokal. PIN default: 1234';
+        if (bypassBtn) bypassBtn.style.display = 'inline-block';
+      } else {
+        hint.textContent = 'PIN diverifikasi oleh server.';
+        if (bypassBtn) bypassBtn.style.display = 'none';
+      }
+      setTimeout(function(){ $('pin-input').focus(); }, 80);
+    }
+    function verifyPin(){
+      var pin = $('pin-input').value.trim();
+      if (!pin) { showPinError('PIN wajib diisi.'); return; }
+
+      if (isAppsScript()) {
+        /* Mode GAS: verifikasi PIN ke server */
+        server('verifyAdminPin', [pin], function(r){
+          if (r && r.success) {
+            adminSessionToken = r.token || '';
+            $('pin-screen').style.display = 'none';
+            $('admin-screen').style.display = 'flex';
+            fillEditors();
+          } else {
+            showPinError(r && r.message || 'PIN salah.');
+          }
+        }, function(){
+          showPinError('Verifikasi gagal. Pastikan Web App sudah dideploy ulang.');
+        });
+      } else {
+        /* Mode GitHub Pages / lokal: verifikasi PIN dari localStorage cache */
+        var storedPin = '1234';
+        try {
+          var raw = localStorage.getItem(CACHE_PREFIX + 'admin_pin');
+          if (raw && raw.length >= 4) storedPin = raw;
+        } catch(e) {}
+
+        if (pin === storedPin) {
+          adminSessionToken = 'local-session';
+          $('pin-screen').style.display = 'none';
+          $('admin-screen').style.display = 'flex';
+          fillEditors();
+        } else {
+          showPinError('PIN salah. Mode lokal/GitHub Pages. Gunakan PIN: ' + storedPin);
+          console.log('[Local Mode] PIN yang dimasukkan:', pin, '| PIN yang tersimpan:', storedPin);
+        }
+      }
+    }
+
+    function bypassPinLocal() {
+      /* Mode lokal: langsung masuk tanpa PIN (untuk testing/debug) */
+      adminSessionToken = 'local-session';
+      $('pin-screen').style.display = 'none';
+      $('admin-screen').style.display = 'flex';
+      fillEditors();
+    }
     function showPinError(message){ $('pin-error').textContent=message; $('pin-error').className=''; }
     function fillEditors(){ var p=appData.profile||{}; $('edit-name').value=p.name||''; $('edit-tagline').value=p.tagline||''; $('edit-avatar').value=p.avatarUrl||''; updateAssetPreview('profile.avatarUrl', p.avatarUrl); $('edit-bio').value=p.bio||''; $('edit-whatsapp').value=appData.whatsappNumber||''; $('edit-location').value=p.location||''; videoUploadState = {}; renderEditor('contact'); renderEditor('social'); renderEditor('audience'); renderEditor('brand'); renderEditor('video'); renderEditor('rate'); fillInvPaketSelect(); loadInvoices(); }
-    function field(label, value, cls){ return '<div class="field"><label>'+label+'</label><input class="edit-input '+(cls||'')+'" value="'+escAttr(value||'')+'"></div>'; }
+    function field(label, value, cls, type){
+      var isIcon = type === 'icon';
+      var inputClass = 'edit-input ' + (cls || '') + (isIcon ? ' icon-input' : '');
+      var input = '<input class="' + inputClass + '" value="'+escAttr(value||'')+'"' + (isIcon ? ' readonly type="text" placeholder="Klik pilih ikon"' : '') + '>';
+      if (!isIcon) return '<div class="field"><label>'+label+'</label>'+input+'</div>';
+      return '<div class="icon-picker-wrap"><label>'+label+'</label>'+input+'</div>';
+    }
     function assetField(label, value, target, key){ var prev=imageSource(value)||''; return '<div class="field"><label>'+escHtml(label)+'</label><div class="asset-picker"><div class="asset-preview"><img data-image-preview="'+escAttr(target)+'" src="'+escAttr(prev||fallbackImage())+'" alt="Preview" onerror="this.onerror=null;this.src=\''+fallbackImage()+'\'"></div><div class="asset-controls"><input class="edit-input '+escAttr(key)+' image-url" data-image-role="url" data-image-target="'+escAttr(target)+'" value="'+escAttr(value||'')+'" placeholder="Tempel URL gambar, link Google Drive, atau link gambar Google"><input type="file" accept="image/*" data-image-role="file" data-image-target="'+escAttr(target)+'"><small class="asset-hint">✓ Upload dari perangkat ・ ✓ Link Google Drive ・ ✓ Link gambar Google / URL lainnya</small><small class="asset-status" data-image-status="'+escAttr(target)+'"></small></div></div></div>'; }
 
     /* ── Video editor (URL sosmed / Upload File) ── */
@@ -669,11 +850,16 @@
         if (type==='rate') return '<div class="editor-card" data-editor="'+type+'" data-index="'+i+'"><div class="editor-actions"><strong>Paket '+(i+1)+'</strong><button class="remove-btn" type="button" data-remove="'+type+'" data-index="'+i+'">Hapus</button></div><div class="editor-grid">'+field('Judul',item.title,'title')+field('Harga',item.price,'price')+field('Ikon Lucide',item.icon,'icon')+'</div>'+assetField('Ikon Gambar',item.iconUrl,'rateCards.'+i+'.iconUrl','iconUrl')+field('Fitur (pisahkan dengan koma)',(item.features||[]).join(', '),'features')+'</div>';
         if (type==='video') return videoEditorBlock(item, i);
         if (type==='brand') return '<div class="editor-card" data-editor="'+type+'" data-index="'+i+'"><div class="editor-actions"><strong>Brand '+(i+1)+'</strong><button class="remove-btn" type="button" data-remove="'+type+'" data-index="'+i+'">Hapus</button></div>'+field('Nama',item.name,'name')+assetField('Logo Brand',item.logoUrl,'brandCollabs.'+i+'.logoUrl','logoUrl')+'</div>';
-        if (type==='social') return '<div class="editor-card" data-editor="'+type+'" data-index="'+i+'"><div class="editor-actions"><strong>Statistik '+(i+1)+'</strong><button class="remove-btn" type="button" data-remove="'+type+'" data-index="'+i+'">Hapus</button></div><div class="editor-grid">'+field('Platform',item.platform,'platform')+field('Handle',item.handle,'handle')+field('Nilai',item.value,'value')+field('Label',item.label,'label')+field('Ikon',item.icon,'icon')+'</div></div>';
+        if (type==='social') return '<div class="editor-card" data-editor="'+type+'" data-index="'+i+'"><div class="editor-actions"><strong>Statistik '+(i+1)+'</strong><button class="remove-btn" type="button" data-remove="'+type+'" data-index="'+i+'">Hapus</button></div><div class="editor-grid">'+field('Platform',item.platform,'platform')+field('Handle',item.handle,'handle')+field('Nilai',item.value,'value')+field('Label',item.label,'label')+field('Ikon',item.icon,'icon','icon')+'</div></div>';
         var title = type==='contact'?item.label : type==='audience'?item.label : item.title;
-        return '<div class="editor-card" data-editor="'+type+'" data-index="'+i+'"><div class="editor-actions"><strong>'+escHtml(title)+'</strong><button class="remove-btn" type="button" data-remove="'+type+'" data-index="'+i+'">Hapus</button></div><div class="editor-grid">'+field('Ikon',item.icon,'icon')+field('Label',item.label,'label')+field('Nilai',item.value,'value')+'</div>'+field('Link URL (href)',item.href||'','href')+'</div>';
+        return '<div class="editor-card" data-editor="'+type+'" data-index="'+i+'"><div class="editor-actions"><strong>'+escHtml(title)+'</strong><button class="remove-btn" type="button" data-remove="'+type+'" data-index="'+i+'">Hapus</button></div><div class="editor-grid">'+field('Ikon',item.icon,'icon','icon')+field('Label',item.label,'label')+field('Nilai',item.value,'value')+'</div>'+field('Link URL (href)',item.href||'','href')+'</div>';
       }).join('');
       el.querySelectorAll('[data-image-preview]').forEach(function(preview){ var target=preview.getAttribute('data-image-preview'); var src=imageSource(getPath(target))||fallbackImage(); preview.src=src; preview.onerror=function(){ this.onerror=null; this.src=fallbackImage(); }; });
+      // Pasang klik untuk semua icon-input setelah render editor
+      el.querySelectorAll('.icon-input').forEach(function(input){
+        input.addEventListener('focus', function(e){ openIconPicker(e.target); });
+        input.addEventListener('click', function(e){ openIconPicker(e.target); });
+      });
       icons();
     }
 
@@ -824,6 +1010,22 @@
       if (unresolved.length) { toast('Klik "Upload" dulu untuk: '+unresolved.join(', '), 'error'); return; }
 
       var btn = $('save-btn'); btn.disabled = true; btn.innerHTML = 'Menyimpan...';
+
+      /* Jika di GitHub Pages/lokal, tidak ada server GAS. Simpan ke localStorage. */
+      if (isLocalMode()) {
+        collectEditors();
+        render(appData);
+        cacheWrite(appData);
+        var savedPin = $('edit-pin') && $('edit-pin').value.trim();
+        if (savedPin && savedPin.length >= 4) {
+          try { localStorage.setItem(CACHE_PREFIX + 'admin_pin', savedPin); } catch(e){}
+        }
+        btn.disabled = false; btn.innerHTML = '<i data-lucide="save"></i> Simpan Seluruh Perubahan'; icons();
+        toast('Data berhasil disimpan di browser (mode lokal).');
+        closeModal('admin-modal');
+        return;
+      }
+
       server('saveData', [appData, adminSessionToken], function(r){
         btn.disabled = false; btn.innerHTML = '<i data-lucide="save"></i> Simpan Seluruh Perubahan'; icons();
         if (r && r.success) {
@@ -832,6 +1034,11 @@
           var fresh = r.data || appData;
           render(fresh);
           cacheWrite(fresh);
+          /* Simpan PIN terbaru ke cache untuk akses lokal/GitHub Pages */
+          var savedPin = $('edit-pin') && $('edit-pin').value.trim();
+          if (savedPin && savedPin.length >= 4) {
+            try { localStorage.setItem(CACHE_PREFIX + 'admin_pin', savedPin); } catch(e){}
+          }
           closeModal('admin-modal');
         } else {
           toast(r&&r.message || 'Data gagal disimpan.', 'error');
@@ -865,6 +1072,7 @@
         if (a==='close-admin') closeModal('admin-modal');
         if (a==='verify-pin') verifyPin();
         if (a==='save') saveData();
+        if (a==='bypass-local') bypassPinLocal();
       }
       var tab = e.target.closest('[data-tab]');
       if (tab) { document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('active'); }); document.querySelectorAll('.tab-pane').forEach(function(x){ x.classList.remove('active'); }); tab.classList.add('active'); document.querySelector('[data-pane="'+tab.getAttribute('data-tab')+'"]').classList.add('active'); if (tab.getAttribute('data-tab')==='invoices' && window._sig) { setTimeout(function(){ window._sig.ensureInit(); }, 60); } }
@@ -1253,7 +1461,7 @@
       }, function(err){ toast('Server error: '+(err&&err.message||err),'error'); });
     }
 
-    // Delegasi event untuk tombol invoice
+    // Delegasi event untuk tombol invoice & icon picker
     document.addEventListener('click', function(e){
       var printBtn=e.target.closest('[data-inv-print]');
       if(printBtn) printInvoice(printBtn.getAttribute('data-inv-print'));
@@ -1266,6 +1474,21 @@
       if(e.target.closest('#inv-save-btn')) saveInvoice();
       if(e.target.closest('#inv-cancel-btn')) resetInvForm();
       if(e.target.closest('#inv-refresh-btn')) loadInvoices();
+
+      var iconTab = e.target.closest('[data-icon-tab]');
+      if (iconTab) { renderIconGrid($('icon-picker-search').value, iconTab.getAttribute('data-icon-tab')); renderIconPickerTabs(iconTab.getAttribute('data-icon-tab')); }
+
+      var iconItem = e.target.closest('[data-icon-name]');
+      if (iconItem) pickIcon(iconItem.getAttribute('data-icon-name'));
+
+      if (e.target.closest('#icon-picker-overlay')) closeIconPicker();
+    });
+
+    document.addEventListener('input', function(e){
+      if (e.target && e.target.id === 'icon-picker-search') {
+        var activeTab = ($('icon-picker-tabs').querySelector('.active') || {}).getAttribute('data-icon-tab') || 'Semua';
+        renderIconGrid(e.target.value, activeTab);
+      }
     });
 
     /* ══════════════════════════════════════════════════════
