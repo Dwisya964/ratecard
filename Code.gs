@@ -38,7 +38,15 @@ var ALLOWED_IMAGE_MIME = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 
 // JSON dapat berisi karakter Unicode yang mengambil lebih dari 1 byte.
 var PROPERTY_CHUNK_SIZE = 2000;
 var PROPERTY_TOTAL_LIMIT = 450000; // di bawah batas total 500 KB
+const ADMIN_PIN = '1234'; // Ganti '1234' dengan PIN yang Anda inginkan
 
+function verifyPin(pin) {
+  if (String(pin).trim() === String(ADMIN_PIN).trim()) {
+    return { success: true, message: 'PIN Benar' };
+  } else {
+    return { success: false, message: 'PIN Salah' };
+  }
+}
 function doGet(e) {
   // Catatan: addMetaTag hanya mendukung 'keywords' dan 'description'.
   // Meta viewport, theme-color, apple-* sudah ditulis langsung di Index.html.
