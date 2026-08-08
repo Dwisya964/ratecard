@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Portofolio creator & rate card kolaborasi brand.">
   <title>Creator Portfolio & Rate Card</title>
   <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
   <style>
@@ -46,6 +47,47 @@
     .eyebrow { margin:0 0 10px; color:var(--sage); font-size:12px; font-weight:800; letter-spacing:.18em; text-transform:uppercase; }
     h1,h2,h3,p { margin-top:0; }
     h1 { margin-bottom:12px; font-size:clamp(42px,6vw,70px); line-height:1.03; }
+
+    /* ══ Animasi hero-name: gradient shimmer infinite ══ */
+    @keyframes heroShimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position:  200% center; }
+    }
+    @keyframes heroFloat {
+      0%,100% { transform: translateY(0px); }
+      50%      { transform: translateY(-6px); }
+    }
+    #hero-name {
+      display:inline-block;
+      background: linear-gradient(
+        90deg,
+        var(--ink) 0%,
+        var(--ink) 30%,
+        var(--sage) 45%,
+        #a8c49f 50%,
+        var(--sage) 55%,
+        var(--ink) 70%,
+        var(--ink) 100%
+      );
+      background-size: 200% auto;
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: var(--ink); /* fallback */
+      animation:
+        heroShimmer 3s linear infinite,
+        heroFloat   4s ease-in-out infinite;
+    }
+
+    /* ══ Animasi "Tertarik untuk berkolaborasi?" — wave per huruf ══ */
+    @keyframes waveChar {
+      0%,60%,100% { transform: translateY(0); }
+      30%          { transform: translateY(-10px); }
+    }
+    #collab-title .wc {
+      display: inline-block;
+      animation: waveChar 2s ease-in-out infinite;
+    }
     .tagline { margin-bottom:18px; color:var(--sage); font:italic 25px Georgia,serif; }
     .ornament { display:flex; align-items:center; gap:10px; margin:20px 0; color:var(--sage-light); }
     .ornament:before,.ornament:after { content:""; width:50px; height:1px; background:var(--sage-light); }
@@ -170,6 +212,36 @@
     .video-meta { margin-top:6px; font-size:10px; color:var(--light); }
     .video-meta strong { color:var(--sage); }
 
+    /* ─── Invoice Panel ─── */
+    .invoice-list { margin-bottom:18px; }
+    .invoice-row { display:flex; align-items:center; justify-content:space-between; gap:8px; padding:11px 13px; border:1px solid var(--border); border-radius:11px; background:#fff; margin-bottom:8px; flex-wrap:wrap; }
+    .invoice-row-info { flex:1; min-width:0; }
+    .invoice-row-info strong { display:block; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .invoice-row-info small { color:var(--light); font-size:10px; }
+    .invoice-row-actions { display:flex; gap:5px; flex:0 0 auto; flex-wrap:wrap; }
+    .inv-btn { display:inline-flex; align-items:center; gap:5px; padding:6px 11px; border-radius:8px; border:1px solid var(--border); background:#fff; font-size:11px; font-weight:800; color:var(--muted); cursor:pointer; white-space:nowrap; }
+    .inv-btn:hover { border-color:var(--sage); color:var(--sage); }
+    .inv-btn.danger { color:#c64b4b; border-color:#e8c4c4; }
+    .inv-btn.danger:hover { background:#fdf4f4; }
+    .inv-btn.primary { border-color:var(--sage); background:var(--sage); color:#fff; }
+    .inv-btn.primary:hover { background:var(--sage-dark); }
+    .inv-form-wrap { background:var(--cream); border:1px solid var(--border); border-radius:12px; padding:16px; margin-bottom:14px; }
+    .inv-form-title { font-size:12px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.07em; margin-bottom:13px; }
+    /* ─── Signature ─── */
+    .sig-section { border:1px solid var(--border); border-radius:10px; overflow:hidden; background:#fff; margin-top:4px; }
+    .sig-toolbar { display:flex; align-items:center; gap:6px; padding:7px 10px; background:#f7f9f5; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+    .sig-tool-btn { display:inline-flex; align-items:center; gap:4px; padding:5px 10px; border:1px solid var(--border); border-radius:7px; background:#fff; font-size:11px; font-weight:800; color:var(--muted); cursor:pointer; white-space:nowrap; }
+    .sig-tool-btn:hover { border-color:var(--sage); color:var(--sage); }
+    .sig-tool-btn.active { border-color:var(--sage); color:var(--sage); background:#e8ede5; }
+    .sig-tool-btn.erase.active { border-color:#c64b4b; color:#c64b4b; background:#fdf4f4; }
+    .sig-import-row { display:flex; align-items:center; gap:8px; padding:7px 10px; background:#f7f9f5; border-bottom:1px solid var(--border); flex-wrap:wrap; }
+    .sig-import-label { font-size:10px; font-weight:800; color:var(--muted); white-space:nowrap; }
+    #sig-canvas { display:block; width:100%; height:130px; cursor:crosshair; touch-action:none; background:#fff; }
+    .sig-actions { display:flex; gap:7px; padding:8px 11px; border-top:1px solid var(--border); background:#f7f9f5; flex-wrap:wrap; align-items:center; }
+    .sig-status { font-size:10px; margin-left:auto; font-weight:700; }
+    .sig-status.ok { color:var(--sage); }
+    .sig-status.empty { color:var(--light); }
+
     @media(max-width:760px) {
       .container { width:min(100% - 32px,1100px); }
       .nav-links { display:none; }
@@ -258,7 +330,7 @@
     <section id="contact" class="soft-section">
       <div class="container">
         <div class="contact-card">
-          <div class="contact-main"><img id="contact-avatar" class="contact-avatar" alt="Creator"><div><h2>Tertarik untuk<br>berkolaborasi?</h2><p>Yuk, hubungi admin sekarang!</p><div class="button-row"><button class="pill-btn" type="button" data-action="inquiry"><i data-lucide="send"></i> Kirim Pertanyaan</button><button class="pill-btn" type="button" data-action="whatsapp"><i data-lucide="message-circle"></i> Chat via WhatsApp</button></div></div></div>
+          <div class="contact-main"><img id="contact-avatar" class="contact-avatar" alt="Creator"><div><h2 id="collab-title">Tertarik untuk<br>berkolaborasi?</h2><p>Yuk, hubungi admin sekarang!</p><div class="button-row"><button class="pill-btn" type="button" data-action="inquiry"><i data-lucide="send"></i> Kirim Pertanyaan</button><button class="pill-btn" type="button" data-action="whatsapp"><i data-lucide="message-circle"></i> Chat via WhatsApp</button></div></div></div>
           <div id="contact-info-cards" class="contact-info"></div>
         </div>
       </div>
@@ -285,7 +357,7 @@
     <div class="modal-box"><div class="modal-head"><h3><i data-lucide="settings"></i> Panel Pengaturan Admin</h3><button class="close" type="button" data-action="close-admin"><i data-lucide="x"></i></button></div>
       <div id="pin-screen" class="pin-screen"><i data-lucide="lock" style="width:30px;height:30px;color:var(--sage)"></i><h3>Masukkan PIN Admin</h3><p style="font-size:12px;color:var(--light)">PIN diverifikasi oleh server.</p><input id="pin-input" class="field input" type="password" maxlength="32" placeholder="••••"><button class="pill-btn primary" type="button" data-action="verify-pin">Masuk Mode Edit</button><p id="pin-error" class="hidden" style="color:#c64b4b;font-size:12px;margin-bottom:0"></p></div>
       <div id="admin-screen" class="admin-screen">
-        <div class="tabs"><button class="tab active" data-tab="profile">Profil</button><button class="tab" data-tab="contact">Kontak</button><button class="tab" data-tab="social">Statistik</button><button class="tab" data-tab="audience">Audiens</button><button class="tab" data-tab="brands">Brand</button><button class="tab" data-tab="videos">Video</button><button class="tab" data-tab="rates">Rate Card</button></div>
+        <div class="tabs"><button class="tab active" data-tab="profile">Profil</button><button class="tab" data-tab="contact">Kontak</button><button class="tab" data-tab="social">Statistik</button><button class="tab" data-tab="audience">Audiens</button><button class="tab" data-tab="brands">Brand</button><button class="tab" data-tab="videos">Video</button><button class="tab" data-tab="rates">Rate Card</button><button class="tab" data-tab="invoices">Invoice</button></div>
         <div class="admin-body">
           <div class="tab-pane active" data-pane="profile"><div class="editor-grid"><div class="field"><label>Nama Creator</label><input id="edit-name" class="edit-input"></div><div class="field"><label>Tagline / Profesi</label><input id="edit-tagline" class="edit-input"></div></div><div class="field"><label>Foto Avatar</label><div class="asset-picker"><div class="asset-preview"><img id="edit-avatar-preview" data-image-preview="profile.avatarUrl" alt="Preview avatar"></div><div class="asset-controls"><input id="edit-avatar" class="edit-input image-url" data-image-role="url" data-image-target="profile.avatarUrl" placeholder="Tempel URL gambar atau link Google Drive"><input type="file" accept="image/*" data-image-role="file" data-image-target="profile.avatarUrl"><small class="asset-hint">Bisa memakai URL gambar langsung, link Google Drive, atau file dari perangkat.</small><small class="asset-status" data-image-status="profile.avatarUrl"></small></div></div></div><div class="field"><label>Bio</label><textarea id="edit-bio" class="edit-input" rows="4"></textarea></div><div class="editor-grid"><div class="field"><label>Nomor WhatsApp</label><input id="edit-whatsapp" class="edit-input"></div><div class="field"><label>Lokasi</label><input id="edit-location" class="edit-input"></div></div><div class="field"><label>Ganti PIN Admin (kosongkan jika tidak berubah)</label><input id="edit-pin" class="edit-input" type="password"></div></div>
           <div class="tab-pane" data-pane="contact"><div class="editor-actions"><strong>Info Kontak</strong><button class="add-btn" type="button" data-add="contact">+ Tambah</button></div><div id="contact-editor"></div></div>
@@ -294,6 +366,64 @@
           <div class="tab-pane" data-pane="brands"><div class="editor-actions"><strong>Brand Kolaborasi</strong><button class="add-btn" type="button" data-add="brand">+ Tambah</button></div><div id="brand-editor"></div></div>
           <div class="tab-pane" data-pane="videos"><div class="editor-actions"><strong>Video Portfolio</strong><button class="add-btn" type="button" data-add="video">+ Tambah</button></div><div id="video-editor"></div></div>
           <div class="tab-pane" data-pane="rates"><div class="editor-actions"><strong>Paket Rate Card</strong><button class="add-btn" type="button" data-add="rate">+ Tambah</button></div><div id="rate-editor"></div></div>
+
+          <!-- ══ TAB INVOICE ══ -->
+          <div class="tab-pane" data-pane="invoices">
+
+            <!-- Form Buat / Edit Invoice -->
+            <div class="inv-form-wrap" id="inv-form-wrap">
+              <div class="inv-form-title" id="inv-form-title">+ Buat Invoice Baru</div>
+              <div class="form-grid">
+                <div class="field"><label>Nama Pelanggan</label><input id="inv-nama" class="edit-input" placeholder="PT. Brand Indonesia"></div>
+                <div class="field"><label>Tanggal Kerja Sama</label><input id="inv-tanggal" class="edit-input" type="date"></div>
+              </div>
+              <div class="field"><label>Paket Rate Card</label>
+                <select id="inv-paket" class="edit-input"><option value="">— Pilih Paket —</option></select>
+              </div>
+              <div class="field"><label>Nomor Tujuan Transfer</label><input id="inv-transfer" class="edit-input" placeholder="BCA 1234567890 a.n. Safwa Sakilla"></div>
+              <div class="field"><label>Syarat &amp; Ketentuan</label><textarea id="inv-syarat" class="edit-input" rows="4" placeholder="Tuliskan syarat & ketentuan kerja sama..."></textarea></div>
+
+              <!-- ── Tanda Tangan (setelah Syarat & Ketentuan) ── -->
+              <div class="field">
+                <label>Tanda Tangan Creator</label>
+                <div class="sig-section">
+                  <!-- Toolbar: pen & eraser -->
+                  <div class="sig-toolbar">
+                    <button type="button" class="sig-tool-btn active" id="sig-pen-btn"><i data-lucide="pen-line"></i> Pulpen</button>
+                    <button type="button" class="sig-tool-btn erase" id="sig-erase-btn"><i data-lucide="eraser"></i> Hapus</button>
+                    <button type="button" class="sig-tool-btn" id="sig-clear-btn" style="margin-left:auto"><i data-lucide="trash-2"></i> Bersihkan</button>
+                  </div>
+                  <!-- Import dari gambar -->
+                  <div class="sig-import-row">
+                    <span class="sig-import-label">Import dari gambar:</span>
+                    <input type="file" id="sig-import-file" accept="image/*" style="font-size:11px;max-width:200px">
+                    <button type="button" class="inv-btn" id="sig-import-btn"><i data-lucide="upload"></i> Muat</button>
+                  </div>
+                  <canvas id="sig-canvas" width="600" height="130"></canvas>
+                  <div class="sig-actions">
+                    <button type="button" class="inv-btn primary" id="sig-apply-btn"><i data-lucide="check"></i> Terapkan ke Invoice</button>
+                    <button type="button" class="inv-btn" id="sig-reset-btn"><i data-lucide="rotate-ccw"></i> Reset</button>
+                    <span class="sig-status empty" id="sig-status">Belum ada tanda tangan</span>
+                  </div>
+                </div>
+              </div>
+              <!-- ── End Tanda Tangan ── -->
+
+              <input type="hidden" id="inv-edit-id">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+                <button type="button" class="inv-btn primary" id="inv-save-btn"><i data-lucide="save"></i> Simpan Invoice</button>
+                <button type="button" class="inv-btn" id="inv-cancel-btn" style="display:none"><i data-lucide="x"></i> Batal Edit</button>
+              </div>
+            </div>
+
+            <!-- Daftar Invoice -->
+            <div class="editor-actions" style="margin-bottom:10px">
+              <strong>Daftar Invoice</strong>
+              <button type="button" class="inv-btn" id="inv-refresh-btn"><i data-lucide="refresh-cw"></i> Muat Ulang</button>
+            </div>
+            <div id="invoice-list" class="invoice-list"><p style="font-size:12px;color:var(--light)">Memuat data invoice...</p></div>
+          </div>
+          <!-- ══ END INVOICE ══ -->
         </div>
         <div class="admin-footer"><button id="save-btn" class="pill-btn primary" type="button" data-action="save" style="width:100%;padding:12px"><i data-lucide="save"></i> Simpan Seluruh Perubahan</button></div>
       </div>
@@ -441,7 +571,7 @@
     function openAdmin(){ openModal('admin-modal'); $('pin-screen').style.display='block'; $('admin-screen').style.display='none'; $('pin-input').value=''; $('pin-error').className='hidden'; setTimeout(function(){ $('pin-input').focus(); }, 80); }
     function verifyPin(){ var pin=$('pin-input').value.trim(); if(!pin){ showPinError('PIN wajib diisi.'); return; } server('verifyAdminPin', [pin], function(r){ if(r&&r.success){ adminSessionToken=r.token||''; $('pin-screen').style.display='none'; $('admin-screen').style.display='flex'; fillEditors(); } else showPinError(r&&r.message||'PIN salah.'); }, function(){ showPinError('Verifikasi gagal. Pastikan Web App sudah dideploy ulang.'); }); }
     function showPinError(message){ $('pin-error').textContent=message; $('pin-error').className=''; }
-    function fillEditors(){ var p=appData.profile||{}; $('edit-name').value=p.name||''; $('edit-tagline').value=p.tagline||''; $('edit-avatar').value=p.avatarUrl||''; updateAssetPreview('profile.avatarUrl', p.avatarUrl); $('edit-bio').value=p.bio||''; $('edit-whatsapp').value=appData.whatsappNumber||''; $('edit-location').value=p.location||''; videoUploadState = {}; renderEditor('contact'); renderEditor('social'); renderEditor('audience'); renderEditor('brand'); renderEditor('video'); renderEditor('rate'); }
+    function fillEditors(){ var p=appData.profile||{}; $('edit-name').value=p.name||''; $('edit-tagline').value=p.tagline||''; $('edit-avatar').value=p.avatarUrl||''; updateAssetPreview('profile.avatarUrl', p.avatarUrl); $('edit-bio').value=p.bio||''; $('edit-whatsapp').value=appData.whatsappNumber||''; $('edit-location').value=p.location||''; videoUploadState = {}; renderEditor('contact'); renderEditor('social'); renderEditor('audience'); renderEditor('brand'); renderEditor('video'); renderEditor('rate'); fillInvPaketSelect(); loadInvoices(); }
     function field(label, value, cls){ return '<div class="field"><label>'+label+'</label><input class="edit-input '+(cls||'')+'" value="'+escAttr(value||'')+'"></div>'; }
     function assetField(label, value, target, key){ var prev=imageSource(value)||''; return '<div class="field"><label>'+escHtml(label)+'</label><div class="asset-picker"><div class="asset-preview"><img data-image-preview="'+escAttr(target)+'" src="'+escAttr(prev||fallbackImage())+'" alt="Preview" onerror="this.onerror=null;this.src=\''+fallbackImage()+'\'"></div><div class="asset-controls"><input class="edit-input '+escAttr(key)+' image-url" data-image-role="url" data-image-target="'+escAttr(target)+'" value="'+escAttr(value||'')+'" placeholder="Tempel URL gambar, link Google Drive, atau link gambar Google"><input type="file" accept="image/*" data-image-role="file" data-image-target="'+escAttr(target)+'"><small class="asset-hint">✓ Upload dari perangkat ・ ✓ Link Google Drive ・ ✓ Link gambar Google / URL lainnya</small><small class="asset-status" data-image-status="'+escAttr(target)+'"></small></div></div></div>'; }
 
@@ -703,7 +833,7 @@
         if (a==='save') saveData();
       }
       var tab = e.target.closest('[data-tab]');
-      if (tab) { document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('active'); }); document.querySelectorAll('.tab-pane').forEach(function(x){ x.classList.remove('active'); }); tab.classList.add('active'); document.querySelector('[data-pane="'+tab.getAttribute('data-tab')+'"]').classList.add('active'); }
+      if (tab) { document.querySelectorAll('.tab').forEach(function(x){ x.classList.remove('active'); }); document.querySelectorAll('.tab-pane').forEach(function(x){ x.classList.remove('active'); }); tab.classList.add('active'); document.querySelector('[data-pane="'+tab.getAttribute('data-tab')+'"]').classList.add('active'); if (tab.getAttribute('data-tab')==='invoices' && window._sig) { setTimeout(function(){ window._sig.ensureInit(); }, 60); } }
       // Video source tabs (URL/Upload)
       var vsrcTab = e.target.closest('[data-vsrc-tab]');
       if (vsrcTab) {
@@ -767,6 +897,387 @@
     $('inquiry-form').addEventListener('submit', submitInquiry);
     document.querySelectorAll('.modal').forEach(function(m){ m.addEventListener('click', function(e){ if (e.target===m) closeModal(m.id); }); });
     $('pin-input').addEventListener('keydown', function(e){ if (e.key==='Enter') verifyPin(); });
+
+    /* ══════════════════════════════════════════════════════
+       SIGNATURE — lazy init (canvas inside hidden tab pane)
+    ══════════════════════════════════════════════════════ */
+    (function(){
+      var canvas = null, ctx = null, inited = false;
+      var drawing = false, erasing = false;
+      var signatureDataUrl = '';
+
+      function ensureInit(){
+        if (inited) return;
+        canvas = $('sig-canvas');
+        if (!canvas || canvas.offsetWidth === 0) return;
+        inited = true;
+        ctx = canvas.getContext('2d');
+        fitCanvas();
+
+        /* ── Mouse ── */
+        canvas.addEventListener('mousedown', function(e){
+          e.preventDefault(); drawing = true;
+          ctx.beginPath(); var p = getPos(e); ctx.moveTo(p.x, p.y);
+        });
+        canvas.addEventListener('mousemove', function(e){
+          if (!drawing) return;
+          var p = getPos(e);
+          if (erasing){
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.lineWidth = 18;
+          } else {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.strokeStyle = '#1a1a1a';
+            ctx.lineWidth = 2.5;
+          }
+          ctx.lineTo(p.x, p.y);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+        });
+        canvas.addEventListener('mouseup',    function(){ drawing = false; ctx.globalCompositeOperation = 'source-over'; });
+        canvas.addEventListener('mouseleave', function(){ drawing = false; ctx.globalCompositeOperation = 'source-over'; });
+
+        /* ── Touch ── */
+        canvas.addEventListener('touchstart', function(e){
+          e.preventDefault(); drawing = true;
+          ctx.beginPath(); var p = getPos(e.touches[0]); ctx.moveTo(p.x, p.y);
+        }, { passive: false });
+        canvas.addEventListener('touchmove', function(e){
+          e.preventDefault(); if (!drawing) return;
+          var p = getPos(e.touches[0]);
+          if (erasing){
+            ctx.globalCompositeOperation = 'destination-out';
+            ctx.lineWidth = 18;
+          } else {
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.strokeStyle = '#1a1a1a';
+            ctx.lineWidth = 2.5;
+          }
+          ctx.lineTo(p.x, p.y);
+          ctx.stroke();
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+        }, { passive: false });
+        canvas.addEventListener('touchend', function(){ drawing = false; ctx.globalCompositeOperation = 'source-over'; });
+
+        applyCtxStyle();
+      }
+
+      function fitCanvas(){
+        var ratio = window.devicePixelRatio || 1;
+        var cssW  = canvas.clientWidth || canvas.parentElement.clientWidth || 600;
+        var cssH  = 130;
+        canvas.width  = Math.round(cssW * ratio);
+        canvas.height = Math.round(cssH * ratio);
+        canvas.style.height = cssH + 'px';
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+        applyCtxStyle();
+      }
+
+      function applyCtxStyle(){
+        if (!ctx) return;
+        ctx.strokeStyle = '#1a1a1a';
+        ctx.lineWidth   = 2.5;
+        ctx.lineCap     = 'round';
+        ctx.lineJoin    = 'round';
+        ctx.globalCompositeOperation = 'source-over';
+      }
+
+      function getPos(e){
+        var rect   = canvas.getBoundingClientRect();
+        var scaleX = (canvas.width  / (window.devicePixelRatio||1)) / rect.width;
+        var scaleY = (canvas.height / (window.devicePixelRatio||1)) / rect.height;
+        return { x: (e.clientX - rect.left)*scaleX, y: (e.clientY - rect.top)*scaleY };
+      }
+
+      function isBlank(){
+        if (!ctx) return true;
+        var d = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        for (var i = 3; i < d.length; i += 4){ if (d[i] > 10) return false; }
+        return true;
+      }
+
+      function setSigStatus(applied){
+        var el = $('sig-status'); if (!el) return;
+        if (applied){ el.textContent='✓ Tanda tangan diterapkan'; el.className='sig-status ok'; }
+        else         { el.textContent='Belum ada tanda tangan';   el.className='sig-status empty'; }
+      }
+
+      function setMode(erase){
+        erasing = erase;
+        var pen   = $('sig-pen-btn'),   era = $('sig-erase-btn');
+        if (!pen || !era) return;
+        if (erase){
+          era.classList.add('active'); pen.classList.remove('active');
+          if (canvas) canvas.style.cursor = 'cell';
+        } else {
+          pen.classList.add('active'); era.classList.remove('active');
+          if (canvas) canvas.style.cursor = 'crosshair';
+        }
+      }
+
+      function clearCanvas(){
+        if (!ctx) return;
+        var cssW = canvas.width  / (window.devicePixelRatio||1);
+        var cssH = canvas.height / (window.devicePixelRatio||1);
+        ctx.clearRect(0, 0, cssW, cssH);
+        applyCtxStyle();
+        signatureDataUrl = '';
+        setSigStatus(false);
+      }
+
+      /* ── Toolbar + import + apply + reset events ── */
+      document.addEventListener('click', function(e){
+        /* Pen / Eraser toggle */
+        if (e.target.closest('#sig-pen-btn'))   { ensureInit(); setMode(false); return; }
+        if (e.target.closest('#sig-erase-btn')) { ensureInit(); setMode(true);  return; }
+        if (e.target.closest('#sig-clear-btn')) { ensureInit(); clearCanvas();  return; }
+
+        /* Import gambar */
+        if (e.target.closest('#sig-import-btn')){
+          ensureInit();
+          var file = $('sig-import-file') && $('sig-import-file').files[0];
+          if (!file){ toast('Pilih file gambar terlebih dahulu.','error'); return; }
+          var reader = new FileReader();
+          reader.onload = function(){
+            var img = new Image();
+            img.onload = function(){
+              if (!canvas||!ctx){ toast('Canvas belum siap, buka tab Invoice terlebih dahulu.','error'); return; }
+              var cssW = canvas.width  / (window.devicePixelRatio||1);
+              var cssH = canvas.height / (window.devicePixelRatio||1);
+              ctx.clearRect(0, 0, cssW, cssH);
+              applyCtxStyle();
+              var scale = Math.min(cssW/img.width, cssH/img.height);
+              var dw = img.width*scale, dh = img.height*scale;
+              ctx.drawImage(img, (cssW-dw)/2, (cssH-dh)/2, dw, dh);
+              signatureDataUrl = '';
+              setSigStatus(false);
+              toast('Gambar dimuat. Klik "Terapkan ke Invoice" untuk menggunakannya.');
+            };
+            img.onerror = function(){ toast('Gagal memuat gambar.','error'); };
+            img.src = reader.result;
+          };
+          reader.onerror = function(){ toast('Gagal membaca file.','error'); };
+          reader.readAsDataURL(file);
+        }
+
+        /* Terapkan */
+        if (e.target.closest('#sig-apply-btn')){
+          ensureInit();
+          if (!canvas||isBlank()){ toast('Canvas masih kosong. Gambar atau import tanda tangan terlebih dahulu.','error'); return; }
+          signatureDataUrl = canvas.toDataURL('image/png');
+          setSigStatus(true);
+          toast('Tanda tangan berhasil diterapkan ke invoice.');
+        }
+
+        /* Reset */
+        if (e.target.closest('#sig-reset-btn')){
+          clearCanvas();
+          setMode(false);
+          if ($('sig-import-file')) $('sig-import-file').value = '';
+          toast('Tanda tangan direset.');
+        }
+      });
+
+      window._sig = {
+        ensureInit:   ensureInit,
+        getDataUrl:   function(){ return signatureDataUrl; },
+        hasSignature: function(){ return !!signatureDataUrl; }
+      };
+    })();
+
+    /* ══════════════════════════════════════════════════════
+       INVOICE CRUD
+    ══════════════════════════════════════════════════════ */
+    var invoiceList = [];
+
+    function fillInvPaketSelect(){
+      var sel=$('inv-paket'); if(!sel) return;
+      sel.innerHTML='<option value="">— Pilih Paket —</option>';
+      (appData.rateCards||[]).forEach(function(r){ sel.innerHTML+='<option value="'+escAttr(r.title)+'">'+escHtml(r.title)+' — '+escHtml(r.price)+'</option>'; });
+    }
+
+    function formatTanggal(iso){
+      if(!iso) return '-';
+      try{ var d=new Date(iso); return d.toLocaleDateString('id-ID',{day:'2-digit',month:'long',year:'numeric'}); }catch(e){ return iso; }
+    }
+
+    function renderInvoiceList(list){
+      var el=$('invoice-list'); if(!el) return;
+      if(!list||!list.length){ el.innerHTML='<p style="font-size:12px;color:var(--light)">Belum ada invoice.</p>'; return; }
+      el.innerHTML = list.map(function(inv){
+        return '<div class="invoice-row">'+
+          '<div class="invoice-row-info">'+
+            '<strong>'+escHtml(inv.invoiceNumber||'—')+' · '+escHtml(inv.namaPelanggan||'—')+'</strong>'+
+            '<small>'+escHtml(inv.paketRateCard||'—')+' · '+formatTanggal(inv.createdAt)+'</small>'+
+          '</div>'+
+          '<div class="invoice-row-actions">'+
+            '<button class="inv-btn primary" data-inv-print="'+escAttr(inv.id)+'" title="Print Invoice"><i data-lucide="printer"></i> Print</button>'+
+            '<button class="inv-btn" data-inv-download="'+escAttr(inv.id)+'" title="Unduh HTML Invoice"><i data-lucide="download"></i> Unduh</button>'+
+            '<button class="inv-btn" data-inv-edit="'+escAttr(inv.id)+'" title="Edit Invoice"><i data-lucide="pencil"></i> Edit</button>'+
+            '<button class="inv-btn danger" data-inv-del="'+escAttr(inv.id)+'" title="Hapus Invoice"><i data-lucide="trash-2"></i></button>'+
+          '</div>'+
+        '</div>';
+      }).join('');
+      icons();
+    }
+
+    function loadInvoices(){
+      if(!isAppsScript()){ renderInvoiceList([]); return; }
+      server('getInvoices',[adminSessionToken], function(r){
+        if(r&&r.success){ invoiceList=r.invoices||[]; renderInvoiceList(invoiceList); }
+        else toast((r&&r.message)||'Gagal memuat invoice.','error');
+      }, function(err){ toast('Server error: '+(err&&err.message||err),'error'); });
+    }
+
+    function resetInvForm(){
+      $('inv-edit-id').value='';
+      $('inv-nama').value=''; $('inv-tanggal').value=''; $('inv-paket').value=''; $('inv-transfer').value=''; $('inv-syarat').value='';
+      $('inv-form-title').textContent='+ Buat Invoice Baru';
+      $('inv-cancel-btn').style.display='none';
+      $('inv-save-btn').innerHTML='<i data-lucide="save"></i> Simpan Invoice'; icons();
+    }
+
+    function fillInvForm(inv){
+      $('inv-edit-id').value=inv.id||'';
+      $('inv-nama').value=inv.namaPelanggan||'';
+      var tgl=inv.tanggalKerjaSama||''; if(tgl) try{ tgl=new Date(tgl).toISOString().substring(0,10); }catch(e){}
+      $('inv-tanggal').value=tgl;
+      $('inv-paket').value=inv.paketRateCard||'';
+      $('inv-transfer').value=inv.nomorTransfer||'';
+      $('inv-syarat').value=inv.syaratKetentuan||'';
+      $('inv-form-title').textContent='✏️ Edit Invoice — '+escHtml(inv.invoiceNumber||'');
+      $('inv-cancel-btn').style.display='inline-flex';
+      $('inv-save-btn').innerHTML='<i data-lucide="save"></i> Perbarui Invoice'; icons();
+      $('inv-form-wrap').scrollIntoView({behavior:'smooth',block:'nearest'});
+    }
+
+    function saveInvoice(){
+      var nama=$('inv-nama').value.trim(), tgl=$('inv-tanggal').value, paket=$('inv-paket').value, transfer=$('inv-transfer').value.trim(), syarat=$('inv-syarat').value.trim();
+      if(!nama){ toast('Nama pelanggan wajib diisi.','error'); $('inv-nama').focus(); return; }
+      if(!paket){ toast('Pilih paket rate card.','error'); $('inv-paket').focus(); return; }
+
+      // Sertakan tanda tangan jika sudah diterapkan
+      var sigData = (window._sig && window._sig.hasSignature()) ? window._sig.getDataUrl() : '';
+
+      var invData = { namaPelanggan:nama, tanggalKerjaSama:tgl, paketRateCard:paket, nomorTransfer:transfer, syaratKetentuan:syarat, signatureDataUrl:sigData };
+      var editId=$('inv-edit-id').value.trim(); if(editId) invData.id=editId;
+      if(!isAppsScript()){ toast('Halaman harus dijalankan sebagai Google Apps Script Web App.','error'); return; }
+      var btn=$('inv-save-btn'); btn.disabled=true; btn.innerHTML='Menyimpan...';
+      server('saveInvoice',[invData,adminSessionToken], function(r){
+        btn.disabled=false; btn.innerHTML=(editId?'<i data-lucide="save"></i> Perbarui Invoice':'<i data-lucide="save"></i> Simpan Invoice'); icons();
+        if(r&&r.success){ invoiceList=r.invoices||[]; renderInvoiceList(invoiceList); resetInvForm(); toast('Invoice berhasil disimpan.'); }
+        else toast((r&&r.message)||'Gagal menyimpan invoice.','error');
+      }, function(err){ btn.disabled=false; icons(); toast('Server error: '+(err&&err.message||err),'error'); });
+    }
+
+    function printInvoice(id){
+      if(!isAppsScript()){ toast('Halaman harus dijalankan sebagai Google Apps Script Web App.','error'); return; }
+      // Sertakan tanda tangan aktif saat ini
+      var sigData = (window._sig && window._sig.hasSignature()) ? window._sig.getDataUrl() : '';
+      server('generateInvoicePdf',[id,adminSessionToken,sigData], function(r){
+        if(r&&r.success){
+          var w=window.open('','_blank','width=900,height=700');
+          w.document.open(); w.document.write(r.html); w.document.close();
+          setTimeout(function(){ try{ w.print(); }catch(e){} }, 600);
+        } else toast((r&&r.message)||'Gagal membuat invoice.','error');
+      }, function(err){ toast('Server error: '+(err&&err.message||err),'error'); });
+    }
+
+    function deleteInvoice(id){
+      if(!confirm('Hapus invoice ini? Tindakan tidak dapat dibatalkan.')) return;
+      server('deleteInvoice',[id,adminSessionToken], function(r){
+        if(r&&r.success){ invoiceList=r.invoices||[]; renderInvoiceList(invoiceList); toast('Invoice dihapus.'); }
+        else toast((r&&r.message)||'Gagal menghapus.','error');
+      }, function(err){ toast('Server error: '+(err&&err.message||err),'error'); });
+    }
+
+    function downloadInvoice(id){
+      if(!isAppsScript()){ toast('Halaman harus dijalankan sebagai Google Apps Script Web App.','error'); return; }
+      var sigData = (window._sig && window._sig.hasSignature()) ? window._sig.getDataUrl() : '';
+      server('generateInvoicePdf',[id,adminSessionToken,sigData], function(r){
+        if(r&&r.success){
+          /* Buka jendela baru, inject script auto-print lalu tutup → browser tampilkan dialog Simpan sebagai PDF */
+          var w = window.open('','_blank','width=900,height=700');
+          if (!w){ toast('Pop-up diblokir browser. Izinkan pop-up untuk situs ini.','error'); return; }
+          /* Sisipkan @media print + tombol unduh + auto-print ke HTML invoice */
+          var printHtml = r.html.replace('</style>',
+            '@media print{.no-print{display:none!important}}' +
+            '</style>'
+          ).replace('</body>',
+            '<div class="no-print" style="position:fixed;bottom:24px;right:24px;z-index:999;display:flex;gap:8px">' +
+              '<button onclick="window.print()" style="padding:10px 20px;background:#4a6741;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:700;cursor:pointer">🖨️ Simpan / Cetak PDF</button>' +
+              '<button onclick="window.close()" style="padding:10px 20px;background:#eee;color:#333;border:none;border-radius:8px;font-size:13px;cursor:pointer">✕ Tutup</button>' +
+            '</div>' +
+            '</body>'
+          );
+          w.document.open();
+          w.document.write(printHtml);
+          w.document.close();
+        } else toast((r&&r.message)||'Gagal mengunduh invoice.','error');
+      }, function(err){ toast('Server error: '+(err&&err.message||err),'error'); });
+    }
+
+    // Delegasi event untuk tombol invoice
+    document.addEventListener('click', function(e){
+      var printBtn=e.target.closest('[data-inv-print]');
+      if(printBtn) printInvoice(printBtn.getAttribute('data-inv-print'));
+      var dlBtn=e.target.closest('[data-inv-download]');
+      if(dlBtn) downloadInvoice(dlBtn.getAttribute('data-inv-download'));
+      var editBtn=e.target.closest('[data-inv-edit]');
+      if(editBtn){ var inv=invoiceList.find(function(x){return x.id===editBtn.getAttribute('data-inv-edit');}); if(inv) fillInvForm(inv); }
+      var delBtn=e.target.closest('[data-inv-del]');
+      if(delBtn) deleteInvoice(delBtn.getAttribute('data-inv-del'));
+      if(e.target.closest('#inv-save-btn')) saveInvoice();
+      if(e.target.closest('#inv-cancel-btn')) resetInvForm();
+      if(e.target.closest('#inv-refresh-btn')) loadInvoices();
+    });
+
+    /* ══════════════════════════════════════════════════════
+       ANIMASI: wave huruf pada h2 "Tertarik untuk berkolaborasi?"
+    ══════════════════════════════════════════════════════ */
+    (function(){
+      function wrapWave(el){
+        if (!el) return;
+        /* Reset: buang span lama, ambil teks bersih */
+        var rawNodes = Array.prototype.slice.call(el.childNodes);
+        /* Kumpulkan teks & br */
+        var parts = [];
+        rawNodes.forEach(function(n){
+          if (n.nodeType === Node.ELEMENT_NODE && n.tagName === 'BR') parts.push({br:true});
+          else parts.push({text: n.textContent || ''});
+        });
+        el.innerHTML = '';
+        var delay = 0;
+        parts.forEach(function(part){
+          if (part.br){ el.appendChild(document.createElement('br')); return; }
+          var text = part.text;
+          for (var i = 0; i < text.length; i++){
+            var ch = text[i];
+            if (ch === ' '){ el.appendChild(document.createTextNode('\u00a0')); continue; }
+            var span = document.createElement('span');
+            span.className = 'wc';
+            span.textContent = ch;
+            span.style.animationDelay = (delay * 0.06) + 's';
+            el.appendChild(span);
+            delay++;
+          }
+        });
+      }
+
+      /* Ekspor agar bisa dipanggil ulang setelah render() */
+      window._wrapCollabWave = function(){
+        wrapWave($('collab-title'));
+      };
+
+      /* Panggil saat DOM siap */
+      if (document.readyState === 'loading'){
+        document.addEventListener('DOMContentLoaded', window._wrapCollabWave);
+      } else {
+        window._wrapCollabWave();
+      }
+    })();
 
     window.addEventListener('load', function(){
       if (isAppsScript()) server('getData', [], render, function(){ render(defaults()); toast('Data server gagal dimuat. Data lokal ditampilkan.','error'); });
